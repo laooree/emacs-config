@@ -1,0 +1,774 @@
+#+title: laooree's Emacs Configuration
+#+author: laooree
+#+description: My emacs configuration, in org-mode
+#+startup: content
+#+auto_tangle: t
+
+This is my Emacs configuration, written in org-mode.
+
+* TODO in the future [0/1]:
+- [ ] Add a =org-dwim-at-point= similar to the one in [[https://github.com/doomemacs/doomemacs/blob/9e624b5dfe54b7d8523d55313c22a5ef54659540/modules/lang/org/autoload/org.el#L151][Doom Emacs]];
+  
+* Description
+
+My Emacs configuration is composed by:
+- =config.org=
+- =custom.el=
+The latter contains all the customizations that are made through the =M-x
+customize= interface, and the Emacs configuration is set to load it.
+
+The =config.org= file uses the =org-babel-tangle= feature to generate the
+following two files:
+- =early-init.el=
+- =init.el=
+This feature concatenates all the emacs-lisp source blocks that contain a
+=:tangle "filename.el"= specification in =filename.el=.
+
+** Dependencies
+
+This config is tested with =Emacs 29.4=, on Linux. It should work also on
+Windows, but it's not tested yet.
+
+The config requires:
+- =git=;
+- =libvterm=;
+- =FiraMono Nerd Font= font;
+- =FiraSans= font;
+- =Nerd Icons=, which can be installed running =M-x nerd-icons-install-fonts=.
+
+** Instructions
+
+For the first installation, it's necessary to visit the =config.org= file and
+execute =org-babel-tangle= command (=C-c C-v t=). The next times, the tangling
+happens automatically every time the the =config-org= file is saved, thanks to
+the [[https://github.com/yilkalargaw/org-auto-tangle][org-auto-tangle]] package.
+
+* Early initialization
+
+Based on Nicolas Rougier's [[https://github.com/rougier/dotemacs/blob/master/dotemacs.org][early-init file]]. It disables garbage collection at
+startup and enables it afterwards.  Most importantly, it disables =package.el=,
+as =Elpaca= is used instead.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+
+  (setq
+   gc-cons-threshold most-positive-fixnum    ; Very large threshold for garbage
+                                             ; collector during init
+   package-enable-at-startup nil)            ; We'll use straight.el
+
+  (setq native-comp-eln-load-path
+        (list (expand-file-name "eln-cache" user-emacs-directory)))
+
+  ;; Reset garbage collector limit after init process has ended (8Mo)
+  (add-hook 'after-init-hook
+            #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
+
+#+end_src
+
+* Package manager: Elpaca
+
+Bootstrap code for =Elpaca=.
+
+#+begin_src emacs-lisp :tangle "init.el" 
+  (defvar elpaca-installer-version 0.10)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1 :inherit ignore
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (<= emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+#+end_src
+
+Set up =Elpaca= integration with =use-package=.
+
+#+begin_src emacs-lisp :tangle "init.el"
+;; Install use-package support
+(elpaca elpaca-use-package
+  ;; Enable use-package :ensure support for Elpaca.
+  (elpaca-use-package-mode))
+#+end_src
+
+* Tweak built-in options:
+
+#+begin_src emacs-lisp :tangle "init.el"
+
+  ;; Set different file for M-x customize interface
+  (setq custom-file (locate-user-emacs-file "custom.el"))
+  (load custom-file :no-error-if-file-is-missing)
+
+  ;; Easily visit recent files
+  (recentf-mode 1)
+
+  ;; Wrap lines and set fill-column width
+  (setq-default fill-column 80)
+  (global-visual-line-mode 1)
+
+  ;; Warn when try to open a file bigger than 100MB
+  (setq large-file-warning-threshold 100000000)
+
+  ;; Accept y or n as yes or no
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+
+  ;;Require files to end with a newline.
+  (setq require-final-newline t)
+
+  ;; Backups and autosaves location
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t)))
+
+  ;; Automatically revert buffers
+  (global-auto-revert-mode t)
+
+  ;; Scroll one line at time
+  (setq-default scroll-conservatively 10000
+                scroll-step 1
+                scroll-margin 5)
+ #+end_src
+
+* Completions
+
+** Vertico
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package vertico
+    :ensure (vertico :files (:defaults "extensions/*")
+                     :includes (vertico-mouse
+                                vertico-directory))
+    :config (vertico-mode))
+
+  ;;Enable mouse integration
+  (use-package vertico-mouse
+    :after (vertico)
+    :ensure nil
+    :config (vertico-mouse-mode))
+
+  ;; Faster navigation in vertico minibuffer
+  (use-package vertico-directory
+    :after (vertico)
+    :ensure nil
+    :bind (:map vertico-map
+                ("RET" . vertico-directory-enter)
+                ("DEL" . vertico-directory-delete-char)
+                ("M-DEL" . vertico-directory-delete-word)))
+
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package marginalia
+    :ensure t
+    :defer t
+    :init (marginalia-mode))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package orderless
+    :ensure t
+    :defer t
+    :init
+    (setq completion-styles '(orderless basic)
+          completion-category-defaults nil
+          completion-category-overrides nil
+          read-file-name-completion-ignore-case t
+          read-buffer-completion-ignore-case t
+          completion-ignore-case t
+          orderless-matching-styles '(orderless-literal
+                                      orderless-regexp)))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package consult
+    :ensure t
+    :defer t)
+#+end_src
+
+** Corfu
+
+#+begin_src emacs-lisp :tangle "init.el"
+
+  (use-package corfu
+    :ensure t
+    :after (eldoc)
+
+    :custom
+    (corfu-cycle t) ;; Enable cycling through candidates
+    (corfu-auto t)  ;; Automatically pop-up
+    (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
+    (corfu-auto-delay 0.5) ;; Wait half a second before pop-up
+    (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
+    (corfu-preview-current 'insert) ;; Do not preview candidates in buffer
+
+    :init
+    (global-corfu-mode) ;; Enable corfu everywhere
+    (corfu-history-mode) ;; Save completion history
+    )
+
+#+end_src
+
+** which-key
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-setup-minibuffer)
+    (which-key-mode))
+#+end_src
+
+** yasnippet
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Install yasnippet
+  (use-package yasnippet
+    :ensure t
+    :defer t
+    :config
+    (yas-reload-all)
+    :hook
+    (prog-mode . yas-minor-mode))
+
+  ;; Install official yasnippet snippets
+  (use-package yasnippet-snippets
+    :ensure t)
+#+end_src
+
+* Appearance
+
+** Bars
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Disable
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  
+  (when (not (display-graphic-p))
+    (menu-bar-mode -1)) ;; This is useful!
+
+  ;; Set title bar
+  (setq frame-title-format "GNU Emacs")
+  #+end_src
+
+** Initial messages
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq inhibit-startup-message t) 
+  ;; (setq initial-scratch-message nil)
+
+  ;; Prevent compilation warnings to pop-up
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+                 (display-buffer-no-window)
+                 (allow-no-window . t)))
+#+end_src
+
+** Fonts
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (let ((mono-spaced-font "FiraMono Nerd Font")
+        (proportionately-spaced-font "FiraSans"))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 120)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
+    (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.20))
+#+end_src
+
+** Theme
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package doom-themes
+    :ensure t
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-nord t))
+#+end_src
+
+** Nerd icons
+
+Install and use nerd-icons.
+
+#+begin_src emacs-lisp :tangle "init.el" 
+  (use-package nerd-icons
+    :defer t
+    :ensure t)
+
+  (use-package nerd-icons-completion
+    :ensure t
+    :after (marginalia)
+    :config
+    (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+  (use-package nerd-icons-corfu
+    :ensure t
+    :after (corfu)
+    :config
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+  (use-package nerd-icons-dired
+    :ensure t
+    :defer t
+    :hook
+    (dired-mode . nerd-icons-dired-mode))
+#+end_src
+
+** Line numbers
+
+Show the line numbers on the left of the buffer window. Set the line numbers to
+relative: this is more convenient for me, using =evil-mode=.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+#+end_src
+
+** Bell
+
+Disables the =ring-bell-function=.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq-default visible-bell nil             ; No visual bell      
+                ring-bell-function 'ignore)  ; No bell
+#+end_src
+
+** Mode-line
+
+#+begin_src  emacs-lisp :tangle "init.el"
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1))
+#+end_src
+
+** Keycast
+
+Keycast displays keybindings you type. It's not enabled by default.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package keycast
+    :ensure t
+    :defer t
+    :init
+    (setq keycast-substitute-alist
+          '((self-insert-command . nil)
+            (vterm--self-insert . nil)
+            (keyboard-quit . "C-g")
+            (execute-extended-command . "M-x"))))
+#+end_src
+
+** Rainbow csv
+
+Paint each column in =.csv= files with different colors.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package rainbow-csv
+    :ensure (rainbow-csv :host github :repo "emacs-vs/rainbow-csv")
+    :defer t
+    :config
+    (add-hook 'csv-mode-hook #'rainbow-csv-mode)
+    (add-hook 'tsv-mode-hook #'rainbow-csv-mode))
+#+end_src
+
+** Rainbow delimiters
+
+Paint delimiters with colors based on the nesting level. Super useful with lisp,
+very useful everywhere else.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package rainbow-delimiters
+    :ensure t
+    :defer t
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+** Rainbow mode
+
+Rainbow mode colorizes color names in buffers. Disabled by default.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package rainbow-mode
+    :ensure t
+    :defer t)
+#+end_src
+
+** Spacious padding
+
+Increase spacing between Emacs windows elements.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package spacious-padding
+    :ensure t
+    :if (display-graphic-p) ;; Load only outside terminal
+    :init (setq spacious-padding-widths
+  	'( :internal-border-width 15
+  	   :header-line-width 4
+  	   :mode-line-width 6
+  	   :tab-width 4
+  	   :right-divider-width 30
+  	   :scroll-bar-width 8
+  	   :fringe-width 8))
+    :config
+    (spacious-padding-mode 1))
+#+end_src
+
+* AI
+** Copilot
+
+copilot.el allows to interact with Github's copilot.
+
+#+begin_src emacs-lisp :tangle "init.el" 
+  ;; Dependencies
+  (use-package editorconfig
+    :ensure t
+    :defer t)
+  (use-package jsonrpc
+    :ensure t
+    :defer t)
+
+  ;;Install and configure copilot
+  (use-package copilot
+    :ensure (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+    :defer t
+    
+    :config
+    (add-to-list 'copilot-major-mode-alist '("LaTeX-mode" . "latex"))
+    (add-to-list 'copilot-indentation-alist '(prog-mode . 2))
+    (add-to-list 'copilot-indentation-alist '(matlab-mode . 2))
+    (add-to-list 'copilot-indentation-alist '(python-mode . 2))
+    (add-to-list 'copilot-indentation-alist '(LaTeX-mode . 2))
+    (add-to-list 'copilot-indentation-alist '(org-mode . 2))
+    (add-to-list 'copilot-indentation-alist '(text-mode . 2))
+    (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode . 2))
+
+    :bind (:map copilot-completion-map
+                ("<tab>" . copilot-accept-completion)
+                ("TAB" . copilot-accept-completion)
+                ("C-<tab>" . 'copilot-accept-completion-by-word)
+                ("C-TAB" . 'copilot-accept-completion-by-word)))
+#+end_src
+
+* Dired
+
+Tweak =dired=. Options should be self-explanatory.
+
+#+begin_src emacs-lisp :tangle "init.el" 
+  (use-package dired
+    :ensure nil
+    :commands (dired)
+    :hook
+    ((dired-mode . dired-hide-details-mode)
+     (dired-mode . hl-line-mode))
+    :config
+    (setq dired-recursive-copies 'always)
+    (setq dired-recursive-deletes 'always)
+    (setq delete-by-moving-to-trash t)
+    (setq dired-kill-when-opening-new-dired-buffer t)
+    (setq dired-dwim-target t))
+#+end_src
+
+The =dired-subtree= allows to expand folders using =TAB= key.
+
+#+begin_src emacs-lisp "init.el"
+  (use-package dired-subtree
+    :ensure t
+    :after (dired)
+    :bind
+    ( :map dired-mode-map
+      ("<tab>" . dired-subtree-toggle)
+      ("TAB" . dired-subtree-toggle)
+      ("<backtab>" . dired-subtree-remove)
+      ("S-TAB" . dired-subtree-remove))
+    :config
+    (setq dired-subtree-use-backgrounds nil))
+#+end_src
+
+* vterm
+
+=vterm= is not available on windows.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (when (not (eq system-type 'windows-nt))
+    (use-package vterm
+      :ensure t
+      :defer t))
+#+end_src
+
+* Org-mode
+  
+Install latest org-mode.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org
+    :ensure t
+    :defer t)
+#+end_src
+
+** org-auto-tangle
+
+This package allows to automatically tangle =org= files when they are
+saved. When the minor mode is active, it is sufficient to add =#+auto_tangle: t=
+in the org file for which you want auto tangling.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-auto-tangle
+    :ensure t
+    :defer t
+    :hook (org-mode . org-auto-tangle-mode))
+#+end_src
+
+** Prettify org-mode
+
+Open org-files showing indented headings by default.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq org-startup-indented t)
+#+end_src
+
+Prettify markers and bullets:
+
+#+begin_src emacs-lisp :tangle "init.el" 
+  ;; Use nice bullets for org-mode headers
+  (use-package org-bullets
+    :ensure t
+    :after (org)
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  ;; Replace "-" in lists with a centered dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+#+end_src
+
+Set variable pitch fonts in emacs org mode, except some parts of it:
+
+#+begin_src emacs-lisp :tangle "init.el" 
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (variable-pitch-mode 1)                ;; Enable variable-pitch-mode
+              (display-fill-column-indicator-mode 0) ;; Disable fill-column indicator
+              (display-line-numbers-mode 0)))        ;; Disable line numbers
+
+    (custom-set-faces
+     '(org-block ((t (:inherit fixed-pitch))))
+     '(org-code ((t (:inherit fixed-pitch))))
+     '(org-table ((t (:inherit fixed-pitch))))
+     '(org-verbatim ((t (:inherit fixed-pitch))))
+     '(org-meta-line ((t (:inherit fixed-pitch))))
+     '(org-checkbox ((t (:inherit fixed-pitch))))
+     )
+#+end_src
+
+** Agenda files
+
+Set in which files the org agenda should look for tasks.
+
+#+begin_src emacs-lisp :tangle "init.el"
+      (setq org-agenda-files (list "~/pCloudDrive/org/agenda.org"
+                                   "~/pCloudDrive/org/todo.org"
+                                   "~/pCloudDrive/org/inbox.org"
+                                   "~/pCloudDrive/org/gcal.org"
+                                   ))
+#+end_src
+
+** Org capture
+
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/pCloudDrive/org/todo.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+datetree "~/pCloudDrive/org/journal.org")
+           "* %?\nEntered on %U\n  %i\n  %a"))) 
+#+end_src
+
+* Documents
+** pdf-tools
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package pdf-tools
+    :ensure t
+    :defer t
+    :config
+    (pdf-tools-install)
+    (setq-default pdf-view-display-size 'fit-width)
+    (setq pdf-view-use-scaling nil))
+#+end_src
+
+* Git
+** Magit
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Make sure transient is up to date
+  (use-package transient
+    :ensure t
+    :defer t)
+
+  ;; Install magit
+  (use-package magit
+    :ensure t
+    :defer t)
+#+end_src
+
+* Programming
+
+** Indentation
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq-default indent-tabs-mode nil        ;; Stop using tabs to indent
+                tab-always-indent 'complete ;; Indent first then try completions
+                tab-width 2)                ;; Set 2 as tab width
+  (setq indent-line-function 'insert-tab)
+#+end_src
+
+** Load languages in org-babel
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (add-hook 'org-mode-hook (lambda ()
+                             (org-babel-do-load-languages
+                              'org-babel-load-languages
+                              '(
+                                (emacs-lisp . t)
+                                (python . t)
+                                (matlab . t)
+                                ))))
+#+end_src
+
+** LSP
+
+This block ensure that =eldoc= and =eglot= are updated to the latest
+release. The code is a bit weird, it's to solve [[https://github.com/progfolio/elpaca/issues/398][this]] issue.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Ensure eldoc is up to date:
+  ;; Avoid eldoc loading before Elpaca updates it
+  (unload-feature 'eldoc t)
+  (setq custom-delayed-init-variables '())
+  (defvar global-eldoc-mode nil)
+  ;; Update it and re-enable it
+  (elpaca eldoc
+    (require 'eldoc)
+    (global-eldoc-mode))
+
+  ;; Update eglot to latest version
+  (use-package eglot
+    :ensure t
+    :defer t)
+#+end_src
+
+** Matlab
+
+Install and configure Matlab mode:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package matlab-mode
+    :ensure t
+    :defer t
+    :init (setq matlab-indent-level 2  ;; Set indentation level to 2
+                matlab-indent-function-body t) ;; Indent function bodies
+    :hook
+    (matlab-shell-mode . evil-emacs-state)
+  )
+#+end_src
+
+** Latex
+
+#+begin_src emacs-lisp :tangle "init.el"
+    (use-package auctex
+      :ensure t
+      :defer t
+      :hook
+      (LaTeX-mode . outline-minor-mode) ;; enable code folding
+      (LaTeX-mode . display-line-numbers-mode) ;; display line numbers
+      (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
+      :config
+      (define-key LaTeX-mode-map (kbd "<C-tab>") 'outline-toggle-children))
+#+end_src
+
+** Python
+
+Let Emacs guess Python indentation silently.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq python-indent-guess-indent-offset t
+        python-indent-guess-indent-offset-verbose nil)
+#+end_src
+
+* Custom functions
+
+This section defines custom functions.
+
+** my/keyboard-quit-dwim
+
+This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configuration/#h:e5e7b781-4b04-4c53-bf23-5e81789549ce][Protesilaos]]. 
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (defun my/keyboard-quit-dwim ()
+    "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+  The generic `keyboard-quit' does not do the expected thing when
+  the minibuffer is open.  Whereas we want it to close the
+  minibuffer, even without explicitly focusing it.
+
+  The DWIM behaviour of this command is as follows:
+
+  - When the region is active, disable it.
+  - When a minibuffer is open, but not focused, close the minibuffer.
+  - When the Completions buffer is selected, close it.
+  - In every other case use the regular `keyboard-quit'."
+    (interactive)
+    (cond
+     ((region-active-p)
+      (keyboard-quit))
+     ((derived-mode-p 'completion-list-mode)
+      (delete-completion-window))
+     ((> (minibuffer-depth) 0)
+      (abort-recursive-edit))
+     (t
+      (keyboard-quit))))
+#+end_src
+
+* Keybindings
+
+** Generic
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
+#+end_src
+
