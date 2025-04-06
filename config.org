@@ -710,15 +710,16 @@ Install and configure Matlab mode:
 ** Latex
 
 #+begin_src emacs-lisp :tangle "init.el"
-    (use-package auctex
-      :ensure t
-      :defer t
-      :hook
-      (LaTeX-mode . outline-minor-mode) ;; enable code folding
-      (LaTeX-mode . display-line-numbers-mode) ;; display line numbers
-      (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
-      :config
-      (define-key LaTeX-mode-map (kbd "<C-tab>") 'outline-toggle-children))
+  (use-package auctex
+    :ensure t
+    :defer t
+    :hook
+    (LaTeX-mode . outline-minor-mode) ;; enable code folding
+    (LaTeX-mode . display-line-numbers-mode) ;; display line numbers
+    (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
+    (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
+    :config
+    (define-key LaTeX-mode-map (kbd "<C-tab>") 'outline-toggle-children))
 #+end_src
 
 ** Python
