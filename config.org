@@ -308,6 +308,8 @@ Set up =Elpaca= integration with =use-package=.
     (set-face-attribute 'default nil :family mono-spaced-font :height 120)
     (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
     (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.20))
+
+  (setq-default cursor-type '(bar . 2))
 #+end_src
 
 ** Theme
