@@ -702,8 +702,6 @@ Install and configure Matlab mode:
     :defer t
     :init (setq matlab-indent-level 2  ;; Set indentation level to 2
                 matlab-indent-function-body t) ;; Indent function bodies
-    :hook
-    (matlab-shell-mode . evil-emacs-state)
   )
 #+end_src
 
