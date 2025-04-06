@@ -227,7 +227,6 @@ Set up =Elpaca= integration with =use-package=.
 
   (use-package corfu
     :ensure t
-    :after (eldoc)
 
     :custom
     (corfu-cycle t) ;; Enable cycling through candidates
@@ -731,6 +730,12 @@ Let Emacs guess Python indentation silently.
         python-indent-guess-indent-offset-verbose nil)
 #+end_src
 
+** Julia
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package julia-mode
+    :ensure t)
+#+end_src
 * Custom functions
 
 This section defines custom functions.
