@@ -764,6 +764,16 @@
    `(whitespace-space-before-tab ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-tab              ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-trailing         ((t (:foreground ,everforest-hard-dark-silver))))
+
+   ;;vterm
+   `(vterm-color-black   ((t (:foreground ,everforest-hard-dark-black))))
+   `(vterm-color-red     ((t (:foreground ,everforest-hard-dark-red))))
+   `(vterm-color-green   ((t (:foreground ,everforest-hard-dark-green))))
+   `(vterm-color-yellow  ((t (:foreground ,everforest-hard-dark-yellow))))
+   `(vterm-color-blue    ((t (:foreground ,everforest-hard-dark-blue))))
+   `(vterm-color-magenta ((t (:foreground ,everforest-hard-dark-magenta))))
+   `(vterm-color-cyan    ((t (:foreground ,everforest-hard-dark-cyan))))
+   `(vterm-color-white   ((t (:foreground ,everforest-hard-dark-mono-1))))
    ))
 
 (everforest-hard-dark-with-color-variables
