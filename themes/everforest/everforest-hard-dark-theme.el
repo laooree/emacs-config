@@ -771,7 +771,7 @@
    `(vterm-color-green   ((t (:foreground ,everforest-hard-dark-green))))
    `(vterm-color-yellow  ((t (:foreground ,everforest-hard-dark-yellow))))
    `(vterm-color-blue    ((t (:foreground ,everforest-hard-dark-blue))))
-   `(vterm-color-magenta ((t (:foreground ,everforest-hard-dark-magenta))))
+   `(vterm-color-magenta ((t (:foreground ,everforest-hard-dark-purple))))
    `(vterm-color-cyan    ((t (:foreground ,everforest-hard-dark-cyan))))
    `(vterm-color-white   ((t (:foreground ,everforest-hard-dark-mono-1))))
    ))
