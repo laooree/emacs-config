@@ -31,7 +31,8 @@
   "Everforest Hard Dark - sainnhe/everforest hard dark port to emacs")
 
 (defvar everforest-hard-dark-colors-alist
-  (let ((colors `(("everforest-hard-dark-accent"   . "#a7c080")
+  (let ((colors `(
+      ("everforest-hard-dark-accent"   . "#a7c080")
 		  ("everforest-hard-dark-fg"       . "#d3c6aa")
 		  ("everforest-hard-dark-bg"       . "#2b3339")
 		  ("everforest-hard-dark-bg-1"     . "#323c41")
@@ -51,7 +52,8 @@
 		  ("everforest-hard-dark-silver"   . "#9da9a0")
 		  ("everforest-hard-dark-black"    . "#2b3339")
 		  ("everforest-hard-dark-border"   . "#445055")
-		  ("everforest-hard-dark-visual"   . "#323c41"))))
+		  ("everforest-hard-dark-visual"   . "#323c41")
+      )))
     colors)
   "List of Everforest Hard Dark Colors.")
 
@@ -162,6 +164,7 @@
    `(company-template-field               ((t (:inherit highlight))))
 
    ;; doom-modeline
+   `(doom-modeline ((t (:background ,everforest-hard-dark-bg-1))))
    `(doom-modeline-bar ((t (:background ,everforest-hard-dark-accent))))
 
    ;; flyspell
