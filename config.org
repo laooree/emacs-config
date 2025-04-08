@@ -666,22 +666,26 @@ Set in which files the org agenda should look for tasks.
                                 ))))
 #+end_src
 
+** tree-sitter
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package tree-sitter
+    :ensure t
+    :hook ((prog-mode . tree-sitter-mode)
+           (LaTeX-mode . tree-sitter-mode)
+           (tree-sitter-after-on . tree-sitter-hl-mode)))
+
+  (use-package tree-sitter-langs
+    :ensure t
+    :after tree-sitter)
+#+end_src
+
 ** LSP
 
 This block ensure that =eldoc= and =eglot= are updated to the latest
 release. The code is a bit weird, it's to solve [[https://github.com/progfolio/elpaca/issues/398][this]] issue.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Ensure eldoc is up to date:
-  ;; Avoid eldoc loading before Elpaca updates it
-  (unload-feature 'eldoc t)
-  (setq custom-delayed-init-variables '())
-  (defvar global-eldoc-mode nil)
-  ;; Update it and re-enable it
-  (elpaca eldoc
-    (require 'eldoc)
-    (global-eldoc-mode))
-
   ;; Update eglot to latest version
   (use-package eglot
     :ensure t
