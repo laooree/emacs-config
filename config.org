@@ -7,6 +7,7 @@
 This is my Emacs configuration, written in org-mode.
 
 * TODO in the future [0/1]:
+- [ ] Completion annotations face;
 - [ ] Add a =org-dwim-at-point= similar to the one in [[https://github.com/doomemacs/doomemacs/blob/9e624b5dfe54b7d8523d55313c22a5ef54659540/modules/lang/org/autoload/org.el#L151][Doom Emacs]];
   
 * Description
@@ -159,119 +160,62 @@ Set up =Elpaca= integration with =use-package=.
                 scroll-margin 5)
  #+end_src
 
-* Completions
-
-** Vertico
+* Evil
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package vertico
-    :ensure (vertico :files (:defaults "extensions/*")
-                     :includes (vertico-mouse
-                                vertico-directory))
-    :config (vertico-mode))
 
-  ;;Enable mouse integration
-  (use-package vertico-mouse
-    :after (vertico)
-    :ensure nil
-    :config (vertico-mouse-mode))
-
-  ;; Faster navigation in vertico minibuffer
-  (use-package vertico-directory
-    :after (vertico)
-    :ensure nil
-    :bind (:map vertico-map
-                ("RET" . vertico-directory-enter)
-                ("DEL" . vertico-directory-delete-char)
-                ("M-DEL" . vertico-directory-delete-word)))
-
-#+end_src
-
-** Marginalia
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package marginalia
+  (use-package evil
     :ensure t
-    :defer t
-    :init (marginalia-mode))
-#+end_src
-
-** Orderless
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package orderless
-    :ensure t
-    :defer t
-    :init
-    (setq completion-styles '(orderless basic)
-          completion-category-defaults nil
-          completion-category-overrides nil
-          read-file-name-completion-ignore-case t
-          read-buffer-completion-ignore-case t
-          completion-ignore-case t
-          orderless-matching-styles '(orderless-literal
-                                      orderless-regexp)))
-#+end_src
-
-** Consult
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package consult
-    :ensure t
-    :defer t)
-#+end_src
-
-** Corfu
-
-#+begin_src emacs-lisp :tangle "init.el"
-
-  (use-package corfu
-    :ensure t
-
-    :custom
-    (corfu-cycle t) ;; Enable cycling through candidates
-    (corfu-auto t)  ;; Automatically pop-up
-    (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
-    (corfu-auto-delay 0.5) ;; Wait half a second before pop-up
-    (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
-    (corfu-preview-current 'insert) ;; Do not preview candidates in buffer
+    :demand t
 
     :init
-    (global-corfu-mode) ;; Enable corfu everywhere
-    (corfu-history-mode) ;; Save completion history
-    )
+    (setq evil-want-fine-undo t)
+    ;; Required by evil collection
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+
+    :config
+    (evil-mode 1))
+
+  ;; Evil collection
+  (use-package evil-collection
+    :after evil
+    :ensure t
+    :config
+    (evil-collection-init))
+
+  ;; Evil numbers
+  (use-package evil-numbers
+    :ensure t
+    :after evil
+
+    :config
+    (define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
+    (define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt))
 
 #+end_src
 
-** which-key
+* Themes and fonts
+** Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package which-key
-    :ensure t
-    :config
-    (which-key-setup-minibuffer)
-    (which-key-mode))
+  (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
+  (load-theme 'everforest-hard-dark t)
 #+end_src
 
-** yasnippet
+** Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Install yasnippet
-  (use-package yasnippet
-    :ensure t
-    :defer t
-    :config
-    (yas-reload-all)
-    :hook
-    (prog-mode . yas-minor-mode))
+  (let ((mono-spaced-font "FiraMono Nerd Font")
+        (proportionately-spaced-font "FiraSans"))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 120)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
+    (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.20))
 
-  ;; Install official yasnippet snippets
-  (use-package yasnippet-snippets
-    :ensure t)
+  (setq-default cursor-type '(bar . 2))
 #+end_src
 
 * Appearance
-
 ** Bars
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -297,25 +241,6 @@ Set up =Elpaca= integration with =use-package=.
                '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
                  (display-buffer-no-window)
                  (allow-no-window . t)))
-#+end_src
-
-** Fonts
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (let ((mono-spaced-font "FiraMono Nerd Font")
-        (proportionately-spaced-font "FiraSans"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 120)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
-    (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.20))
-
-  (setq-default cursor-type '(bar . 2))
-#+end_src
-
-** Theme
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
-  (load-theme 'everforest-hard-dark t)
 #+end_src
 
 ** Nerd icons
@@ -441,6 +366,117 @@ Increase spacing between Emacs windows elements.
   	   :fringe-width 8))
     :config
     (spacious-padding-mode 1))
+#+end_src
+
+* Completions
+
+** Vertico
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package vertico
+    :ensure (vertico :files (:defaults "extensions/*")
+                     :includes (vertico-mouse
+                                vertico-directory))
+    :config (vertico-mode))
+
+  ;;Enable mouse integration
+  (use-package vertico-mouse
+    :after (vertico)
+    :ensure nil
+    :config (vertico-mouse-mode))
+
+  ;; Faster navigation in vertico minibuffer
+  (use-package vertico-directory
+    :after (vertico)
+    :ensure nil
+    :bind (:map vertico-map
+                ("RET" . vertico-directory-enter)
+                ("DEL" . vertico-directory-delete-char)
+                ("M-DEL" . vertico-directory-delete-word)))
+
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package marginalia
+    :ensure t
+    :defer t
+    :init (marginalia-mode))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package orderless
+    :ensure t
+    :defer t
+    :init
+    (setq completion-styles '(orderless basic)
+          completion-category-defaults nil
+          completion-category-overrides nil
+          read-file-name-completion-ignore-case t
+          read-buffer-completion-ignore-case t
+          completion-ignore-case t
+          orderless-matching-styles '(orderless-literal
+                                      orderless-regexp)))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package consult
+    :ensure t
+    :defer t)
+#+end_src
+
+** Corfu
+
+#+begin_src emacs-lisp :tangle "init.el"
+
+  (use-package corfu
+    :ensure t
+
+    :custom
+    (corfu-cycle t) ;; Enable cycling through candidates
+    (corfu-auto t)  ;; Automatically pop-up
+    (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
+    (corfu-auto-delay 0.5) ;; Wait half a second before pop-up
+    (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
+    (corfu-preview-current 'insert) ;; Do not preview candidates in buffer
+
+    :init
+    (global-corfu-mode) ;; Enable corfu everywhere
+    (corfu-history-mode) ;; Save completion history
+    )
+
+#+end_src
+
+** which-key
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-setup-minibuffer)
+    (which-key-mode))
+#+end_src
+
+** yasnippet
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Install yasnippet
+  (use-package yasnippet
+    :ensure t
+    :defer t
+    :config
+    (yas-reload-all)
+    :hook
+    (prog-mode . yas-minor-mode))
+
+  ;; Install official yasnippet snippets
+  (use-package yasnippet-snippets
+    :ensure t)
 #+end_src
 
 * AI
@@ -682,8 +718,7 @@ Set in which files the org agenda should look for tasks.
 
 ** LSP
 
-This block ensure that =eldoc= and =eglot= are updated to the latest
-release. The code is a bit weird, it's to solve [[https://github.com/progfolio/elpaca/issues/398][this]] issue.
+This block ensures that =eglot= is updated to the latest release.
 
 #+begin_src emacs-lisp :tangle "init.el"
   ;; Update eglot to latest version
