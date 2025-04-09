@@ -768,7 +768,10 @@
    `(whitespace-tab              ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-trailing         ((t (:foreground ,everforest-hard-dark-silver))))
 
-   ;;vterm
+   ;; vertico
+   `(completions-annotations ((t (:foreground ,everforest-hard-dark-mono-3))))
+   
+   ;; vterm
    `(vterm-color-black   ((t (:foreground ,everforest-hard-dark-black))))
    `(vterm-color-red     ((t (:foreground ,everforest-hard-dark-red))))
    `(vterm-color-green   ((t (:foreground ,everforest-hard-dark-green))))
