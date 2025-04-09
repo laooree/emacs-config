@@ -558,7 +558,11 @@ The =dired-subtree= allows to expand folders using =TAB= key.
   (when (not (eq system-type 'windows-nt))
     (use-package vterm
       :ensure t
-      :defer t))
+      :defer t
+
+      :config
+      (evil-set-initial-state 'vterm-mode 'emacs)
+      ))
 #+end_src
 
 * Org-mode
