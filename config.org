@@ -193,6 +193,8 @@ Set up =Elpaca= integration with =use-package=.
     (define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
     (define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt))
 
+  (elpaca-wait)
+
 #+end_src
 
 * Themes and fonts
@@ -741,6 +743,8 @@ Install and configure Matlab mode:
     :defer t
     :init (setq matlab-indent-level 2  ;; Set indentation level to 2
                 matlab-indent-function-body t) ;; Indent function bodies
+    :config
+    (evil-set-initial-state 'matlab-shell-mode 'emacs)
   )
 #+end_src
 
