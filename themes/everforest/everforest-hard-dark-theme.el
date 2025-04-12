@@ -34,12 +34,13 @@
   (let ((colors `(
       ("everforest-hard-dark-accent"   . "#a7c080")
 		  ("everforest-hard-dark-fg"       . "#d3c6aa")
-		  ("everforest-hard-dark-bg"       . "#2b3339")
-		  ("everforest-hard-dark-bg-1"     . "#323c41")
-		  ("everforest-hard-dark-bg-hl"    . "#3a454a")
-		  ("everforest-hard-dark-gutter"   . "#445055")
+		  ("everforest-hard-dark-bg-dim"   . "#1e2326")
+		  ("everforest-hard-dark-bg0"      . "#272e33")
+		  ("everforest-hard-dark-bg1"      . "#2e383c")
+		  ("everforest-hard-dark-bg2"      . "#374145") ;; highlight
+		  ("everforest-hard-dark-gutter"   . "#495156")
 		  ("everforest-hard-dark-mono-1"   . "#abb2bf")
-		  ("everforest-hard-dark-mono-2"   . "#503946")
+		  ("everforest-hard-dark-mono-2"   . "#493b40")
 		  ("everforest-hard-dark-mono-3"   . "#859289")
 		  ("everforest-hard-dark-cyan"     . "#83c092")
 		  ("everforest-hard-dark-blue"     . "#7fbbb3")
@@ -48,11 +49,11 @@
 		  ("everforest-hard-dark-red"      . "#e67e80")
 		  ("everforest-hard-dark-orange"   . "#e69875")
 		  ("everforest-hard-dark-yellow"   . "#ddbc7f")
-		  ("everforest-hard-dark-gray"     . "#323c41")
+		  ("everforest-hard-dark-gray"     . "#374145")
 		  ("everforest-hard-dark-silver"   . "#9da9a0")
-		  ("everforest-hard-dark-black"    . "#2b3339")
-		  ("everforest-hard-dark-border"   . "#445055")
-		  ("everforest-hard-dark-visual"   . "#323c41")
+		  ("everforest-hard-dark-black"    . "#1e2326")
+		  ("everforest-hard-dark-border"   . "#495156")
+		  ("everforest-hard-dark-visual"   . "#374145")
       )))
     colors)
   "List of Everforest Hard Dark Colors.")
@@ -70,23 +71,23 @@
   (custom-theme-set-faces
    'everforest-hard-dark
 
-   `(default             ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg))))
+   `(default             ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg0))))
    `(success             ((t (:foreground ,everforest-hard-dark-green))))
    `(warning             ((t (:foreground ,everforest-hard-dark-yellow))))
    `(error               ((t (:foreground ,everforest-hard-dark-red :weight bold))))
    `(link                ((t (:foreground ,everforest-hard-dark-blue :underline t :weight bold))))
    `(link-visited        ((t (:foreground ,everforest-hard-dark-blue :underline t :weight normal))))
    `(cursor              ((t (:background ,everforest-hard-dark-fg))))
-   `(fringe              ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-silver))))
+   `(fringe              ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-silver))))
    `(region              ((t (:background ,everforest-hard-dark-gray :distant-foreground ,everforest-hard-dark-mono-2))))
    `(highlight           ((t (:background ,everforest-hard-dark-gray :distant-foreground ,everforest-hard-dark-mono-2))))
    `(hl-line             ((t (:background ,everforest-hard-dark-visual :distant-foreground nil))))
    `(header-line         ((t (:background ,everforest-hard-dark-black))))
    `(vertical-border     ((t (:background ,everforest-hard-dark-border :foreground ,everforest-hard-dark-border))))
-   `(secondary-selection ((t (:background ,everforest-hard-dark-bg-1))))
+   `(secondary-selection ((t (:background ,everforest-hard-dark-bg1))))
    `(query-replace       ((t (:inherit (isearch)))))
    `(minibuffer-prompt   ((t (:foreground ,everforest-hard-dark-blue))))
-   `(tooltip             ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg-1 :inherit variable-pitch))))
+   `(tooltip             ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg1 :inherit variable-pitch))))
 
    `(font-lock-builtin-face           ((t (:foreground ,everforest-hard-dark-cyan))))
    `(font-lock-comment-face           ((t (:foreground ,everforest-hard-dark-mono-3 :slant italic))))
@@ -111,7 +112,7 @@
    `(mode-line           ((t (:background ,everforest-hard-dark-visual :foreground ,everforest-hard-dark-silver))))
    `(mode-line-buffer-id ((t (:weight bold))))
    `(mode-line-emphasis  ((t (:weight bold))))
-   `(mode-line-inactive  ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-silver))))
+   `(mode-line-inactive  ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-silver))))
 
    ;; window-divider
    `(window-divider             ((t (:foreground ,everforest-hard-dark-border))))
@@ -130,8 +131,8 @@
    `(ido-virtual     ((t (:foreground ,everforest-hard-dark-mono-3))))
 
    ;; ace-jump
-   `(ace-jump-face-background ((t (:foreground ,everforest-hard-dark-mono-3 :background ,everforest-hard-dark-bg-1 :inverse-video nil))))
-   `(ace-jump-face-foreground ((t (:foreground ,everforest-hard-dark-red :background ,everforest-hard-dark-bg-1 :inverse-video nil))))
+   `(ace-jump-face-background ((t (:foreground ,everforest-hard-dark-mono-3 :background ,everforest-hard-dark-bg1 :inverse-video nil))))
+   `(ace-jump-face-foreground ((t (:foreground ,everforest-hard-dark-red :background ,everforest-hard-dark-bg1 :inverse-video nil))))
 
    ;; ace-window
    `(aw-background-face   ((t (:inherit font-lock-comment-face))))
@@ -139,9 +140,9 @@
 
    ;; centaur-tabs
    `(centaur-tabs-default           ((t (:background ,everforest-hard-dark-black :foreground ,everforest-hard-dark-black))))
-   `(centaur-tabs-selected          ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-fg :weight bold))))
+   `(centaur-tabs-selected          ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-fg :weight bold))))
    `(centaur-tabs-unselected        ((t (:background ,everforest-hard-dark-black :foreground ,everforest-hard-dark-fg :weight light))))
-   `(centaur-tabs-selected-modified ((t (:background ,everforest-hard-dark-bg
+   `(centaur-tabs-selected-modified ((t (:background ,everforest-hard-dark-bg0
 					 :foreground ,everforest-hard-dark-blue :weight bold))))
    `(centaur-tabs-unselected-modified ((t (:background ,everforest-hard-dark-black :weight light
 					   :foreground ,everforest-hard-dark-blue))))
@@ -157,14 +158,14 @@
    `(company-tooltip-mouse                ((t (:background ,everforest-hard-dark-gray))))
    `(company-tooltip-common               ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-gray))))
    `(company-tooltip-common-selection     ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-mono-3))))
-   `(company-preview                      ((t (:background ,everforest-hard-dark-bg))))
-   `(company-preview-common               ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-bg))))
+   `(company-preview                      ((t (:background ,everforest-hard-dark-bg0))))
+   `(company-preview-common               ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-bg0))))
    `(company-scrollbar-fg                 ((t (:background ,everforest-hard-dark-mono-1))))
    `(company-scrollbar-bg                 ((t (:background ,everforest-hard-dark-gray))))
    `(company-template-field               ((t (:inherit highlight))))
 
    ;; doom-modeline
-   `(doom-modeline ((t (:background ,everforest-hard-dark-bg-1))))
+   `(doom-modeline ((t (:background ,everforest-hard-dark-bg2))))
    `(doom-modeline-bar ((t (:background ,everforest-hard-dark-accent))))
 
    ;; flyspell
@@ -189,9 +190,9 @@
    `(compilation-mode-line-fail ((t (:inherit compilation-error :weight bold))))
 
    ;; isearch
-   `(isearch        ((t (:foreground ,everforest-hard-dark-bg :background ,everforest-hard-dark-purple))))
+   `(isearch        ((t (:foreground ,everforest-hard-dark-bg0 :background ,everforest-hard-dark-purple))))
    `(isearch-fail   ((t (:foreground ,everforest-hard-dark-red :background nil))))
-   `(lazy-highlight ((t (:foreground ,everforest-hard-dark-purple :background ,everforest-hard-dark-bg-1 :underline ,everforest-hard-dark-purple))))
+   `(lazy-highlight ((t (:foreground ,everforest-hard-dark-purple :background ,everforest-hard-dark-bg1 :underline ,everforest-hard-dark-purple))))
 
    ;; diff-hl (https://github.com/dgutov/diff-hl)
    '(diff-hl-change ((t (:foreground "#E9C062" :background "#8b733a"))))
@@ -221,19 +222,19 @@
 
    ;; helm
    `(helm-header ((t (:foreground ,everforest-hard-dark-mono-2
-		      :background ,everforest-hard-dark-bg
+		      :background ,everforest-hard-dark-bg0
 		      :underline nil
-		      :box (:line-width 6 :color ,everforest-hard-dark-bg)))))
+		      :box (:line-width 6 :color ,everforest-hard-dark-bg0)))))
    `(helm-source-header ((t (:foreground ,everforest-hard-dark-yellow
-			     :background ,everforest-hard-dark-bg
+			     :background ,everforest-hard-dark-bg0
 			     :underline nil
 			     :weight bold
-			     :box (:line-width 6 :color ,everforest-hard-dark-bg)))))
+			     :box (:line-width 6 :color ,everforest-hard-dark-bg0)))))
    `(helm-selection                    ((t (:background ,everforest-hard-dark-gray))))
    `(helm-selection-line               ((t (:background ,everforest-hard-dark-gray))))
-   `(helm-visible-mark                 ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-yellow))))
-   `(helm-candidate-number             ((t (:foreground ,everforest-hard-dark-green :background ,everforest-hard-dark-bg-1))))
-   `(helm-separator                    ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-red))))
+   `(helm-visible-mark                 ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-yellow))))
+   `(helm-candidate-number             ((t (:foreground ,everforest-hard-dark-green :background ,everforest-hard-dark-bg1))))
+   `(helm-separator                    ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-red))))
    `(helm-M-x-key                      ((t (:foreground ,everforest-hard-dark-orange))))
    `(helm-bookmark-addressbook         ((t (:foreground ,everforest-hard-dark-orange))))
    `(helm-bookmark-directory           ((t (:foreground nil :background nil :inherit helm-ff-directory))))
@@ -243,12 +244,12 @@
    `(helm-bookmark-man                 ((t (:foreground ,everforest-hard-dark-yellow))))
    `(helm-bookmark-w3m                 ((t (:foreground ,everforest-hard-dark-purple))))
    `(helm-match                        ((t (:foreground ,everforest-hard-dark-yellow))))
-   `(helm-ff-directory                 ((t (:foreground ,everforest-hard-dark-cyan :background ,everforest-hard-dark-bg :weight bold))))
-   `(helm-ff-file                      ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg :weight normal))))
-   `(helm-ff-executable                ((t (:foreground ,everforest-hard-dark-green :background ,everforest-hard-dark-bg :weight normal))))
-   `(helm-ff-invalid-symlink           ((t (:foreground ,everforest-hard-dark-red :background ,everforest-hard-dark-bg :weight bold))))
-   `(helm-ff-symlink                   ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-bg :weight bold))))
-   `(helm-ff-prefix                    ((t (:foreground ,everforest-hard-dark-bg :background ,everforest-hard-dark-yellow :weight normal))))
+   `(helm-ff-directory                 ((t (:foreground ,everforest-hard-dark-cyan :background ,everforest-hard-dark-bg0 :weight bold))))
+   `(helm-ff-file                      ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg0 :weight normal))))
+   `(helm-ff-executable                ((t (:foreground ,everforest-hard-dark-green :background ,everforest-hard-dark-bg0 :weight normal))))
+   `(helm-ff-invalid-symlink           ((t (:foreground ,everforest-hard-dark-red :background ,everforest-hard-dark-bg0 :weight bold))))
+   `(helm-ff-symlink                   ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-bg0 :weight bold))))
+   `(helm-ff-prefix                    ((t (:foreground ,everforest-hard-dark-bg0 :background ,everforest-hard-dark-yellow :weight normal))))
    `(helm-buffer-not-saved             ((t (:foreground ,everforest-hard-dark-red))))
    `(helm-buffer-process               ((t (:foreground ,everforest-hard-dark-mono-2))))
    `(helm-buffer-saved-out             ((t (:foreground ,everforest-hard-dark-fg))))
@@ -271,7 +272,7 @@
    `(ivy-current-match              ((t (:background ,everforest-hard-dark-gray :weight normal))))
    `(ivy-highlight-face             ((t (:inherit font-lock-builtin-face))))
    `(ivy-match-required-face        ((t (:inherit minibuffer-prompt :foreground ,everforest-hard-dark-red))))
-   `(ivy-minibuffer-match-face-1    ((t (:background ,everforest-hard-dark-bg-hl))))
+   `(ivy-minibuffer-match-face-1    ((t (:background ,everforest-hard-dark-bg2))))
    `(ivy-minibuffer-match-face-2    ((t (:inherit ivy-minibuffer-match-face-1 :background ,everforest-hard-dark-black :foreground ,everforest-hard-dark-purple :weight semi-bold))))
    `(ivy-minibuffer-match-face-3    ((t (:inherit ivy-minibuffer-match-face-2 :background ,everforest-hard-dark-black :foreground ,everforest-hard-dark-green :weight semi-bold))))
    `(ivy-minibuffer-match-face-4    ((t (:inherit ivy-minibuffer-match-face-2 :background ,everforest-hard-dark-black :foreground ,everforest-hard-dark-yellow :weight semi-bold))))
@@ -376,17 +377,17 @@
    `(ediff-odd-diff-C              ((t (:background "#181a1f"))))
 
    ;; magit
-   `(magit-section-highlight           ((t (:background ,everforest-hard-dark-bg-hl))))
+   `(magit-section-highlight           ((t (:background ,everforest-hard-dark-bg2))))
    `(magit-section-heading             ((t (:foreground ,everforest-hard-dark-yellow :weight bold))))
    `(magit-section-heading-selection   ((t (:foreground ,everforest-hard-dark-fg :weight bold))))
    `(magit-diff-file-heading           ((t (:weight bold))))
    `(magit-diff-file-heading-highlight ((t (:background ,everforest-hard-dark-gray :weight bold))))
-   `(magit-diff-file-heading-selection ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-bg-hl :weight bold))))
+   `(magit-diff-file-heading-selection ((t (:foreground ,everforest-hard-dark-yellow :background ,everforest-hard-dark-bg2 :weight bold))))
    `(magit-diff-hunk-heading           ((t (:foreground ,everforest-hard-dark-mono-2 :background ,everforest-hard-dark-gray))))
    `(magit-diff-hunk-heading-highlight ((t (:foreground ,everforest-hard-dark-mono-1 :background ,everforest-hard-dark-mono-3))))
    `(magit-diff-hunk-heading-selection ((t (:foreground ,everforest-hard-dark-purple :background ,everforest-hard-dark-mono-3))))
    `(magit-diff-context                ((t (:foreground ,everforest-hard-dark-fg))))
-   `(magit-diff-context-highlight      ((t (:background ,everforest-hard-dark-bg-1 :foreground ,everforest-hard-dark-fg))))
+   `(magit-diff-context-highlight      ((t (:background ,everforest-hard-dark-bg1 :foreground ,everforest-hard-dark-fg))))
    `(magit-diffstat-added              ((t (:foreground ,everforest-hard-dark-green))))
    `(magit-diffstat-removed            ((t (:foreground ,everforest-hard-dark-red))))
    `(magit-process-ok                  ((t (:foreground ,everforest-hard-dark-green))))
@@ -404,11 +405,11 @@
    `(magit-bisect-good                 ((t (:foreground ,everforest-hard-dark-green))))
    `(magit-bisect-skip                 ((t (:foreground ,everforest-hard-dark-orange))))
    `(magit-bisect-bad                  ((t (:foreground ,everforest-hard-dark-red))))
-   `(magit-blame-heading               ((t (:background ,everforest-hard-dark-bg-1 :foreground ,everforest-hard-dark-mono-2))))
-   `(magit-blame-hash                  ((t (:background ,everforest-hard-dark-bg-1 :foreground ,everforest-hard-dark-purple))))
-   `(magit-blame-name                  ((t (:background ,everforest-hard-dark-bg-1 :foreground ,everforest-hard-dark-yellow))))
-   `(magit-blame-date                  ((t (:background ,everforest-hard-dark-bg-1 :foreground ,everforest-hard-dark-mono-3))))
-   `(magit-blame-summary               ((t (:background ,everforest-hard-dark-bg-1 :foreground ,everforest-hard-dark-mono-2))))
+   `(magit-blame-heading               ((t (:background ,everforest-hard-dark-bg1 :foreground ,everforest-hard-dark-mono-2))))
+   `(magit-blame-hash                  ((t (:background ,everforest-hard-dark-bg1 :foreground ,everforest-hard-dark-purple))))
+   `(magit-blame-name                  ((t (:background ,everforest-hard-dark-bg1 :foreground ,everforest-hard-dark-yellow))))
+   `(magit-blame-date                  ((t (:background ,everforest-hard-dark-bg1 :foreground ,everforest-hard-dark-mono-3))))
+   `(magit-blame-summary               ((t (:background ,everforest-hard-dark-bg1 :foreground ,everforest-hard-dark-mono-2))))
    `(magit-dimmed                      ((t (:foreground ,everforest-hard-dark-mono-2))))
    `(magit-hash                        ((t (:foreground ,everforest-hard-dark-purple))))
    `(magit-tag                         ((t (:foreground ,everforest-hard-dark-orange :weight bold))))
@@ -416,9 +417,9 @@
    `(magit-branch-local                ((t (:foreground ,everforest-hard-dark-blue :weight bold))))
    `(magit-branch-current              ((t (:foreground ,everforest-hard-dark-blue :weight bold :box t))))
    `(magit-head                        ((t (:foreground ,everforest-hard-dark-blue :weight bold))))
-   `(magit-refname                     ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-fg :weight bold))))
-   `(magit-refname-stash               ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-fg :weight bold))))
-   `(magit-refname-wip                 ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-fg :weight bold))))
+   `(magit-refname                     ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-fg :weight bold))))
+   `(magit-refname-stash               ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-fg :weight bold))))
+   `(magit-refname-wip                 ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-fg :weight bold))))
    `(magit-signature-good              ((t (:foreground ,everforest-hard-dark-green))))
    `(magit-signature-bad               ((t (:foreground ,everforest-hard-dark-red))))
    `(magit-signature-untrusted         ((t (:foreground ,everforest-hard-dark-orange))))
@@ -479,15 +480,15 @@
 
    ;; calendar
    `(cfw:face-title                  ((t (:foreground ,everforest-hard-dark-green :weight bold))))
-   `(cfw:face-select                 ((t (:foreground ,everforest-hard-dark-bg :background ,everforest-hard-dark-fg))))
+   `(cfw:face-select                 ((t (:foreground ,everforest-hard-dark-bg0 :background ,everforest-hard-dark-fg))))
    `(cfw:face-header                 ((t (:foreground ,everforest-hard-dark-fg :weight bold))))
    `(cfw:face-sunday                 ((t (:foreground ,everforest-hard-dark-green :weight bold))))
    `(cfw:face-holiday                ((t (:foreground ,everforest-hard-dark-blue :weight bold))))
-   `(cfw:face-toolbar                ((t (:background ,everforest-hard-dark-bg))))
+   `(cfw:face-toolbar                ((t (:background ,everforest-hard-dark-bg0))))
    `(cfw:face-toolbar-button-on      ((t (:foreground ,everforest-hard-dark-fg :weight bold))))
    `(cfw:face-toolbar-button-off     ((t (:foreground ,everforest-hard-dark-silver :weight bold))))
-   `(cfw:face-day-title              ((t (:background ,everforest-hard-dark-bg))))
-   `(cfw:face-today-title            ((t (:foreground ,everforest-hard-dark-bg :background ,everforest-hard-dark-green))))
+   `(cfw:face-day-title              ((t (:background ,everforest-hard-dark-bg0))))
+   `(cfw:face-today-title            ((t (:foreground ,everforest-hard-dark-bg0 :background ,everforest-hard-dark-green))))
 
    ;; elfeed
    `(elfeed-log-debug-level-face      ((t (:background ,everforest-hard-dark-black :foreground ,everforest-hard-dark-green))))
@@ -505,10 +506,10 @@
    `(persp-selected-face ((t (:foreground ,everforest-hard-dark-blue))))
 
    ;; powerline
-   `(powerline-active1    ((,class (:background ,everforest-hard-dark-bg-hl :foreground ,everforest-hard-dark-purple))))
-   `(powerline-active2    ((,class (:background ,everforest-hard-dark-bg-hl :foreground ,everforest-hard-dark-purple))))
-   `(powerline-inactive1  ((,class (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-fg))))
-   `(powerline-inactive2  ((,class (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-fg))))
+   `(powerline-active1    ((,class (:background ,everforest-hard-dark-bg2 :foreground ,everforest-hard-dark-purple))))
+   `(powerline-active2    ((,class (:background ,everforest-hard-dark-bg2 :foreground ,everforest-hard-dark-purple))))
+   `(powerline-inactive1  ((,class (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-fg))))
+   `(powerline-inactive2  ((,class (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-fg))))
 
    ;; rainbow-delimiters
    `(rainbow-delimiters-depth-1-face    ((t (:foreground ,everforest-hard-dark-green))))
@@ -609,21 +610,21 @@
    ;; tabbar
    `(tabbar-default             ((,class (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-black))))
    `(tabbar-highlight           ((,class (:underline t))))
-   `(tabbar-button              ((,class (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg))))
+   `(tabbar-button              ((,class (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg0))))
    `(tabbar-button-highlight    ((,class (:inherit 'tabbar-button :inverse-video t))))
    `(tabbar-modified            ((,class (:inherit tabbar-button :foreground ,everforest-hard-dark-purple :weight light :slant italic))))
-   `(tabbar-unselected          ((,class (:inherit tabbar-default :foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-black :slant italic :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg)))))
-   `(tabbar-unselected-modified ((,class (:inherit tabbar-modified :background ,everforest-hard-dark-black :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg)))))
-   `(tabbar-selected            ((,class (:inherit tabbar-default :foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg :weight bold :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg)))))
-   `(tabbar-selected-modified   ((,class (:inherit tabbar-selected :foreground ,everforest-hard-dark-purple :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg)))))
+   `(tabbar-unselected          ((,class (:inherit tabbar-default :foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-black :slant italic :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg0)))))
+   `(tabbar-unselected-modified ((,class (:inherit tabbar-modified :background ,everforest-hard-dark-black :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg0)))))
+   `(tabbar-selected            ((,class (:inherit tabbar-default :foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg0 :weight bold :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg0)))))
+   `(tabbar-selected-modified   ((,class (:inherit tabbar-selected :foreground ,everforest-hard-dark-purple :underline nil :box (:line-width 1 :color ,everforest-hard-dark-bg0)))))
 
    ;; linum
-   `(linum                    ((t (:foreground ,everforest-hard-dark-gutter :background ,everforest-hard-dark-bg))))
+   `(linum                    ((t (:foreground ,everforest-hard-dark-gutter :background ,everforest-hard-dark-bg0))))
    ;; hlinum
-   `(linum-highlight-face     ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg))))
+   `(linum-highlight-face     ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg0))))
    ;; native line numbers (emacs version >=26)
-   `(line-number              ((t (:foreground ,everforest-hard-dark-gutter :background ,everforest-hard-dark-bg))))
-   `(line-number-current-line ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg))))
+   `(line-number              ((t (:foreground ,everforest-hard-dark-gutter :background ,everforest-hard-dark-bg0))))
+   `(line-number-current-line ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg0))))
 
    ;; regexp-builder
    `(reb-match-0 ((t (:background ,everforest-hard-dark-gray))))
@@ -677,9 +678,9 @@
    `(undo-tree-visualizer-unmodified-face ((t (:foreground ,everforest-hard-dark-cyan))))
 
    ;; tab-bar-mode
-   `(tab-bar-tab-inactive ((t (:background ,everforest-hard-dark-bg-hl :foreground ,everforest-hard-dark-fg))))
-   `(tab-bar-tab          ((t (:background ,everforest-hard-dark-bg :foreground ,everforest-hard-dark-purple))))
-   `(tab-bar              ((t (:background ,everforest-hard-dark-bg-hl))))
+   `(tab-bar-tab-inactive ((t (:background ,everforest-hard-dark-bg2 :foreground ,everforest-hard-dark-fg))))
+   `(tab-bar-tab          ((t (:background ,everforest-hard-dark-bg0 :foreground ,everforest-hard-dark-purple))))
+   `(tab-bar              ((t (:background ,everforest-hard-dark-bg2))))
 
    ;; all-the-icons
    `(all-the-icons-purple    ((t (:foreground ,everforest-hard-dark-purple))))
@@ -714,9 +715,9 @@
    `(org-table                 ((t (:foreground ,everforest-hard-dark-blue))))
    `(org-drawer                ((t (:foreground ,everforest-hard-dark-blue))))
    `(org-headline-done         ((t (:foreground ,everforest-hard-dark-purple))))
-   ;; `(org-block                 ((t (:background ,everforest-hard-dark-bg-hl :foreground ,everforest-hard-dark-silver :extend t))))
-   ;; `(org-block-begin-line      ((t (:background ,everforest-hard-dark-bg-hl :foreground ,everforest-hard-dark-silver :extend t))))
-   ;; `(org-block-end-line        ((t (:background ,everforest-hard-dark-bg-hl :foreground ,everforest-hard-dark-silver :extend t))))
+   ;; `(org-block                 ((t (:background ,everforest-hard-dark-bg2 :foreground ,everforest-hard-dark-silver :extend t))))
+   ;; `(org-block-begin-line      ((t (:background ,everforest-hard-dark-bg2 :foreground ,everforest-hard-dark-silver :extend t))))
+   ;; `(org-block-end-line        ((t (:background ,everforest-hard-dark-bg2 :foreground ,everforest-hard-dark-silver :extend t))))
    `(org-level-1               ((t (:foreground ,everforest-hard-dark-green))))
    `(org-level-2               ((t (:foreground ,everforest-hard-dark-red))))
    `(org-level-3               ((t (:foreground ,everforest-hard-dark-purple))))
@@ -726,7 +727,7 @@
    `(org-level-8               ((t (:foreground ,everforest-hard-dark-cyan))))
    `(org-cite                  ((t (:foreground ,everforest-hard-dark-blue :weight bold))))
    `(org-cite-key              ((t (:foreground ,everforest-hard-dark-green :weight bold))))
-   `(org-hide                  ((t (:foreground ,everforest-hard-dark-bg))))
+   `(org-hide                  ((t (:foreground ,everforest-hard-dark-bg0))))
 
    ;; latex-mode
    `(font-latex-sectioning-0-face        ((t (:foreground ,everforest-hard-dark-blue :height 1.0))))
@@ -760,7 +761,7 @@
    `(whitespace-empty            ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-hspace           ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-indentation      ((t (:foreground ,everforest-hard-dark-border))))
-   `(whitespace-line             ((t (:background ,everforest-hard-dark-bg)))) ;; longer than 80
+   `(whitespace-line             ((t (:background ,everforest-hard-dark-bg0)))) ;; longer than 80
    `(whitespace-newline          ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-space            ((t (:foreground ,everforest-hard-dark-border))))
    `(whitespace-space-after-tab  ((t (:foreground ,everforest-hard-dark-border))))
@@ -770,6 +771,12 @@
 
    ;; vertico
    `(completions-annotations ((t (:foreground ,everforest-hard-dark-mono-3))))
+
+   ;; corfu
+   `(corfu-default ((t (:foreground ,everforest-hard-dark-mono-3 :background ,everforest-hard-dark-bg-dim))))
+   `(corfu-current ((t (:foreground ,everforest-hard-dark-fg :background ,everforest-hard-dark-bg2))))
+   ;; `(corfu--bar ((t (:background ,everforest-hard-dark-bg-dim))))
+   ;; `(corfu-bar ((t (:foreground ,everforest-hard-dark-mono-3))))
    
    ;; vterm
    `(vterm-color-black   ((t (:foreground ,everforest-hard-dark-black))))
