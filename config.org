@@ -6,9 +6,8 @@
 
 This is my Emacs configuration, written in org-mode.
 
-* TODO in the future [0/1]:
-- [ ] Completion annotations face;
-- [ ] Add a =org-dwim-at-point= similar to the one in [[https://github.com/doomemacs/doomemacs/blob/9e624b5dfe54b7d8523d55313c22a5ef54659540/modules/lang/org/autoload/org.el#L151][Doom Emacs]];
+* TODO in the future:
+- Add a =org-dwim-at-point= similar to the one in [[https://github.com/doomemacs/doomemacs/blob/9e624b5dfe54b7d8523d55313c22a5ef54659540/modules/lang/org/autoload/org.el#L151][Doom Emacs]];
   
 * Description
 
@@ -120,6 +119,23 @@ Set up =Elpaca= integration with =use-package=.
   (elpaca-use-package-mode))
 #+end_src
 
+* Eldoc
+
+Ensure latest version of =eldoc= is installed. =use-package= is giving some
+issues here, so this workaround is used instead. The first three lines ensure
+that =eldoc= does not load before =elpaca=, allowing for the latter to update
+the former. The former is then loaded.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(unload-feature 'eldoc t)
+(setq custom-delayed-init-variables '())
+(defvar global-eldoc-mode nil)
+
+(elpaca eldoc
+  (require 'eldoc)
+  (global-eldoc-mode))
+#+end_src
+
 * Tweak built-in options:
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -193,7 +209,6 @@ Set up =Elpaca= integration with =use-package=.
     (define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
     (define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt))
 
-  (elpaca-wait)
 
 #+end_src
 
@@ -215,6 +230,14 @@ Set up =Elpaca= integration with =use-package=.
     (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.20))
 
   (setq-default cursor-type '(bar . 2))
+#+end_src
+
+* Elpaca wait
+
+Add an =(elpaca-wait)= statement to separate two different phases of initialization.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (elpaca-wait)
 #+end_src
 
 * Appearance
