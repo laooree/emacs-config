@@ -799,7 +799,9 @@ Let Emacs guess Python indentation silently.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package julia-mode
-    :ensure t)
+    :ensure t
+    :init
+    (setq julia-indent-offset 2))
 #+end_src
 * Custom functions
 
