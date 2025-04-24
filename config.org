@@ -665,7 +665,7 @@ Set in which files the org agenda should look for tasks.
       (setq org-agenda-files (list "~/pCloudDrive/org/agenda.org"
                                    "~/pCloudDrive/org/todo.org"
                                    "~/pCloudDrive/org/inbox.org"
-                                   "~/pCloudDrive/org/gcal.org"
+                                   "~/pCloudDrive/org/calendar.org"
                                    ))
 #+end_src
 
