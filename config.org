@@ -680,6 +680,20 @@ Set in which files the org agenda should look for tasks.
 #+end_src
 
 * Documents
+** openwith
+
+Specify external programs to open specific file extensions.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package openwith
+    :ensure t
+    :init
+    (setq openwith-associations '(("\\.pdf\\'" "evince" (file))))
+
+    :config
+    (openwith-mode t))
+#+end_src
+
 ** pdf-tools
 
 #+begin_src emacs-lisp :tangle "init.el"
