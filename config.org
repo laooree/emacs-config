@@ -764,6 +764,11 @@ Specify external programs to open specific file extensions.
 This block ensures that =eglot= is updated to the latest release.
 
 #+begin_src emacs-lisp :tangle "init.el"
+  ;; Ensure flymake is up to date
+  (use-package flymake
+    :ensure t
+    :defer t)
+
   ;; Update eglot to latest version
   (use-package eglot
     :ensure t
