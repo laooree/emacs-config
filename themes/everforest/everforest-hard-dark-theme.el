@@ -707,8 +707,9 @@
 
    ;; org-mode
    `(org-date                  ((t (:foreground ,everforest-hard-dark-cyan))))
+   `(org-meta-line             ((t (:foreground ,everforest-hard-dark-silver))))
    `(org-document-info         ((t (:foreground ,everforest-hard-dark-mono-3))))
-   `(org-document-info-keyword ((t (:inherit org-meta-line :underline t))))
+   `(org-document-info-keyword ((t (:inherit org-meta-line))))
    `(org-document-title        ((t (:weight bold))))
    `(org-footnote              ((t (:foreground ,everforest-hard-dark-cyan))))
    `(org-sexp-date             ((t (:foreground ,everforest-hard-dark-cyan))))
