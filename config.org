@@ -856,11 +856,66 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
       (keyboard-quit))))
 #+end_src
 
+** my/org-dwim-at-point
+
+Execute an action in =org-mode= based on where the point is.
+
+#+begin_src emacs-lisp :tangle "init.el"
+
+  (defun my/org-dwim-at-point ()
+    "Do-what-I-mean at point.
+  Handles common Org elements intuitively."
+    (interactive)
+    (let* ((context (org-element-context))
+           (type (org-element-type context)))
+      (cond
+       ;; Check for checkbox inside a list item
+       ((and (eq type 'item)
+             (org-element-property :checkbox context))
+        (org-toggle-checkbox))
+
+       ((eq type 'headline)
+        (org-todo))
+
+       ((eq type 'link)
+        (org-open-at-point))
+
+       ((eq type 'footnote-reference)
+        (org-footnote-goto-definition
+         (org-element-property :label context)))
+
+       ((eq type 'footnote-definition)
+        (org-footnote-goto-previous-reference
+         (org-element-property :label context)))
+
+       ((eq type 'table-row)
+        (org-table-recalculate))
+
+       ((memq type '(src-block inline-src-block))
+        (org-babel-execute-src-block))
+
+       ((memq type '(latex-fragment latex-environment))
+        (org-latex-preview))
+
+       (t
+        (message "No specific action for this element")))))
+#+end_src
 * Keybindings
 
 ** Generic
 
 #+begin_src emacs-lisp :tangle "init.el"
   (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
+#+end_src
+** Evil
+*** Org-mode
+#+begin_src emacs-lisp :tangle "init.el"
+
+  (with-eval-after-load 'evil
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (evil-define-key 'normal org-mode-map
+                  (kbd "RET") #'my/org-dwim-at-point))))
+
 #+end_src
 
