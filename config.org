@@ -822,6 +822,13 @@ Let Emacs guess Python indentation silently.
     :init
     (setq julia-indent-offset 2))
 #+end_src
+** Shell
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Set shell indentation to 2
+  (setq sh-basic-offset 2)
+#+end_src
+
 * Custom functions
 
 This section defines custom functions.
