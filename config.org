@@ -931,4 +931,13 @@ Execute an action in =org-mode= based on where the point is.
                   (kbd "RET") #'my/org-dwim-at-point))))
 
 #+end_src
+* Emacs server
 
+ #+begin_src emacs-lisp :tangle "init.el"
+   (use-package server
+     :ensure nil
+     :config
+     (setq server-client-instructions nil)
+     (unless (server-running-p)
+       (server-start)))
+ #+end_src
