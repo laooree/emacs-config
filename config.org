@@ -252,12 +252,10 @@ Add an =(elpaca-wait)= statement to separate two different phases of initializat
   ;; Disable
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  
-  (when (not (display-graphic-p))
-    (menu-bar-mode -1)) ;; This is useful!
+  (menu-bar-mode -1)
 
-  ;; Set title bar
-  (setq frame-title-format "GNU Emacs")
+  (when (display-graphic-p)
+    (set-frame-parameter nil 'undecorated t))
   #+end_src
 
 ** Initial messages
