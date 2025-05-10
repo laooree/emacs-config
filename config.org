@@ -232,7 +232,7 @@ the former. The former is then loaded.
 #+begin_src emacs-lisp :tangle "init.el"
   (let ((mono-spaced-font "CodeNewRoman Nerd Font")
         (proportionately-spaced-font "FiraSans"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 140)
+    (set-face-attribute 'default nil :family mono-spaced-font :height 160)
     (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
     (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.0))
 #+end_src
