@@ -811,11 +811,26 @@ Install and configure Matlab mode:
 
 ** Python
 
-Let Emacs guess Python indentation silently.
-
 #+begin_src emacs-lisp :tangle "init.el"
-  (setq python-indent-guess-indent-offset t
-        python-indent-guess-indent-offset-verbose nil)
+  (use-package python
+    :ensure nil ;; built-in
+    :defer t
+
+    :init
+    (setq python-indent-guess-indent-offset t
+          ;; Let python guess indentation silently
+          python-indent-guess-indent-offset-verbose nil
+          ;; Set default indentation level to 4
+          python-indent-offset 4)
+
+    :config
+    (evil-set-initial-state 'inferior-python-mode 'emacs))
+
+
+  ;; Python formatter
+  (use-package yapfify
+    :ensure (yapfify :host github :repo "JorisE/yapfify")
+    :hook (python-mode . yapf-mode))
 #+end_src
 
 ** Julia
