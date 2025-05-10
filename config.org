@@ -225,6 +225,10 @@ the former. The former is then loaded.
 #+begin_src emacs-lisp :tangle "init.el"
   (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
   (load-theme 'everforest-hard-dark t)
+
+  ;; Set transparency
+  (set-frame-parameter nil 'alpha-background 90)
+  (add-to-list 'default-frame-alist '(alpha-background . 90))
 #+end_src
 
 ** Fonts
