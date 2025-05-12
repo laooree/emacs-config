@@ -234,9 +234,9 @@ the former. The former is then loaded.
 ** Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (let ((mono-spaced-font "CodeNewRoman Nerd Font")
+  (let ((mono-spaced-font "JetBrainsMono Nerd Font")
         (proportionately-spaced-font "FiraSans"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 160)
+    (set-face-attribute 'default nil :family mono-spaced-font :height 140)
     (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 1.0)
     (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 1.0))
 #+end_src
@@ -378,26 +378,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   (use-package rainbow-mode
     :ensure t
     :defer t)
-#+end_src
-
-** Spacious padding
-
-Increase spacing between Emacs windows elements.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package spacious-padding
-    :ensure t
-    :if (display-graphic-p) ;; Load only outside terminal
-    :init (setq spacious-padding-widths
-  	'( :internal-border-width 15
-  	   :header-line-width 4
-  	   :mode-line-width 6
-  	   :tab-width 4
-  	   :right-divider-width 30
-  	   :scroll-bar-width 8
-  	   :fringe-width 8))
-    :config
-    (spacious-padding-mode 1))
 #+end_src
 
 * Completions
