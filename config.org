@@ -6,9 +6,6 @@
 
 This is my Emacs configuration, written in org-mode.
 
-* TODO in the future:
-- Add a =org-dwim-at-point= similar to the one in [[https://github.com/doomemacs/doomemacs/blob/9e624b5dfe54b7d8523d55313c22a5ef54659540/modules/lang/org/autoload/org.el#L151][Doom Emacs]];
-  
 * Description
 
 My Emacs configuration is composed by:
