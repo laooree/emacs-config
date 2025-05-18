@@ -339,7 +339,15 @@ Keycast displays keybindings you type. It's not enabled by default.
           '((self-insert-command . nil)
             (vterm--self-insert . nil)
             (keyboard-quit . "C-g")
-            (execute-extended-command . "M-x"))))
+            (execute-extended-command . "M-x")))
+    :config
+    (define-minor-mode keycast-mode
+      "Cast commands and their keybindings in the mode line."
+      :global t
+      (if keycast-mode
+          (add-hook 'pre-command-hook 'keycast--update t)
+        (remove-hook 'pre-command-hook 'keycast--update)))
+    (add-to-list 'global-mode-string '("" keycast-mode-line)))
 #+end_src
 
 ** Rainbow csv
