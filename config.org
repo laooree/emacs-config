@@ -18,8 +18,8 @@ The =config.org= file uses the =org-babel-tangle= feature to generate the
 following two files:
 - =early-init.el=
 - =init.el=
-This feature concatenates all the emacs-lisp source blocks that contain a
-=:tangle "filename.el"= specification in =filename.el=.
+This feature concatenates the content of all the emacs-lisp source blocks that
+contain a =:tangle "filename.el"= specification in =filename.el=.
 
 ** Dependencies
 
@@ -28,9 +28,10 @@ Windows, but it's not tested yet.
 
 The config requires:
 - =git=;
-- =libvterm=;
+- =ripgrep=;
+- =libvterm= on Linux;
 - =FiraMono Nerd Font= font;
-- =FiraSans= font;
+- =libertinus= fonts;
 - =Nerd Icons=, which can be installed running =M-x nerd-icons-install-fonts=.
 
 ** Instructions
@@ -120,8 +121,8 @@ Set up =Elpaca= integration with =use-package=.
 
 Ensure latest version of =eldoc= is installed. =use-package= is giving some
 issues here, so this workaround is used instead. The first three lines ensure
-that =eldoc= does not load before =elpaca=, allowing for the latter to update
-the former. The former is then loaded.
+that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
+=eldoc=, which is then loaded.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (unload-feature 'eldoc t)
@@ -148,12 +149,11 @@ the former. The former is then loaded.
   (setq-default fill-column 80)
   (global-visual-line-mode 1)
 
-  ;; Warn when try to open a file bigger than 100MB
+  ;; Warn user if trying to open a file bigger than 100MB
   (setq large-file-warning-threshold 100000000)
 
   ;; Accept y or n as yes or no
   (fset 'yes-or-no-p 'y-or-n-p)
-
 
   ;;Require files to end with a newline.
   (setq require-final-newline t)
