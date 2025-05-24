@@ -530,6 +530,19 @@ copilot.el allows to interact with Github's copilot.
                 ("C-TAB" . 'copilot-accept-completion-by-word)))
 #+end_src
 
+** GPTel
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package gptel
+    :ensure t
+    :defer t
+
+    :config
+    ;; Set Copilot as default backend
+    (setq gptel-model 'claude-3.7-sonnet
+          gptel-backend (gptel-make-gh-copilot "Copilot")))
+#+end_src
+
 * Dired
 
 Tweak =dired=. Options should be self-explanatory.
