@@ -225,20 +225,14 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 #+begin_src emacs-lisp :tangle "init.el"
   (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
   (load-theme 'everforest-hard-dark t)
-
-  ;; Set transparency
-  (set-frame-parameter nil 'alpha-background 90)
-  (add-to-list 'default-frame-alist '(alpha-background . 90))
 #+end_src
 
 ** Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (let ((mono-spaced-font "FiraMono Nerd Font")
-        (proportionately-spaced-font "LibertinusSerif"))
+  (let ((mono-spaced-font "FiraMono Nerd Font"))
     (set-face-attribute 'default nil :family mono-spaced-font :height 140)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 140)
-    (set-face-attribute 'variable-pitch nil :family proportionately-spaced-font :height 170))
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 140))
 #+end_src
 
 * Elpaca wait
@@ -309,7 +303,8 @@ Show the line numbers on the left of the buffer window. Set the line numbers to
 relative: this is more convenient for me, using =evil-mode=.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (setq display-line-numbers 'relative)
+  (global-display-line-numbers-mode)
 #+end_src
 
 ** Bell
@@ -631,39 +626,6 @@ Prettify markers and bullets:
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-#+end_src
-
-Set variable pitch fonts in emacs org mode, except some parts of it:
-
-#+begin_src emacs-lisp :tangle "init.el" 
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (variable-pitch-mode 1)                ;; Enable variable-pitch-mode
-              (display-fill-column-indicator-mode 0) ;; Disable fill-column indicator
-              (display-line-numbers-mode 0)))        ;; Disable line numbers
-
-  (with-eval-after-load 'org
-    (dolist (face '((org-level-1 . 1.3)
-                    (org-level-2 . 1.2)
-                    (org-level-3 . 1.1)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.0)
-                    (org-level-6 . 1.0)
-                    (org-level-7 . 1.0)
-                    (org-level-8 . 1.0)))
-      (set-face-attribute (car face) nil
-                          :family "LibertinusSans"  ;; Change to your preferred sans-serif font
-                          :weight 'bold
-                          :height (cdr face))))
-
-  (custom-set-faces
-   `(org-block ((t (:inherit fixed-pitch :height 140))))
-   `(org-code ((t (:inherit fixed-pitch :height 140))))
-   `(org-table ((t (:inherit fixed-pitch :height 140))))
-   `(org-verbatim ((t (:inherit fixed-pitch :height 140))))
-   `(org-meta-line ((t (:inherit fixed-pitch :height 140))))
-   `(org-checkbox ((t (:inherit fixed-pitch :height 140))))
-   )
 #+end_src
 
 ** Agenda files
