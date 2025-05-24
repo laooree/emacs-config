@@ -171,6 +171,9 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   (setq-default scroll-conservatively 10000
                 scroll-step 1
                 scroll-margin 5)
+
+  ;; Prefer utf-8 encoding
+  (prefer-coding-system 'utf-8)
  #+end_src
 
 * Evil
