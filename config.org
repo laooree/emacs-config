@@ -192,7 +192,11 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     (setq evil-undo-system 'undo-redo)
 
     :config
-    (evil-mode 1))
+    (evil-mode 1)
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (evil-local-set-key 'normal (kbd "TAB") 'org-cycle)
+                (evil-local-set-key 'normal (kbd "<tab>") 'org-cycle))))
 
   ;; Evil collection
   (use-package evil-collection
