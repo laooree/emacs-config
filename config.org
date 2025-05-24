@@ -672,7 +672,7 @@ Specify external programs to open specific file extensions.
   (use-package openwith
     :ensure t
     :init
-    (setq openwith-associations '(("\\.pdf\\'" "evince" (file))))
+    (setq openwith-associations '(("\\.pdf\\'" "zathura" (file))))
 
     :config
     (openwith-mode t))
