@@ -234,9 +234,9 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 ** Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (let ((mono-spaced-font "FiraMono Nerd Font"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 140)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 140))
+  (let ((mono-spaced-font "Iosevka Nerd Font"))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 100)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 100))
 #+end_src
 
 * Elpaca wait
