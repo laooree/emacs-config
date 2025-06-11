@@ -593,6 +593,17 @@ The =dired-subtree= allows to expand folders using =TAB= key.
     (setq dired-subtree-use-backgrounds nil))
 #+end_src
 
+* Dirvish
+
+=Dirvish= is a modern substitute to =dired=.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package dirvish
+    :ensure t
+    :defer t
+    :config
+    (dirvish-override-dired-mode))
+#+end_src
 * vterm
 
 =vterm= is not available on windows.
