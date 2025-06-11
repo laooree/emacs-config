@@ -962,18 +962,58 @@ Execute an action in =org-mode= based on where the point is.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
-#+end_src
-** Evil
-*** Org-mode
-#+begin_src emacs-lisp :tangle "init.el"
 
   (with-eval-after-load 'evil
     (add-hook 'org-mode-hook
               (lambda ()
                 (evil-define-key 'normal org-mode-map
                   (kbd "RET") #'my/org-dwim-at-point))))
-
 #+end_src
+
+** Evil: general.el
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package general
+    :ensure t
+    :demand t
+    :after evil
+
+    :config
+    (general-define-key
+     :states '(normal)
+     :prefix "SPC"
+     ;; FILE
+     "f f" #'find-file
+     "f r" #'recentf-open
+     ;; CONSULT
+     "c d" #'consult-fd
+     "c f" #'consult-flymake
+     "c l" #'consult-line
+     "c m" #'consult-man
+     "c r" #'consult-ripgrep
+     ;; BUFFER
+     "b f" #'consult-buffer
+     "b b" #'evil-buffer
+     "b k" #'kill-this-buffer
+     ;; WINDOWS
+     "w <left>" #'evil-window-left
+     "w <down>" #'evil-window-down
+     "w <up>" #'evil-window-up
+     "w <right>" #'evil-window-right
+     "w h" #'evil-window-new
+     "w v" #'evil-window-vnew
+     "w w" #'evil-window-next 
+     "W" #'evil-window-prev 
+     "w k" #'kill-buffer-and-window
+     ;; FRAMES
+     "F F" #'make-frame
+     "F f" #'find-file-other-frame
+     "F k" #'delete-frame
+     ;; MAGIT
+     "g g" #'magit-status
+     ))
+#+end_src
+
 * Emacs server
 
  #+begin_src emacs-lisp :tangle "init.el"
