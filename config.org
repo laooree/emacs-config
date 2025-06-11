@@ -227,6 +227,17 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 ** Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
+  ;; (use-package doom-themes
+  ;;   :ensure t
+  ;;   :init
+  ;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+  ;;         doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  ;;   :config
+  ;;   ;; Global settings (defaults)
+  ;;   (load-theme 'doom-nord t)
+  ;;   ;; Corrects (and improves) org-mode's native fontification.
+  ;;   (doom-themes-org-config))
+
   (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
   (load-theme 'everforest-hard-dark t)
 #+end_src
