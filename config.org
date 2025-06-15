@@ -246,8 +246,8 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 
 #+begin_src emacs-lisp :tangle "init.el"
   (let ((mono-spaced-font "Iosevka Nerd Font"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 100)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 100))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 180)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
 #+end_src
 ** Emoji
 
@@ -283,8 +283,8 @@ Add an =(elpaca-wait)= statement to separate two different phases of initializat
   (scroll-bar-mode -1)
   (menu-bar-mode -1)
 
-  (when (display-graphic-p)
-    (set-frame-parameter nil 'undecorated t))
+  ;; (when (display-graphic-p)
+  ;;  (set-frame-parameter nil 'undecorated t))
   #+end_src
 
 ** Initial messages
