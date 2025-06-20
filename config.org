@@ -885,6 +885,15 @@ Install and configure Matlab mode:
   (setq sh-basic-offset 2)
 #+end_src
 
+** Nix
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package nix-mode
+    :ensure t
+    :defer t
+    :mode "\\.nix\\'")
+#+end_src
+
 * Custom functions
 
 This section defines custom functions.
