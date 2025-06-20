@@ -238,16 +238,21 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   ;;   ;; Corrects (and improves) org-mode's native fontification.
   ;;   (doom-themes-org-config))
 
-  (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
-  (load-theme 'everforest-hard-dark t)
+  ;; (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
+  ;; (load-theme 'everforest-hard-dark t)
+
+  (use-package base16-theme
+    :ensure t
+    :config
+    (load-theme 'base16-everforest-dark-hard t))
 #+end_src
 
 ** Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
   (let ((mono-spaced-font "Iosevka Nerd Font"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 180)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 160)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 160))
 #+end_src
 ** Emoji
 
