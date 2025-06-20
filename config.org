@@ -790,6 +790,14 @@ Specify external programs to open specific file extensions.
     :after tree-sitter)
 #+end_src
 
+** Formatter
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package format-all
+    :ensure t
+    :defer t)
+#+end_src
+
 ** LSP
 
 This block ensures that =eglot= is updated to the latest release.
@@ -860,12 +868,6 @@ Install and configure Matlab mode:
 
     :config
     (evil-set-initial-state 'inferior-python-mode 'emacs))
-
-
-  ;; Python formatter
-  (use-package yapfify
-    :ensure (yapfify :host github :repo "JorisE/yapfify")
-    :hook (python-mode . yapf-mode))
 #+end_src
 
 ** Julia
