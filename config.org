@@ -30,7 +30,7 @@ The config requires:
 - =git=;
 - =ripgrep=;
 - =libvterm= on Linux;
-- =FiraMono Nerd Font= font;
+- =Iosevka Nerd Font= font;
 - =libertinus= fonts;
 - =Nerd Icons=, which can be installed running =M-x nerd-icons-install-fonts=.
 
@@ -227,32 +227,18 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 ** Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; (use-package doom-themes
-  ;;   :ensure t
-  ;;   :init
-  ;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-  ;;         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;;   :config
-  ;;   ;; Global settings (defaults)
-  ;;   (load-theme 'doom-nord t)
-  ;;   ;; Corrects (and improves) org-mode's native fontification.
-  ;;   (doom-themes-org-config))
-
-  ;; (load-file (concat user-emacs-directory "/themes/everforest/everforest-hard-dark-theme.el"))
-  ;; (load-theme 'everforest-hard-dark t)
-
   (use-package base16-theme
     :ensure t
     :config
-    (load-theme 'base16-everforest-dark-hard t))
+    (load-theme 'base16-everforest-dark-hard nil))
 #+end_src
 
 ** Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
   (let ((mono-spaced-font "Iosevka Nerd Font"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 160)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 160))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 180)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
 #+end_src
 ** Emoji
 
@@ -531,41 +517,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+end_src
 
 * AI
-** Copilot
-
-copilot.el allows to interact with Github's copilot.
-
-#+begin_src emacs-lisp :tangle "init.el" 
-  ;; Dependencies
-  (use-package editorconfig
-    :ensure t
-    :defer t)
-  (use-package jsonrpc
-    :ensure t
-    :defer t)
-
-  ;;Install and configure copilot
-  (use-package copilot
-    :ensure (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-    :defer t
-    
-    :config
-    (add-to-list 'copilot-major-mode-alist '("LaTeX-mode" . "latex"))
-    (add-to-list 'copilot-indentation-alist '(prog-mode . 2))
-    (add-to-list 'copilot-indentation-alist '(matlab-mode . 2))
-    (add-to-list 'copilot-indentation-alist '(python-mode . 2))
-    (add-to-list 'copilot-indentation-alist '(LaTeX-mode . 2))
-    (add-to-list 'copilot-indentation-alist '(org-mode . 2))
-    (add-to-list 'copilot-indentation-alist '(text-mode . 2))
-    (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode . 2))
-
-    :bind (:map copilot-completion-map
-                ("<tab>" . copilot-accept-completion)
-                ("TAB" . copilot-accept-completion)
-                ("C-<tab>" . 'copilot-accept-completion-by-word)
-                ("C-TAB" . 'copilot-accept-completion-by-word)))
-#+end_src
-
 ** GPTel
 
 #+begin_src emacs-lisp :tangle "init.el"
