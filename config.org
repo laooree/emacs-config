@@ -227,10 +227,10 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 ** Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package base16-theme
-    :ensure t
-    :config
-    (load-theme 'base16-everforest-dark-hard nil))
+  ;; Use stylix theme
+  (require 'base16-stylix-theme)
+  (setq base16-theme-256-color-source 'colors)
+  (load-theme 'base16-stylix t)
 #+end_src
 
 ** Fonts
