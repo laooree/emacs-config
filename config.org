@@ -456,7 +456,8 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
           read-buffer-completion-ignore-case t
           completion-ignore-case t
           orderless-matching-styles '(orderless-literal
-                                      orderless-regexp)))
+                                      orderless-regexp
+                                      orderless-flex)))
 #+end_src
 
 ** Consult
