@@ -174,6 +174,10 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 
   ;; Prefer utf-8 encoding
   (prefer-coding-system 'utf-8)
+
+  ;; whitespace-mode
+  (setq whitespace-style '(face trailing))
+  (global-whitespace-mode 1)
  #+end_src
 
 * Evil
@@ -288,8 +292,10 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     (let ((shape
            (cond
             ((evil-insert-state-p) "\e[5 q")  ;; Blinking bar
+            ((evil-motion-state-p) "\e[0 q")  ;; Block
+            ((evil-operator-state-p) "\e[3 q");; Underline
             ((evil-replace-state-p) "\e[3 q") ;; Underline
-            ((evil-visual-state-p) "\e[1 q")  ;; Underline
+            ((evil-visual-state-p) "\e[0 q")  ;; Block
             (t "\e[0 q"))))                   ;; Block
       (send-string-to-terminal shape)))
 
