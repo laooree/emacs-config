@@ -23,15 +23,12 @@ contain a =:tangle "filename.el"= specification in =filename.el=.
 
 ** Dependencies
 
-This config is tested with =Emacs 29.4=, on Linux. It should work also on
-Windows, but it's not tested yet.
+This config is tested with =Emacs >= 29.4=, on Linux.
 
 The config requires:
 - =git=;
 - =ripgrep=;
-- =libvterm= on Linux;
 - =Iosevka Nerd Font= font;
-- =libertinus= fonts;
 - =Nerd Icons=, which can be installed running =M-x nerd-icons-install-fonts=.
 
 ** Instructions
@@ -42,9 +39,10 @@ happens automatically every time the the =config-org= file is saved, thanks to
 the [[https://github.com/yilkalargaw/org-auto-tangle][org-auto-tangle]] package.
 
 * Early initialization
+** Speed up the startup
 
 Based on Nicolas Rougier's [[https://github.com/rougier/dotemacs/blob/master/dotemacs.org][early-init file]]. It disables garbage collection at
-startup and enables it afterwards.  Most importantly, it disables =package.el=,
+startup and enables it afterwards. Most importantly, it disables =package.el=,
 as =Elpaca= is used instead.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
@@ -63,11 +61,9 @@ as =Elpaca= is used instead.
 
 #+end_src
 
-* Package manager: Elpaca
+** Package manager
 
-Bootstrap code for =Elpaca=.
-
-#+begin_src emacs-lisp :tangle "init.el" 
+#+begin_src emacs-lisp :tangle "early-init.el"
   (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
@@ -106,15 +102,47 @@ Bootstrap code for =Elpaca=.
       (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
   (add-hook 'after-init-hook #'elpaca-process-queues)
   (elpaca `(,@elpaca-order))
+
+  ;; Install use-package support
+  (elpaca elpaca-use-package
+    ;; Enable use-package :ensure support for Elpaca.
+    (elpaca-use-package-mode))
 #+end_src
 
-Set up =Elpaca= integration with =use-package=.
+** Theme and fonts
 
-#+begin_src emacs-lisp :tangle "init.el"
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable use-package :ensure support for Elpaca.
-  (elpaca-use-package-mode))
+This section loads the theme provided by Nixos stylix if system is Nixos,
+otherwise installs base16 theme.
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (defun get-linux-distribution ()
+    "Get the Linux distribution name from /etc/os-release."
+    (when (and (eq system-type 'gnu/linux)
+               (file-readable-p "/etc/os-release"))
+      (with-temp-buffer
+        (insert-file-contents "/etc/os-release")
+        (when (re-search-forward "^ID=\\(.+\\)$" nil t)
+          (let ((id (match-string 1)))
+            ;; Remove possible surrounding quotes
+            (replace-regexp-in-string "\"" "" id))))))
+
+  (if (equal "nixos" (get-linux-distribution))
+    ;; require stylix theme if true
+    (progn
+      (require 'base16-stylix-theme)
+      (setq base16-theme-256-color-source 'colors)
+      (load-theme 'base16-stylix t))
+    ;; use base16 theme if true
+    (use-package base16-emacs
+      :ensure t
+      :demand t
+      :config
+      (load-theme 'base16-nord t)))
+
+  (let ((mono-spaced-font "Iosevka Nerd Font"))
+    (set-face-attribute 'default nil :family mono-spaced-font :height 180)
+    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
+
+  (elpaca-wait)
 #+end_src
 
 * Eldoc
@@ -133,52 +161,6 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   (require 'eldoc)
   (global-eldoc-mode))
 #+end_src
-
-* Tweak built-in options:
-
-#+begin_src emacs-lisp :tangle "init.el"
-
-  ;; Set different file for M-x customize interface
-  (setq custom-file (locate-user-emacs-file "custom.el"))
-  (load custom-file :no-error-if-file-is-missing)
-
-  ;; Easily visit recent files
-  (recentf-mode 1)
-
-  ;; Wrap lines and set fill-column width
-  (setq-default fill-column 80)
-  (global-visual-line-mode 1)
-
-  ;; Warn user if trying to open a file bigger than 100MB
-  (setq large-file-warning-threshold 100000000)
-
-  ;; Accept y or n as yes or no
-  (fset 'yes-or-no-p 'y-or-n-p)
-
-  ;;Require files to end with a newline.
-  (setq require-final-newline t)
-
-  ;; Backups and autosaves location
-  (setq backup-directory-alist
-        `((".*" . ,temporary-file-directory)))
-  (setq auto-save-file-name-transforms
-        `((".*" ,temporary-file-directory t)))
-
-  ;; Automatically revert buffers
-  (global-auto-revert-mode t)
-
-  ;; Scroll one line at time
-  (setq-default scroll-conservatively 10000
-                scroll-step 1
-                scroll-margin 5)
-
-  ;; Prefer utf-8 encoding
-  (prefer-coding-system 'utf-8)
-
-  ;; whitespace-mode
-  (setq whitespace-style '(face trailing))
-  (global-whitespace-mode 1)
- #+end_src
 
 * Evil
 
@@ -227,23 +209,120 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 
 #+end_src
 
-* Themes and fonts
-** Theme
+* UI and UX
+** Some built-in options:
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Use stylix theme
-  (require 'base16-stylix-theme)
-  (setq base16-theme-256-color-source 'colors)
-  (load-theme 'base16-stylix t)
-#+end_src
 
-** Fonts
+  ;; Set different file for M-x customize interface
+  (setq custom-file (locate-user-emacs-file "custom.el"))
+  (load custom-file :no-error-if-file-is-missing)
+
+  ;; Easily visit recent files
+  (recentf-mode 1)
+
+  ;; Wrap lines and set fill-column width
+  (setq-default fill-column 80)
+  (global-visual-line-mode 1)
+
+  ;; Warn user if trying to open a file bigger than 100MB
+  (setq large-file-warning-threshold 100000000)
+
+  ;; Accept y or n as yes or no
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+  ;;Require files to end with a newline.
+  (setq require-final-newline t)
+
+  ;; Backups and autosaves location
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t)))
+
+  ;; Automatically revert buffers
+  (global-auto-revert-mode t)
+
+  ;; Scroll one line at time
+  (setq-default scroll-conservatively 10000
+                scroll-step 1
+                scroll-margin 5)
+
+  ;; Prefer utf-8 encoding
+  (prefer-coding-system 'utf-8)
+
+  (setq-default visible-bell nil             ;; No visual bell
+                ring-bell-function 'ignore)  ;; No bell
+
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+
+  (setq inhibit-startup-message t)
+  ;; (setq initial-scratch-message nil)
+
+  ;; Prevent compilation warnings to pop-up
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+                 (display-buffer-no-window)
+                 (allow-no-window . t)))
+
+  ;; whitespace-mode
+  (setq whitespace-style '(face trailing))
+  (global-whitespace-mode 1)
+
+  (setq display-line-numbers t)
+  (global-display-line-numbers-mode)
+ #+end_src
+
+** org-auto-tangle
+
+This package allows to automatically tangle =org= files when they are
+saved. When the minor mode is active, it is sufficient to add =#+auto_tangle: t=
+in the org file for which you want auto tangling.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (let ((mono-spaced-font "Iosevka Nerd Font"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 180)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
+  (use-package org-auto-tangle
+    :ensure t
+    :defer t
+    :hook (org-mode . org-auto-tangle-mode))
 #+end_src
+
+** Dired
+
+Tweak =dired=. Options should be self-explanatory.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package dired
+    :ensure nil
+    :commands (dired)
+    :hook
+    ((dired-mode . dired-hide-details-mode)
+     (dired-mode . hl-line-mode))
+    :config
+    (setq dired-recursive-copies 'always)
+    (setq dired-recursive-deletes 'always)
+    (setq delete-by-moving-to-trash t)
+    (setq dired-kill-when-opening-new-dired-buffer t)
+    (setq dired-dwim-target t))
+#+end_src
+
+The =dired-subtree= allows to expand folders using =TAB= key.
+
+#+begin_src emacs-lisp "init.el"
+  (use-package dired-subtree
+    :ensure t
+    :after (dired)
+    :bind
+    ( :map dired-mode-map
+      ("<tab>" . dired-subtree-toggle)
+      ("TAB" . dired-subtree-toggle)
+      ("<backtab>" . dired-subtree-remove)
+      ("S-TAB" . dired-subtree-remove))
+    :config
+    (setq dired-subtree-use-backgrounds nil))
+#+end_src
+
 ** Emoji
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -261,8 +340,9 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     :hook
     (after-init . global-emojify-mode))
 #+end_src
-* tty
-** Wayland clipboard
+
+** Terminal
+*** Wayland clipboard
 #+begin_src emacs-lisp :tangle "init.el"
   ;; credit: yorickvP on Github
   (when (string= (getenv "XDG_SESSION_TYPE") "wayland")
@@ -285,7 +365,7 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     (setq interprogram-paste-function 'wl-paste))
 #+end_src
 
-** Cursor shape
+*** Cursor shape
 #+begin_src emacs-lisp :tangle "init.el"
   (defun my/set-cursor-shape ()
     "Set terminal cursor shape based on evil state."
@@ -303,40 +383,6 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   (add-hook 'post-command-hook #'my/set-cursor-shape)
 #+end_src
 #+end_src
-* Elpaca wait
-
-Add an =(elpaca-wait)= statement to separate two different phases of initialization.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (elpaca-wait)
-#+end_src
-
-* Appearance
-** Bars
-
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; Disable
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
-
-  ;; (when (display-graphic-p)
-  ;;  (set-frame-parameter nil 'undecorated t))
-  #+end_src
-
-** Initial messages
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (setq inhibit-startup-message t) 
-  ;; (setq initial-scratch-message nil)
-
-  ;; Prevent compilation warnings to pop-up
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
-                 (display-buffer-no-window)
-                 (allow-no-window . t)))
-#+end_src
-
 ** Nerd icons
 
 Install and use nerd-icons.
@@ -365,55 +411,12 @@ Install and use nerd-icons.
     (dired-mode . nerd-icons-dired-mode))
 #+end_src
 
-** Line numbers
-
-Show the line numbers on the left of the buffer window. Set the line numbers to
-relative: this is more convenient for me, using =evil-mode=.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (setq display-line-numbers 'relative)
-  (global-display-line-numbers-mode)
-#+end_src
-
-** Bell
-
-Disables the =ring-bell-function=.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (setq-default visible-bell nil             ; No visual bell      
-                ring-bell-function 'ignore)  ; No bell
-#+end_src
-
 ** Mode-line
 
 #+begin_src  emacs-lisp :tangle "init.el"
   (use-package doom-modeline
     :ensure t
     :init (doom-modeline-mode 1))
-#+end_src
-
-** Keycast
-
-Keycast displays keybindings you type. It's not enabled by default.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package keycast
-    :ensure t
-    :defer t
-    :init
-    (setq keycast-substitute-alist
-          '((self-insert-command . nil)
-            (vterm--self-insert . nil)
-            (keyboard-quit . "C-g")
-            (execute-extended-command . "M-x")))
-    :config
-    (define-minor-mode keycast-mode
-      "Cast commands and their keybindings in the mode line."
-      :global t
-      (if keycast-mode
-          (add-hook 'pre-command-hook 'keycast--update t)
-        (remove-hook 'pre-command-hook 'keycast--update)))
-    (add-to-list 'global-mode-string '("" keycast-mode-line)))
 #+end_src
 
 ** Rainbow csv
@@ -451,8 +454,40 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
     :defer t)
 #+end_src
 
-* Completions
+** Open files with
 
+Specify external programs to open specific file extensions.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package openwith
+    :ensure t
+    :init
+    (setq openwith-associations '(("\\.pdf\\'" "evince" (file))))
+
+    :config
+    (openwith-mode t))
+#+end_src
+** Magit
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Make sure transient is up to date
+  (use-package transient
+    :ensure t
+    :defer t)
+
+  ;; Install magit
+  (use-package magit
+    :ensure t
+    :defer t)
+#+end_src
+
+** Elpaca wait
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (elpaca-wait)
+#+end_src
+
+* Completions, suggestions, AI tools
 ** Vertico
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -563,7 +598,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
     :ensure t)
 #+end_src
 
-* AI
 ** GPTel
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -577,88 +611,20 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
           gptel-backend (gptel-make-gh-copilot "Copilot")))
 #+end_src
 
-* Dired
-
-Tweak =dired=. Options should be self-explanatory.
-
-#+begin_src emacs-lisp :tangle "init.el" 
-  (use-package dired
-    :ensure nil
-    :commands (dired)
-    :hook
-    ((dired-mode . dired-hide-details-mode)
-     (dired-mode . hl-line-mode))
-    :config
-    (setq dired-recursive-copies 'always)
-    (setq dired-recursive-deletes 'always)
-    (setq delete-by-moving-to-trash t)
-    (setq dired-kill-when-opening-new-dired-buffer t)
-    (setq dired-dwim-target t))
-#+end_src
-
-The =dired-subtree= allows to expand folders using =TAB= key.
-
-#+begin_src emacs-lisp "init.el"
-  (use-package dired-subtree
-    :ensure t
-    :after (dired)
-    :bind
-    ( :map dired-mode-map
-      ("<tab>" . dired-subtree-toggle)
-      ("TAB" . dired-subtree-toggle)
-      ("<backtab>" . dired-subtree-remove)
-      ("S-TAB" . dired-subtree-remove))
-    :config
-    (setq dired-subtree-use-backgrounds nil))
-#+end_src
-
-* Dirvish
-
-=Dirvish= is a modern substitute to =dired=.
+** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package dirvish
-    :ensure t
-    :defer t
-    :config
-    (dirvish-override-dired-mode))
-#+end_src
-* vterm
-
-=vterm= is not available on windows.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (when (not (eq system-type 'windows-nt))
-    (use-package vterm
-      :ensure t
-      :defer t
-
-      :config
-      (evil-set-initial-state 'vterm-mode 'emacs)
-      ))
+  (elpaca-wait)
 #+end_src
 
 * Org-mode
-  
+
 Install latest org-mode.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package org
     :ensure t
     :defer t)
-#+end_src
-
-** org-auto-tangle
-
-This package allows to automatically tangle =org= files when they are
-saved. When the minor mode is active, it is sufficient to add =#+auto_tangle: t=
-in the org file for which you want auto tangling.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package org-auto-tangle
-    :ensure t
-    :defer t
-    :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
 ** Prettify org-mode
@@ -671,7 +637,7 @@ Open org-files showing indented headings by default.
 
 Prettify markers and bullets:
 
-#+begin_src emacs-lisp :tangle "init.el" 
+#+begin_src emacs-lisp :tangle "init.el"
   ;; Use nice bullets for org-mode headers
   (use-package org-bullets
     :ensure t
@@ -708,50 +674,13 @@ Set in which files the org agenda should look for tasks.
            "* %?\nEntered on %U\n  %i\n  %a")))
 #+end_src
 
-* Documents
-** openwith
-
-Specify external programs to open specific file extensions.
+** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package openwith
-    :ensure t
-    :init
-    (setq openwith-associations '(("\\.pdf\\'" "evince" (file))))
-
-    :config
-    (openwith-mode t))
-#+end_src
-
-** pdf-tools
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package pdf-tools
-    :ensure t
-    :defer t
-    :config
-    (pdf-tools-install)
-    (setq-default pdf-view-display-size 'fit-width)
-    (setq pdf-view-use-scaling nil))
-#+end_src
-
-* Git
-** Magit
-
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; Make sure transient is up to date
-  (use-package transient
-    :ensure t
-    :defer t)
-
-  ;; Install magit
-  (use-package magit
-    :ensure t
-    :defer t)
+  (elpaca-wait)
 #+end_src
 
 * Programming
-
 ** Indentation
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -892,6 +821,12 @@ Install and configure Matlab mode:
     :mode "\\.nix\\'")
 #+end_src
 
+** Elpaca wait
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (elpaca-wait)
+#+end_src
+
 * Custom functions
 
 This section defines custom functions.
@@ -1029,12 +964,12 @@ Execute an action in =org-mode= based on where the point is.
 
 * Emacs server
 
- #+begin_src emacs-lisp :tangle "init.el"
-   (use-package server
-     :ensure nil
-     :config
-     (setq server-client-instructions nil)
-     (unless (server-running-p)
-       (server-start)))
- #+end_src
- 
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; (use-package server
+  ;;   :ensure nil
+  ;;   :config
+  ;;   (setq server-client-instructions nil)
+  ;;   (unless (server-running-p)
+  ;;     (server-start)))
+#+end_src
+
