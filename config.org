@@ -962,6 +962,16 @@ Execute an action in =org-mode= based on where the point is.
      ))
 #+end_src
 
+** Commands
+*** :k
+#+begin_src emacs-lisp :tangle "init.el"
+(defun my/kill-current-buffer ()
+  "Kill the current buffer without confirmation."
+  (interactive)
+  (kill-buffer (current-buffer)))
+
+(evil-ex-define-cmd "k" 'my/kill-current-buffer)
+#+end_src
 * Emacs server
 
 #+begin_src emacs-lisp :tangle "init.el"
