@@ -537,8 +537,8 @@ Specify external programs to open specific file extensions.
           read-buffer-completion-ignore-case t
           completion-ignore-case t
           orderless-matching-styles '(orderless-literal
-                                      orderless-regexp
-                                      orderless-flex)))
+                                      orderless-regexp)))
+                                      ;; orderless-flex)))
 #+end_src
 
 ** Consult
