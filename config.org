@@ -910,13 +910,27 @@ Execute an action in =org-mode= based on where the point is.
 ** Generic
 
 #+begin_src emacs-lisp :tangle "init.el"
+
+  ;; Keyboard quit
   (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
 
+  ;; Org dwim at point
   (with-eval-after-load 'evil
     (add-hook 'org-mode-hook
               (lambda ()
                 (evil-define-key 'normal org-mode-map
                   (kbd "RET") #'my/org-dwim-at-point))))
+
+  ;; Window movements
+  (global-unset-key (kbd "M-<left>"))
+  (global-unset-key (kbd "M-<down>"))
+  (global-unset-key (kbd "M-<up>"))
+  (global-unset-key (kbd "M-<right>"))
+  (define-key evil-normal-state-map (kbd "M-<left>")  'evil-window-left)
+  (define-key evil-normal-state-map (kbd "M-<down>")  'evil-window-down)
+  (define-key evil-normal-state-map (kbd "M-<up>")    'evil-window-up)
+  (define-key evil-normal-state-map (kbd "M-<right>") 'evil-window-right)
+
 #+end_src
 
 ** Evil: general.el
@@ -950,8 +964,8 @@ Execute an action in =org-mode= based on where the point is.
      "w <right>" #'evil-window-right
      "w h" #'evil-window-split
      "w v" #'evil-window-vsplit
-     "w w" #'evil-window-next 
-     "W" #'evil-window-prev 
+     "w w" #'evil-window-next
+     "W" #'evil-window-prev
      "w k" #'kill-buffer-and-window
      ;; FRAMES
      "F F" #'make-frame
