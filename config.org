@@ -131,7 +131,7 @@ otherwise installs base16 theme.
       (require 'base16-stylix-theme)
       (setq base16-theme-256-color-source 'colors)
       (load-theme 'base16-stylix t))
-    ;; use base16 theme if true
+    ;; use base16 theme if false
     (use-package base16-emacs
       :ensure t
       :demand t
@@ -657,10 +657,10 @@ Prettify markers and bullets:
 Set in which files the org agenda should look for tasks.
 
 #+begin_src emacs-lisp :tangle "init.el"
-      (setq org-agenda-files (list "~/Documents/org/agenda.org"
-                                   "~/Documents/org/todo.org"
-                                   "~/Documents/org/inbox.org"
-                                   "~/Documents/org/calendar.org"
+      (setq org-agenda-files (list "~/pCloudSync/org/agenda.org"
+                                   "~/pCloudSync/org/todo.org"
+                                   "~/pCloudSync/org/inbox.org"
+                                   "~/pCloudSync/org/calendar.org"
                                    ))
 #+end_src
 
@@ -668,18 +668,30 @@ Set in which files the org agenda should look for tasks.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/Documents/org/todo.org" "Tasks")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/Documents/org/journal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")))
+        '(("t" "Todo" entry (file+headline "~/pCloudSync/org/agenda.org" "Tasks")
+           "* TODO %?\n  %i\n  %a\n")
+          ("e" "Event" entry (file+headline "~/pCloudSync/org/agenda.org" "Events")
+           "* %?\n  %^T\n")
+          ("j" "Journal" entry (file+datetree "~/pCloudSync/org/journal.org")
+           "* %?\nEntered on %U\n")
+          ("i" "Idea" entry (file+headline "~/pCloudSync/org/inbox.org" "Ideas")
+           "* %?\n %U\n")
+          ))
 #+end_src
 
+* Notes
+** Denote
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package denote
+    :ensure t
+    :init
+    (setq denote-directory (expand-file-name "~/pCloudSync/org/notes")))
+#+end_src
 ** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
   (elpaca-wait)
 #+end_src
-
 * Programming
 ** Indentation
 
@@ -931,6 +943,10 @@ Execute an action in =org-mode= based on where the point is.
   (define-key evil-normal-state-map (kbd "M-<up>")    'evil-window-up)
   (define-key evil-normal-state-map (kbd "M-<right>") 'evil-window-right)
 
+  ;; org-agenda-earlier and later
+  (with-eval-after-load 'org-agenda
+    (define-key org-agenda-mode-map (kbd "[") #'org-agenda-earlier)
+    (define-key org-agenda-mode-map (kbd "]") #'org-agenda-later))
 #+end_src
 
 ** Evil: general.el
@@ -945,19 +961,19 @@ Execute an action in =org-mode= based on where the point is.
     (general-define-key
      :states '(normal)
      :prefix "SPC"
-     ;; FILE
+     ;; file
      "f f" #'find-file
      "f r" #'recentf-open
-     ;; CONSULT
+     ;; consult
      "c d" #'consult-fd
      "c f" #'consult-flymake
      "c l" #'consult-line
      "c m" #'consult-man
      "c r" #'consult-ripgrep
-     ;; BUFFER
+     ;; buffer
      "b b" #'consult-buffer
      "b k" #'kill-this-buffer
-     ;; WINDOWS
+     ;; windows
      "w <left>" #'evil-window-left
      "w <down>" #'evil-window-down
      "w <up>" #'evil-window-up
@@ -967,12 +983,18 @@ Execute an action in =org-mode= based on where the point is.
      "w w" #'evil-window-next
      "W" #'evil-window-prev
      "w k" #'kill-buffer-and-window
-     ;; FRAMES
+     ;; frames
      "F F" #'make-frame
      "F f" #'find-file-other-frame
      "F k" #'delete-frame
-     ;; MAGIT
+     ;; magit
      "g g" #'magit-status
+     ;; org-agenda
+     "a a" #'org-agenda
+     "a c" #'org-capture
+     ;; denote
+     "n n" #'denote
+     "n g" #'denote-grep
      ))
 #+end_src
 
