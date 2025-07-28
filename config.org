@@ -725,13 +725,79 @@ Set in which files the org agenda should look for tasks.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package tree-sitter
     :ensure t
-    :hook ((prog-mode . tree-sitter-mode)
-           (LaTeX-mode . tree-sitter-mode)
-           (tree-sitter-after-on . tree-sitter-hl-mode)))
+    :after tree-sitter-langs
+    :demand t
+    :config
+    (global-tree-sitter-mode)
+    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
   (use-package tree-sitter-langs
     :ensure t
-    :after tree-sitter)
+    :demand t)
+#+end_src
+
+*** Customize tree-sitter faces
+
+The goal of this section is to reduce the number of colors used in code
+highlighting.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (with-eval-after-load 'tree-sitter
+    (let ((base00 (plist-get base16-stylix-theme-colors :base00))
+          (base01 (plist-get base16-stylix-theme-colors :base01))
+          (base02 (plist-get base16-stylix-theme-colors :base02))
+          (base03 (plist-get base16-stylix-theme-colors :base03))
+          (base04 (plist-get base16-stylix-theme-colors :base04))
+          (base05 (plist-get base16-stylix-theme-colors :base05))
+          (base06 (plist-get base16-stylix-theme-colors :base06))
+          (base07 (plist-get base16-stylix-theme-colors :base07))
+          (base08 (plist-get base16-stylix-theme-colors :base08))
+          (base09 (plist-get base16-stylix-theme-colors :base09))
+          (base0A (plist-get base16-stylix-theme-colors :base0A))
+          (base0B (plist-get base16-stylix-theme-colors :base0B))
+          (base0C (plist-get base16-stylix-theme-colors :base0C))
+          (base0D (plist-get base16-stylix-theme-colors :base0D))
+          (base0E (plist-get base16-stylix-theme-colors :base0E))
+          (base0F (plist-get base16-stylix-theme-colors :base0F)))
+      (custom-set-faces
+       `(tree-sitter-hl-face:attribute             ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:comment               ((t (:foreground ,base02))))
+       `(tree-sitter-hl-face:constant              ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:constant.builtin      ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:constructor           ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:doc                   ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:embedded              ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:escape                ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:function              ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:function.builtin      ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:function.call         ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:function.macro        ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:function.special      ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:keyword               ((t (:foreground ,base0E))))
+       `(tree-sitter-hl-face:label                 ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:method                ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:method.call           ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:number                ((t (:foreground ,base0C))))
+       `(tree-sitter-hl-face:operator              ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:property              ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:property.definition   ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:punctuation           ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:punctuation.bracket   ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:punctuation.delimiter ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:punctuation.special   ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:string                ((t (:foreground ,base0C))))
+       `(tree-sitter-hl-face:string.special        ((t (:foreground ,base0C))))
+       `(tree-sitter-hl-face:tag                   ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:type                  ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:type.argument         ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:type.builtin          ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:type.parameter        ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:type.super            ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:variable              ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:variable.builtin      ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:variable.parameter    ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:variable.special      ((t (:foreground ,base05))))
+       )))
 #+end_src
 
 ** Formatter
@@ -792,8 +858,7 @@ Install and configure Matlab mode:
                    (setq-local eglot-stay-out-of '(flymake))))
                    ;; Enable eglot
                    (eglot-ensure))
-    :config
-    (define-key LaTeX-mode-map (kbd "<C-tab>") 'outline-toggle-children))
+    )
 #+end_src
 
 ** Python
