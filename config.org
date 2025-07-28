@@ -114,6 +114,10 @@ as =Elpaca= is used instead.
 This section loads the theme provided by Nixos stylix if system is Nixos,
 otherwise installs base16 theme.
 #+begin_src emacs-lisp :tangle "early-init.el"
+
+  ;; Default frame title
+  (setq-default frame-title-format '("Gnu Emacs"))
+
   (defun get-linux-distribution ()
     "Get the Linux distribution name from /etc/os-release."
     (when (and (eq system-type 'gnu/linux)
@@ -273,6 +277,7 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 
   (setq display-line-numbers t)
   (global-display-line-numbers-mode)
+
  #+end_src
 
 ** org-auto-tangle
