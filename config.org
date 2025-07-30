@@ -193,7 +193,14 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     :after evil
     :ensure t
     :config
-    (evil-collection-init))
+    (evil-collection-init)
+    ;; Normal and visual states
+    (define-key evil-normal-state-map [down] 'next-line)
+    (define-key evil-normal-state-map [up] 'previous-line)
+    (define-key evil-visual-state-map [down] 'next-line)
+    (define-key evil-visual-state-map [up] 'previous-line)
+    (define-key evil-motion-state-map [down] 'next-line)
+    (define-key evil-motion-state-map [up] 'previous-line))
 
   ;; Evil numbers
   (use-package evil-numbers
