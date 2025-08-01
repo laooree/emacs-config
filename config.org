@@ -866,18 +866,13 @@ Install and configure Matlab mode:
     :ensure t
     :defer t
     :hook
-    (LaTeX-mode . outline-minor-mode) ;; enable code folding
-    (LaTeX-mode . display-line-numbers-mode) ;; display line numbers
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
     (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
     (LaTeX-mode . flyspell-mode) ;; enable grammar checking
-    (LaTeX-mode . flymake-mode) ;; enable syntax checking
-    ;; Let eglot out of flymake in LaTeX-mode
-    ((LaTeX-mode . (lambda ()
-                   ;; Keep eglot out of flymake in LaTeX buffers
-                   (setq-local eglot-stay-out-of '(flymake))))
-                   ;; Enable eglot
-                   (eglot-ensure))
+    (LaTeX-mode . flymake-mode) ;; enable LaTeX syntax checking
+    (LaTeX-mode . (lambda ()
+                    (setq-local eglot-stay-out-of '(flymake))
+                    (eglot-ensure)))
     )
 #+end_src
 
