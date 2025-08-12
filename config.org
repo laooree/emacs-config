@@ -111,42 +111,34 @@ as =Elpaca= is used instead.
 
 ** Theme and fonts
 
-This section loads the theme provided by Nixos stylix if system is Nixos,
-otherwise installs base16 theme.
 #+begin_src emacs-lisp :tangle "early-init.el"
 
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
-  (defun get-linux-distribution ()
-    "Get the Linux distribution name from /etc/os-release."
-    (when (and (eq system-type 'gnu/linux)
-               (file-readable-p "/etc/os-release"))
-      (with-temp-buffer
-        (insert-file-contents "/etc/os-release")
-        (when (re-search-forward "^ID=\\(.+\\)$" nil t)
-          (let ((id (match-string 1)))
-            ;; Remove possible surrounding quotes
-            (replace-regexp-in-string "\"" "" id))))))
+  ;; (defun get-linux-distribution ()
+  ;;   "Get the Linux distribution name from /etc/os-release."
+  ;;   (when (and (eq system-type 'gnu/linux)
+  ;;              (file-readable-p "/etc/os-release"))
+  ;;     (with-temp-buffer
+  ;;       (insert-file-contents "/etc/os-release")
+  ;;       (when (re-search-forward "^ID=\\(.+\\)$" nil t)
+  ;;         (let ((id (match-string 1)))
+  ;;           ;; Remove possible surrounding quotes
+  ;;           (replace-regexp-in-string "\"" "" id))))))
 
-  (if (equal "nixos" (get-linux-distribution))
-    ;; require stylix theme if true
-    (progn
-      (require 'base16-stylix-theme)
-      (setq base16-theme-256-color-source 'colors)
-      (load-theme 'base16-stylix t))
-    ;; use base16 theme if false
-    (use-package base16-emacs
-      :ensure t
-      :demand t
-      :config
-      (load-theme 'base16-nord t)))
+  (use-package miasma-theme
+    :ensure t
+    :config
+    (load-theme 'miasma t))
+
 
   (let ((mono-spaced-font "Iosevka Nerd Font"))
     (set-face-attribute 'default nil :family mono-spaced-font :height 180)
     (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
 
   (elpaca-wait)
+
 #+end_src
 
 * Eldoc
@@ -763,60 +755,69 @@ highlighting.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (with-eval-after-load 'tree-sitter
-    (let ((base00 (plist-get base16-stylix-theme-colors :base00))
-          (base01 (plist-get base16-stylix-theme-colors :base01))
-          (base02 (plist-get base16-stylix-theme-colors :base02))
-          (base03 (plist-get base16-stylix-theme-colors :base03))
-          (base04 (plist-get base16-stylix-theme-colors :base04))
-          (base05 (plist-get base16-stylix-theme-colors :base05))
-          (base06 (plist-get base16-stylix-theme-colors :base06))
-          (base07 (plist-get base16-stylix-theme-colors :base07))
-          (base08 (plist-get base16-stylix-theme-colors :base08))
-          (base09 (plist-get base16-stylix-theme-colors :base09))
-          (base0A (plist-get base16-stylix-theme-colors :base0A))
-          (base0B (plist-get base16-stylix-theme-colors :base0B))
-          (base0C (plist-get base16-stylix-theme-colors :base0C))
-          (base0D (plist-get base16-stylix-theme-colors :base0D))
-          (base0E (plist-get base16-stylix-theme-colors :base0E))
-          (base0F (plist-get base16-stylix-theme-colors :base0F)))
+    (let ((miasma-light-charcoal "#222222")
+      (miasma-charcoal           "#1c1c1c")
+      (miasma-obsidian           "#151515")
+      (miasma-graphite           "#444444")
+      (miasma-dark-gray          "#666666")
+      (miasma-light-gray         "#c2c2b0")
+      (miasma-marble             "#eaeaea")
+      (miasma-river              "#1f3a5f")
+      (miasma-sky                "#87CEEB")
+      (miasma-forest             "#242d1d")
+      (miasma-moss               "#2f361f")
+      (miasma-olive              "#43492a")
+      (miasma-ivy                "#335533")
+      (miasma-eucalyptus         "#5f875f")
+      (miasma-reseda             "#78834b")
+      (miasma-walnut             "#685742")
+      (miasma-tangerine          "#fd9720")
+      (miasma-copper             "#bb7744")
+      (miasma-cedar              "#b36d43")
+      (miasma-terracota          "#c86448")
+      (miasma-chestnut           "#553333")
+      (miasma-fire               "#824040")
+      (miasma-lemon              "#fbec9f")
+      (miasma-ecru               "#d7c483")
+      (miasma-brass              "#c9a554"))
       (custom-set-faces
-       `(tree-sitter-hl-face:attribute             ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:comment               ((t (:foreground ,base02))))
-       `(tree-sitter-hl-face:constant              ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:constant.builtin      ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:constructor           ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:doc                   ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:embedded              ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:escape                ((t (:foreground ,base0D))))
-       `(tree-sitter-hl-face:function              ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:function.builtin      ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:function.call         ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:function.macro        ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:function.special      ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:keyword               ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:label                 ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:method                ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:method.call           ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:number                ((t (:foreground ,base0C))))
-       `(tree-sitter-hl-face:operator              ((t (:foreground ,base07))))
-       `(tree-sitter-hl-face:property              ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:property.definition   ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:punctuation           ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:punctuation.bracket   ((t (:foreground ,base0E))))
-       `(tree-sitter-hl-face:punctuation.delimiter ((t (:foreground ,base0E))))
-       `(tree-sitter-hl-face:punctuation.special   ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:string                ((t (:foreground ,base0C))))
-       `(tree-sitter-hl-face:string.special        ((t (:foreground ,base0C))))
-       `(tree-sitter-hl-face:tag                   ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:type                  ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:type.argument         ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:type.builtin          ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:type.parameter        ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:type.super            ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:variable              ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:variable.builtin      ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:variable.parameter    ((t (:foreground ,base05))))
-       `(tree-sitter-hl-face:variable.special      ((t (:foreground ,base05))))
+       `(tree-sitter-hl-face:attribute             ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:comment               ((t (:foreground ,miasma-dark-gray ))))
+       `(tree-sitter-hl-face:constant              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:constant.builtin      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:constructor           ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:doc                   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:embedded              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:escape                ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.builtin      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.call         ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.macro        ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.special      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:keyword               ((t (:foreground ,miasma-copper    ))))
+       `(tree-sitter-hl-face:label                 ((t (:foreground ,miasma-copper    ))))
+       `(tree-sitter-hl-face:method                ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:method.call           ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:number                ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:operator              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:property              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:property.definition   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation           ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation.bracket   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation.delimiter ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation.special   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:string                ((t (:foreground ,miasma-eucalyptus))))
+       `(tree-sitter-hl-face:string.special        ((t (:foreground ,miasma-eucalyptus))))
+       `(tree-sitter-hl-face:tag                   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type                  ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.argument         ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.builtin          ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.parameter        ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.super            ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable.builtin      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable.parameter    ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable.special      ((t (:foreground ,miasma-light-gray))))
        )))
 #+end_src
 
