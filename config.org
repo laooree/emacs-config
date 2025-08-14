@@ -445,7 +445,10 @@ very useful everywhere else.
   (use-package rainbow-delimiters
     :ensure t
     :defer t
-    :hook (prog-mode . rainbow-delimiters-mode))
+    :hook
+    (emacs-lisp-mode . rainbow-delimiters-mode)
+    (nix-mode . rainbow-delimiters-mode)
+    )
 #+end_src
 
 ** Rainbow mode
