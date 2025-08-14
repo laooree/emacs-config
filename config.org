@@ -672,6 +672,47 @@ Prettify markers and bullets:
 
 #+end_src
 
+It seems that [[font-lock]] is messing up org heading colors. Explicitly define them
+here:
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (let ((miasma-light-charcoal "#222222")
+    (miasma-charcoal           "#1c1c1c")
+    (miasma-obsidian           "#151515")
+    (miasma-graphite           "#444444")
+    (miasma-dark-gray          "#666666")
+    (miasma-light-gray         "#c2c2b0")
+    (miasma-marble             "#eaeaea")
+    (miasma-river              "#1f3a5f")
+    (miasma-sky                "#87CEEB")
+    (miasma-forest             "#242d1d")
+    (miasma-moss               "#2f361f")
+    (miasma-olive              "#43492a")
+    (miasma-ivy                "#335533")
+    (miasma-eucalyptus         "#5f875f")
+    (miasma-reseda             "#78834b")
+    (miasma-walnut             "#685742")
+    (miasma-tangerine          "#fd9720")
+    (miasma-copper             "#bb7744")
+    (miasma-cedar              "#b36d43")
+    (miasma-terracota          "#c86448")
+    (miasma-chestnut           "#553333")
+    (miasma-fire               "#824040")
+    (miasma-lemon              "#fbec9f")
+    (miasma-ecru               "#d7c483")
+    (miasma-brass              "#c9a554"))
+    (custom-set-faces
+     `(org-level-1 ((t (:foreground ,miasma-reseda))))
+     `(org-level-2 ((t (:foreground ,miasma-lemon))))
+     `(org-level-3 ((t (:foreground ,miasma-eucalyptus))))
+     `(org-level-4 ((t (:foreground ,miasma-dark-gray))))
+     `(org-level-5 ((t (:foreground ,miasma-brass))))
+     `(org-level-6 ((t (:foreground ,miasma-terracota))))
+     `(org-level-7 ((t (:foreground ,miasma-marble))))
+     `(org-level-8 ((t (:foreground ,miasma-copper))))
+     ))
+#+end_src
+
 ** Agenda files
 
 Set in which files the org agenda should look for tasks.
@@ -749,79 +790,6 @@ Set in which files the org agenda should look for tasks.
   (use-package tree-sitter-langs
     :ensure t
     :demand t)
-#+end_src
-
-*** Customize tree-sitter faces
-
-The goal of this section is to reduce the number of colors used in code
-highlighting.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (with-eval-after-load 'tree-sitter
-    (let ((miasma-light-charcoal "#222222")
-      (miasma-charcoal           "#1c1c1c")
-      (miasma-obsidian           "#151515")
-      (miasma-graphite           "#444444")
-      (miasma-dark-gray          "#666666")
-      (miasma-light-gray         "#c2c2b0")
-      (miasma-marble             "#eaeaea")
-      (miasma-river              "#1f3a5f")
-      (miasma-sky                "#87CEEB")
-      (miasma-forest             "#242d1d")
-      (miasma-moss               "#2f361f")
-      (miasma-olive              "#43492a")
-      (miasma-ivy                "#335533")
-      (miasma-eucalyptus         "#5f875f")
-      (miasma-reseda             "#78834b")
-      (miasma-walnut             "#685742")
-      (miasma-tangerine          "#fd9720")
-      (miasma-copper             "#bb7744")
-      (miasma-cedar              "#b36d43")
-      (miasma-terracota          "#c86448")
-      (miasma-chestnut           "#553333")
-      (miasma-fire               "#824040")
-      (miasma-lemon              "#fbec9f")
-      (miasma-ecru               "#d7c483")
-      (miasma-brass              "#c9a554"))
-      (custom-set-faces
-       `(tree-sitter-hl-face:attribute             ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:comment               ((t (:foreground ,miasma-dark-gray ))))
-       `(tree-sitter-hl-face:constant              ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:constant.builtin      ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:constructor           ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:doc                   ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:embedded              ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:escape                ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:function              ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:function.builtin      ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:function.call         ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:function.macro        ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:function.special      ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:keyword               ((t (:foreground ,miasma-copper    ))))
-       `(tree-sitter-hl-face:label                 ((t (:foreground ,miasma-copper    ))))
-       `(tree-sitter-hl-face:method                ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:method.call           ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:number                ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:operator              ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:property              ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:property.definition   ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:punctuation           ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:punctuation.bracket   ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:punctuation.delimiter ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:punctuation.special   ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:string                ((t (:foreground ,miasma-eucalyptus))))
-       `(tree-sitter-hl-face:string.special        ((t (:foreground ,miasma-eucalyptus))))
-       `(tree-sitter-hl-face:tag                   ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:type                  ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:type.argument         ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:type.builtin          ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:type.parameter        ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:type.super            ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:variable              ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:variable.builtin      ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:variable.parameter    ((t (:foreground ,miasma-light-gray))))
-       `(tree-sitter-hl-face:variable.special      ((t (:foreground ,miasma-light-gray))))
-       )))
 #+end_src
 
 ** Formatter
@@ -920,6 +888,161 @@ Install and configure Matlab mode:
     :ensure t
     :defer t
     :mode "\\.nix\\'")
+#+end_src
+
+** Faces
+*** font-lock
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (let ((miasma-light-charcoal "#222222")
+    (miasma-charcoal           "#1c1c1c")
+    (miasma-obsidian           "#151515")
+    (miasma-graphite           "#444444")
+    (miasma-dark-gray          "#666666")
+    (miasma-light-gray         "#c2c2b0")
+    (miasma-marble             "#eaeaea")
+    (miasma-river              "#1f3a5f")
+    (miasma-sky                "#87CEEB")
+    (miasma-forest             "#242d1d")
+    (miasma-moss               "#2f361f")
+    (miasma-olive              "#43492a")
+    (miasma-ivy                "#335533")
+    (miasma-eucalyptus         "#5f875f")
+    (miasma-reseda             "#78834b")
+    (miasma-walnut             "#685742")
+    (miasma-tangerine          "#fd9720")
+    (miasma-copper             "#bb7744")
+    (miasma-cedar              "#b36d43")
+    (miasma-terracota          "#c86448")
+    (miasma-chestnut           "#553333")
+    (miasma-fire               "#824040")
+    (miasma-lemon              "#fbec9f")
+    (miasma-ecru               "#d7c483")
+    (miasma-brass              "#c9a554"))
+    (custom-set-faces
+     `(font-lock-constant-face      ((t (:foreground ,miasma-light-gray))))
+     `(font-lock-function-name-face ((t (:foreground ,miasma-light-gray))))
+     `(font-lock-variable-name-face ((t (:foreground ,miasma-light-gray))))
+     ))
+#+end_src
+
+*** tree-sitter
+
+The goal of this section is to reduce the number of colors used in code
+highlighting.
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (with-eval-after-load 'tree-sitter
+    (let ((miasma-light-charcoal "#222222")
+      (miasma-charcoal           "#1c1c1c")
+      (miasma-obsidian           "#151515")
+      (miasma-graphite           "#444444")
+      (miasma-dark-gray          "#666666")
+      (miasma-light-gray         "#c2c2b0")
+      (miasma-marble             "#eaeaea")
+      (miasma-river              "#1f3a5f")
+      (miasma-sky                "#87CEEB")
+      (miasma-forest             "#242d1d")
+      (miasma-moss               "#2f361f")
+      (miasma-olive              "#43492a")
+      (miasma-ivy                "#335533")
+      (miasma-eucalyptus         "#5f875f")
+      (miasma-reseda             "#78834b")
+      (miasma-walnut             "#685742")
+      (miasma-tangerine          "#fd9720")
+      (miasma-copper             "#bb7744")
+      (miasma-cedar              "#b36d43")
+      (miasma-terracota          "#c86448")
+      (miasma-chestnut           "#553333")
+      (miasma-fire               "#824040")
+      (miasma-lemon              "#fbec9f")
+      (miasma-ecru               "#d7c483")
+      (miasma-brass              "#c9a554"))
+      (custom-set-faces
+       `(tree-sitter-hl-face:attribute             ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:comment               ((t (:foreground ,miasma-dark-gray ))))
+       `(tree-sitter-hl-face:constant              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:constant.builtin      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:constructor           ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:doc                   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:embedded              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:escape                ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.builtin      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.call         ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.macro        ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:function.special      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:keyword               ((t (:foreground ,miasma-copper    ))))
+       `(tree-sitter-hl-face:label                 ((t (:foreground ,miasma-copper    ))))
+       `(tree-sitter-hl-face:method                ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:method.call           ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:number                ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:operator              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:property              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:property.definition   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation           ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation.bracket   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation.delimiter ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:punctuation.special   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:string                ((t (:foreground ,miasma-eucalyptus))))
+       `(tree-sitter-hl-face:string.special        ((t (:foreground ,miasma-eucalyptus))))
+       `(tree-sitter-hl-face:tag                   ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type                  ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.argument         ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.builtin          ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.parameter        ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:type.super            ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable              ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable.builtin      ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable.parameter    ((t (:foreground ,miasma-light-gray))))
+       `(tree-sitter-hl-face:variable.special      ((t (:foreground ,miasma-light-gray))))
+       )))
+#+end_src
+
+*** TeX
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (let ((miasma-light-charcoal "#222222")
+    (miasma-charcoal           "#1c1c1c")
+    (miasma-obsidian           "#151515")
+    (miasma-graphite           "#444444")
+    (miasma-dark-gray          "#666666")
+    (miasma-light-gray         "#c2c2b0")
+    (miasma-marble             "#eaeaea")
+    (miasma-river              "#1f3a5f")
+    (miasma-sky                "#87CEEB")
+    (miasma-forest             "#242d1d")
+    (miasma-moss               "#2f361f")
+    (miasma-olive              "#43492a")
+    (miasma-ivy                "#335533")
+    (miasma-eucalyptus         "#5f875f")
+    (miasma-reseda             "#78834b")
+    (miasma-walnut             "#685742")
+    (miasma-tangerine          "#fd9720")
+    (miasma-copper             "#bb7744")
+    (miasma-cedar              "#b36d43")
+    (miasma-terracota          "#c86448")
+    (miasma-chestnut           "#553333")
+    (miasma-fire               "#824040")
+    (miasma-lemon              "#fbec9f")
+    (miasma-ecru               "#d7c483")
+    (miasma-brass              "#c9a554"))
+    (custom-set-faces
+     `(font-latex-bold-face         ((t (:foreground ,miasma-light-gray :weight bold))))
+     `(font-latex-italic-face       ((t (:foreground ,miasma-light-gray :slant italic))))
+     `(font-latex-underline-face       ((t (:foreground ,miasma-light-gray :underline t))))
+     `(font-latex-math-face         ((t (:foreground ,miasma-ecru))))
+     `(font-latex-string-face       ((t (:foreground ,miasma-ecru))))
+     `(font-latex-script-char-face  ((t (:foreground ,miasma-ecru))))
+     `(font-latex-sectioning-0-face ((t (:foreground ,miasma-light-gray))))
+     `(font-latex-sectioning-1-face ((t (:foreground ,miasma-light-gray))))
+     `(font-latex-sectioning-2-face ((t (:foreground ,miasma-light-gray))))
+     `(font-latex-sectioning-3-face ((t (:foreground ,miasma-light-gray))))
+     `(font-latex-sectioning-4-face ((t (:foreground ,miasma-light-gray))))
+     `(font-latex-sectioning-5-face ((t (:foreground ,miasma-light-gray))))
+     `(font-latex-sedate-face      ((t (:foreground ,miasma-eucalyptus))))
+     `(font-latex-warning-face      ((t (:foreground ,miasma-ecru))))
+     ))
 #+end_src
 
 ** Elpaca wait

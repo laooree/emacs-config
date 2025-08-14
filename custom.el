@@ -16,15 +16,3 @@
      "36d8dbd35cfdd184e869efbeae66f3696c264e9d6eb7aa5952145dfde67146a7"
      "13517109e13a24f5d781b7a688c063dd91ae7808bb5be4486183cffe87a33b08" default))
  '(preview-TeX-style-dir "/home/laooree/.emacs.d/elpaca/builds/auctex/latex"))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(matlab-sections-highlight-face ((t (:weight regular))))
- '(org-block ((t (:inherit fixed-pitch))))
- '(org-checkbox ((t (:inherit fixed-pitch))))
- '(org-code ((t (:inherit fixed-pitch))))
- '(org-meta-line ((t (:inherit fixed-pitch))))
- '(org-table ((t (:inherit fixed-pitch))))
- '(org-verbatim ((t (:inherit fixed-pitch)))))
