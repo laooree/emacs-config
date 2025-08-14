@@ -488,6 +488,20 @@ Specify external programs to open specific file extensions.
     :defer t)
 #+end_src
 
+** Beacon
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package beacon
+    :ensure t
+    :demand t
+    :init
+    (setq beacon-size 40
+          beacon-blink-duration 0.5
+          beacon-color "#78834b")
+    :config
+    (beacon-mode 1))
+#+end_src
+
 ** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
