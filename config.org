@@ -851,6 +851,9 @@ Install and configure Matlab mode:
   (use-package auctex
     :ensure t
     :defer t
+    :init
+    (setq font-latex-fontify-script nil
+          font-latex-fontify-sectioning 'color)
     :hook
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
     (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
