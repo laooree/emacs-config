@@ -493,7 +493,7 @@ Specify external programs to open specific file extensions.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package beacon
     :ensure t
-    :demand t
+    :if (display-graphic-p)
     :init
     (setq beacon-size 40
           beacon-blink-duration 0.5
