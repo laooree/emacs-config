@@ -908,6 +908,14 @@ Install and configure Matlab mode:
     :mode "\\.nix\\'")
 #+end_src
 
+** Haskell
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package haskell-mode
+    :ensure t
+    :defer t)
+#+end_src
+
 ** Faces
 *** font-lock
 
