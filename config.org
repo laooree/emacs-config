@@ -384,7 +384,8 @@ The =dired-subtree= allows to expand folders using =TAB= key.
       (send-string-to-terminal shape)))
 
   ;; Hook into Evil state changes
-  (add-hook 'post-command-hook #'my/set-cursor-shape)
+  (unless (display-graphic-p)
+    (add-hook 'post-command-hook #'my/set-cursor-shape))
 #+end_src
 #+end_src
 ** Nerd icons
