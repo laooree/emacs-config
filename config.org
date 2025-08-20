@@ -863,6 +863,11 @@ Install and configure Matlab mode:
     (LaTeX-mode . (lambda ()
                     (setq-local eglot-stay-out-of '(flymake))
                     (eglot-ensure)))
+    :config
+    (with-eval-after-load "tex"
+      (add-to-list 'TeX-command-list
+                   '("LuaLaTeX" "lualatex %s" TeX-run-TeX nil t
+                     :help "Run LuaLaTeX")))
     )
 #+end_src
 
