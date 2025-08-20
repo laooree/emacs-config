@@ -185,14 +185,7 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     :after evil
     :ensure t
     :config
-    (evil-collection-init)
-    ;; Normal and visual states
-    (define-key evil-normal-state-map [down] 'next-line)
-    (define-key evil-normal-state-map [up] 'previous-line)
-    (define-key evil-visual-state-map [down] 'next-line)
-    (define-key evil-visual-state-map [up] 'previous-line)
-    (define-key evil-motion-state-map [down] 'next-line)
-    (define-key evil-motion-state-map [up] 'previous-line))
+    (evil-collection-init))
 
   ;; Evil numbers
   (use-package evil-numbers
@@ -1190,6 +1183,24 @@ Execute an action in =org-mode= based on where the point is.
   (with-eval-after-load 'org-agenda
     (define-key org-agenda-mode-map (kbd "[") #'org-agenda-earlier)
     (define-key org-agenda-mode-map (kbd "]") #'org-agenda-later))
+
+  ;; arrows move in visual lines
+  (with-eval-after-load 'evil
+    (define-key evil-normal-state-map [down] 'evil-next-visual-line)
+    (define-key evil-normal-state-map [up]   'evil-previous-visual-line)
+    (define-key evil-visual-state-map [down] 'evil-next-visual-line)
+    (define-key evil-visual-state-map [up]   'evil-previous-visual-line)
+    (define-key evil-motion-state-map [down] 'evil-next-visual-line)
+    (define-key evil-motion-state-map [up]   'evil-previous-visual-line)
+    (add-hook 'org-mode-hook
+            (lambda ()
+              (define-key evil-normal-state-local-map [down] 'evil-next-line)
+              (define-key evil-normal-state-local-map [up]   'evil-previous-line)
+              (define-key evil-visual-state-local-map [down] 'evil-next-line)
+              (define-key evil-visual-state-local-map [up]   'evil-previous-line)
+              (define-key evil-motion-state-local-map [down] 'evil-next-line)
+              (define-key evil-motion-state-local-map [up]   'evil-previous-line))))
+
 #+end_src
 
 ** Evil: general.el
