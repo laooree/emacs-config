@@ -141,6 +141,30 @@ as =Elpaca= is used instead.
 
 #+end_src
 
+** general.el
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  (use-package general
+    :ensure t
+    :demand t
+
+    :config
+    (general-define-key
+     :states '(normal)
+     :prefix "SPC"
+
+     "f f" #'find-file
+     "f r" #'recentf-open
+     "b k" #'kill-this-buffer
+
+     "F F" #'make-frame
+     "F f" #'find-file-other-frame
+     "F k" #'delete-frame
+    ))
+  
+  (elpaca-wait)
+#+end_src
+
 * Eldoc
 
 Ensure latest version of =eldoc= is installed. =use-package= is giving some
@@ -161,10 +185,10 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 * Evil
 
 #+begin_src emacs-lisp :tangle "init.el"
-
   (use-package evil
     :ensure t
     :demand t
+    :after general
 
     :init
     (setq evil-want-fine-undo t)
@@ -172,6 +196,20 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
     (setq evil-undo-system 'undo-redo)
+
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             ;; windows
+             "w <left>" #'evil-window-left
+             "w <down>" #'evil-window-down
+             "w <up>" #'evil-window-up
+             "w <right>" #'evil-window-right
+             "w h" #'evil-window-split
+             "w v" #'evil-window-vsplit
+             "w w" #'evil-window-next
+             "W" #'evil-window-prev
+             "w k" #'kill-buffer-and-window)
 
     :config
     (evil-mode 1)
@@ -203,6 +241,7 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     (evil-snipe-mode +1)
     (evil-snipe-override-mode +1))
 
+  (elpaca-wait)
 #+end_src
 
 * UI and UX
@@ -281,7 +320,7 @@ in the org file for which you want auto tangling.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package org-auto-tangle
     :ensure t
-    :defer t
+    :after org
     :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
@@ -479,7 +518,13 @@ Specify external programs to open specific file extensions.
   ;; Install magit
   (use-package magit
     :ensure t
-    :defer t)
+    :defer t
+
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             "g g" #'magit-status
+             ))
 #+end_src
 
 ** Beacon
@@ -561,7 +606,17 @@ Specify external programs to open specific file extensions.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package consult
     :ensure t
-    :defer t)
+    :defer t
+
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             "c d" #'consult-fd
+             "c f" #'consult-flymake
+             "c l" #'consult-line
+             "c m" #'consult-man
+             "c r" #'consult-ripgrep
+             "b b" #'consult-buffer))
 #+end_src
 
 ** Corfu
@@ -652,100 +707,58 @@ Install latest org-mode.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package org
     :ensure t
-    :defer t)
-#+end_src
+    :defer t
 
-** Prettify org-mode
+    :init
+    (setq org-startup-indented t)
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             "o a" #'org-agenda
+             "o c" #'org-capture)
 
-Open org-files showing indented headings by default.
+    :config
+    (let ((miasma-dark-gray          "#666666")
+          (miasma-marble             "#eaeaea")
+          (miasma-eucalyptus         "#5f875f")
+          (miasma-reseda             "#78834b")
+          (miasma-copper             "#bb7744")
+          (miasma-terracota          "#c86448")
+          (miasma-lemon              "#fbec9f")
+          (miasma-brass              "#c9a554"))
+      (custom-set-faces
+       `(org-level-1 ((t (:foreground ,miasma-reseda))))
+       `(org-level-2 ((t (:foreground ,miasma-lemon))))
+       `(org-level-3 ((t (:foreground ,miasma-eucalyptus))))
+       `(org-level-4 ((t (:foreground ,miasma-dark-gray))))
+       `(org-level-5 ((t (:foreground ,miasma-brass))))
+       `(org-level-6 ((t (:foreground ,miasma-terracota))))
+       `(org-level-7 ((t (:foreground ,miasma-marble))))
+       `(org-level-8 ((t (:foreground ,miasma-copper))))
+       ))
 
-#+begin_src emacs-lisp :tangle "init.el"
-  (setq org-startup-indented t)
-#+end_src
+    (setq org-agenda-files (list "~/pCloudSync/org/agenda.org"
+                                 "~/pCloudSync/org/todo.org"
+                                 "~/pCloudSync/org/inbox.org"
+                                 "~/pCloudSync/org/calendar.org"
+                                 ))
+    (setq org-capture-templates
+          '(("t" "Todo" entry (file+headline "~/pCloudSync/org/agenda.org" "Tasks")
+             "* TODO %?\n  %i\n  %a\n")
+            ("e" "Event" entry (file+headline "~/pCloudSync/org/agenda.org" "Events")
+             "* %?\n  %^T\n")
+            ("j" "Journal" entry (file+datetree "~/pCloudSync/org/journal.org")
+             "* %?\nEntered on %U\n")
+            ("i" "Idea" entry (file+headline "~/pCloudSync/org/inbox.org" "Ideas")
+             "* %?\n %U\n")
+            )))
 
-Prettify markers and bullets:
-
-#+begin_src emacs-lisp :tangle "init.el"
   ;; Use nice bullets for org-mode headers
   (use-package org-bullets
     :ensure t
-    :after (org)
+    :after org
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-
-  ;; Replace "-" in lists with a centered dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-#+end_src
-
-It seems that [[font-lock]] is messing up org heading colors. Explicitly define them
-here:
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (let ((miasma-light-charcoal "#222222")
-    (miasma-charcoal           "#1c1c1c")
-    (miasma-obsidian           "#151515")
-    (miasma-graphite           "#444444")
-    (miasma-dark-gray          "#666666")
-    (miasma-light-gray         "#c2c2b0")
-    (miasma-marble             "#eaeaea")
-    (miasma-river              "#1f3a5f")
-    (miasma-sky                "#87CEEB")
-    (miasma-forest             "#242d1d")
-    (miasma-moss               "#2f361f")
-    (miasma-olive              "#43492a")
-    (miasma-ivy                "#335533")
-    (miasma-eucalyptus         "#5f875f")
-    (miasma-reseda             "#78834b")
-    (miasma-walnut             "#685742")
-    (miasma-tangerine          "#fd9720")
-    (miasma-copper             "#bb7744")
-    (miasma-cedar              "#b36d43")
-    (miasma-terracota          "#c86448")
-    (miasma-chestnut           "#553333")
-    (miasma-fire               "#824040")
-    (miasma-lemon              "#fbec9f")
-    (miasma-ecru               "#d7c483")
-    (miasma-brass              "#c9a554"))
-    (custom-set-faces
-     `(org-level-1 ((t (:foreground ,miasma-reseda))))
-     `(org-level-2 ((t (:foreground ,miasma-lemon))))
-     `(org-level-3 ((t (:foreground ,miasma-eucalyptus))))
-     `(org-level-4 ((t (:foreground ,miasma-dark-gray))))
-     `(org-level-5 ((t (:foreground ,miasma-brass))))
-     `(org-level-6 ((t (:foreground ,miasma-terracota))))
-     `(org-level-7 ((t (:foreground ,miasma-marble))))
-     `(org-level-8 ((t (:foreground ,miasma-copper))))
-     ))
-#+end_src
-
-** Agenda files
-
-Set in which files the org agenda should look for tasks.
-
-#+begin_src emacs-lisp :tangle "init.el"
-      (setq org-agenda-files (list "~/pCloudSync/org/agenda.org"
-                                   "~/pCloudSync/org/todo.org"
-                                   "~/pCloudSync/org/inbox.org"
-                                   "~/pCloudSync/org/calendar.org"
-                                   ))
-#+end_src
-
-** Org capture
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/pCloudSync/org/agenda.org" "Tasks")
-           "* TODO %?\n  %i\n  %a\n")
-          ("e" "Event" entry (file+headline "~/pCloudSync/org/agenda.org" "Events")
-           "* %?\n  %^T\n")
-          ("j" "Journal" entry (file+datetree "~/pCloudSync/org/journal.org")
-           "* %?\nEntered on %U\n")
-          ("i" "Idea" entry (file+headline "~/pCloudSync/org/inbox.org" "Ideas")
-           "* %?\n %U\n")
-          ))
 #+end_src
 
 * Notes
@@ -754,7 +767,14 @@ Set in which files the org agenda should look for tasks.
   (use-package denote
     :ensure t
     :init
-    (setq denote-directory (expand-file-name "~/pCloudSync/org/notes")))
+    (setq denote-directory (expand-file-name "~/pCloudSync/org/notes"))
+
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             "n n" #'denote
+             "n g" #'denote-grep))
+
 #+end_src
 ** Elpaca wait
 
@@ -808,7 +828,7 @@ Set in which files the org agenda should look for tasks.
     :defer t)
 #+end_src
 
-** LSP
+** Eglot
 
 This block ensures that =eglot= is updated to the latest release.
 
@@ -818,10 +838,20 @@ This block ensures that =eglot= is updated to the latest release.
     :ensure t
     :defer t)
 
-  ;; Update eglot to latest version
   (use-package eglot
     :ensure t
-    :defer t)
+    :defer t
+    :after general
+
+    :general
+    (:states '(normal)
+             :keymaps 'eglot-mode-map
+             :prefix "SPC"
+             "e a" #'eglot-code-actions
+             "e o" #'eglot-code-action-organize-imports
+             "e r" #'eglot-rename
+             "e f" #'eglot-format)
+    )
 #+end_src
 
 ** Matlab
@@ -845,9 +875,11 @@ Install and configure Matlab mode:
   (use-package auctex
     :ensure t
     :defer t
+
     :init
     (setq font-latex-fontify-script nil
           font-latex-fontify-sectioning 'color)
+
     :hook
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
     (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
@@ -856,11 +888,21 @@ Install and configure Matlab mode:
     (LaTeX-mode . (lambda ()
                     (setq-local eglot-stay-out-of '(flymake))
                     (eglot-ensure)))
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             :keymaps 'LaTeX-mode-map
+             "l l" #'TeX-command-master
+             "l a" #'TeX-command-run-all)
+
     :config
-    (with-eval-after-load "tex"
+    (with-eval-after-load 'tex
       (add-to-list 'TeX-command-list
                    '("LuaLaTeX" "lualatex %s" TeX-run-TeX nil t
                      :help "Run LuaLaTeX")))
+    (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+                   '(LaTeX-mode . ("/run/current-system/sw/bin/texlab"))))
     )
 #+end_src
 
@@ -1201,55 +1243,6 @@ Execute an action in =org-mode= based on where the point is.
               (define-key evil-motion-state-local-map [down] 'evil-next-line)
               (define-key evil-motion-state-local-map [up]   'evil-previous-line))))
 
-#+end_src
-
-** Evil: general.el
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package general
-    :ensure t
-    :demand t
-    :after evil
-
-    :config
-    (general-define-key
-     :states '(normal)
-     :prefix "SPC"
-     ;; file
-     "f f" #'find-file
-     "f r" #'recentf-open
-     ;; consult
-     "c d" #'consult-fd
-     "c f" #'consult-flymake
-     "c l" #'consult-line
-     "c m" #'consult-man
-     "c r" #'consult-ripgrep
-     ;; buffer
-     "b b" #'consult-buffer
-     "b k" #'kill-this-buffer
-     ;; windows
-     "w <left>" #'evil-window-left
-     "w <down>" #'evil-window-down
-     "w <up>" #'evil-window-up
-     "w <right>" #'evil-window-right
-     "w h" #'evil-window-split
-     "w v" #'evil-window-vsplit
-     "w w" #'evil-window-next
-     "W" #'evil-window-prev
-     "w k" #'kill-buffer-and-window
-     ;; frames
-     "F F" #'make-frame
-     "F f" #'find-file-other-frame
-     "F k" #'delete-frame
-     ;; magit
-     "g g" #'magit-status
-     ;; org-agenda
-     "a a" #'org-agenda
-     "a c" #'org-capture
-     ;; denote
-     "n n" #'denote
-     "n g" #'denote-grep
-     ))
 #+end_src
 
 ** Commands
