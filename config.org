@@ -161,7 +161,7 @@ as =Elpaca= is used instead.
      "F f" #'find-file-other-frame
      "F k" #'delete-frame
     ))
-  
+
   (elpaca-wait)
 #+end_src
 
@@ -207,8 +207,6 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
              "w <right>" #'evil-window-right
              "w h" #'evil-window-split
              "w v" #'evil-window-vsplit
-             "w w" #'evil-window-next
-             "W" #'evil-window-prev
              "w k" #'kill-buffer-and-window)
 
     :config
@@ -694,6 +692,22 @@ work also in tty:
           gptel-backend (gptel-make-gh-copilot "Copilot")))
 #+end_src
 
+** Syntax and grammar
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package writegood-mode
+    :ensure (writegood-mode :host github :repo "bnbeckwith/writegood-mode")
+    :defer t
+
+    :general
+    (:states '(normal visual)
+             :prefix "SPC"
+             :keymaps 'writegood-mode-map
+             "w g" #'writegood-grade-level
+             "w r" #'writegood-reading-ease)
+    (:states '(normal)
+             :prefix "SPC"
+             "w w" #'writegood-mode))
+#+end_src
 ** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
