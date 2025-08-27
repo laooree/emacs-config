@@ -986,7 +986,7 @@ Install and configure Matlab mode:
     (miasma-ecru               "#d7c483")
     (miasma-brass              "#c9a554"))
     (custom-set-faces
-     `(font-lock-constant-face      ((t (:foreground ,miasma-light-gray))))
+     `(font-lock-constant-face      ((t (:foreground ,miasma-light-gray :slant italic))))
      `(font-lock-function-name-face ((t (:foreground ,miasma-light-gray))))
      `(font-lock-variable-name-face ((t (:foreground ,miasma-light-gray))))
      ))
