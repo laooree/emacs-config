@@ -888,6 +888,10 @@ Install and configure Matlab mode:
     (LaTeX-mode . (lambda ()
                     (setq-local eglot-stay-out-of '(flymake))
                     (eglot-ensure)))
+    (LaTeX-mode . (lambda ()
+                    (add-hook 'eglot-managed-mode-hook
+                              (lambda () (eglot-inlay-hints-mode -1))
+                              nil t)))
     :general
     (:states '(normal)
              :prefix "SPC"
