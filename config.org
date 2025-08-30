@@ -112,20 +112,8 @@ as =Elpaca= is used instead.
 ** Theme and fonts
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
-
-  ;; (defun get-linux-distribution ()
-  ;;   "Get the Linux distribution name from /etc/os-release."
-  ;;   (when (and (eq system-type 'gnu/linux)
-  ;;              (file-readable-p "/etc/os-release"))
-  ;;     (with-temp-buffer
-  ;;       (insert-file-contents "/etc/os-release")
-  ;;       (when (re-search-forward "^ID=\\(.+\\)$" nil t)
-  ;;         (let ((id (match-string 1)))
-  ;;           ;; Remove possible surrounding quotes
-  ;;           (replace-regexp-in-string "\"" "" id))))))
 
   (use-package miasma-theme
     :ensure t
@@ -346,7 +334,7 @@ Tweak =dired=. Options should be self-explanatory.
 
 The =dired-subtree= allows to expand folders using =TAB= key.
 
-#+begin_src emacs-lisp "init.el"
+#+begin_src emacs-lisp :tangle "init.el"
   (use-package dired-subtree
     :ensure t
     :after (dired)
@@ -548,7 +536,7 @@ Specify external programs to open specific file extensions.
   (elpaca-wait)
 #+end_src
 
-* Completions, suggestions, AI tools
+* Completions and suggestions
 ** Vertico
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -680,19 +668,6 @@ work also in tty:
   ;; Install official yasnippet snippets
   (use-package yasnippet-snippets
     :ensure t)
-#+end_src
-
-** GPTel
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package gptel
-    :ensure t
-    :defer t
-
-    :config
-    ;; Set Copilot as default backend
-    (setq gptel-model 'claude-3.7-sonnet
-          gptel-backend (gptel-make-gh-copilot "Copilot")))
 #+end_src
 
 ** Syntax and grammar
@@ -945,14 +920,6 @@ Install and configure Matlab mode:
     (evil-set-initial-state 'inferior-python-mode 'emacs))
 #+end_src
 
-** Julia
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package julia-mode
-    :ensure t
-    :init
-    (setq julia-indent-offset 2))
-#+end_src
 ** Shell
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -1144,7 +1111,7 @@ This section defines custom functions.
 
 ** my/keyboard-quit-dwim
 
-This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configuration/#h:e5e7b781-4b04-4c53-bf23-5e81789549ce][Protesilaos]]. 
+This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configuration/#h:e5e7b781-4b04-4c53-bf23-5e81789549ce][Protesilaos]].
 
 #+begin_src emacs-lisp :tangle "init.el"
   (defun my/keyboard-quit-dwim ()
@@ -1177,7 +1144,6 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
 Execute an action in =org-mode= based on where the point is.
 
 #+begin_src emacs-lisp :tangle "init.el"
-
   (defun my/org-dwim-at-point ()
     "Do-what-I-mean at point.
   Handles common Org elements intuitively."
@@ -1207,15 +1173,13 @@ Execute an action in =org-mode= based on where the point is.
        ((eq type 'table-row)
         (org-table-recalculate))
 
-       ((memq type '(src-block inline-src-block))
-        (org-babel-execute-src-block))
-
        ((memq type '(latex-fragment latex-environment))
         (org-latex-preview))
 
        (t
         (message "No specific action for this element")))))
 #+end_src
+
 * Keybindings
 
 ** Generic
