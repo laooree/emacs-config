@@ -138,12 +138,32 @@ as =Elpaca= is used instead.
     (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
 
   (elpaca-wait)
-
 #+end_src
+
+* Eldoc
+
+Ensure latest version of =eldoc= is installed. =use-package= is giving some
+issues here, so this workaround is used instead. The first three lines ensure
+that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
+=eldoc=, which is then loaded.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(unload-feature 'eldoc t)
+(setq custom-delayed-init-variables '())
+(defvar global-eldoc-mode nil)
+
+(elpaca eldoc
+  (require 'eldoc)
+  (global-eldoc-mode))
+#+end_src
+
+* Evil and general.el
+
+=general.el= must be loaded before every usage of =:general= key in =use-package=, and separated with an =(elpaca-wait)= instruction.
 
 ** general.el
 
-#+begin_src emacs-lisp :tangle "early-init.el"
+#+begin_src emacs-lisp :tangle "init.el"
   (use-package general
     :ensure t
     :demand t
@@ -165,24 +185,7 @@ as =Elpaca= is used instead.
   (elpaca-wait)
 #+end_src
 
-* Eldoc
-
-Ensure latest version of =eldoc= is installed. =use-package= is giving some
-issues here, so this workaround is used instead. The first three lines ensure
-that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
-=eldoc=, which is then loaded.
-
-#+begin_src emacs-lisp :tangle "init.el"
-(unload-feature 'eldoc t)
-(setq custom-delayed-init-variables '())
-(defvar global-eldoc-mode nil)
-
-(elpaca eldoc
-  (require 'eldoc)
-  (global-eldoc-mode))
-#+end_src
-
-* Evil
+** Evil
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package evil
