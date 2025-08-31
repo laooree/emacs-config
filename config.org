@@ -145,9 +145,19 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   (global-eldoc-mode))
 #+end_src
 
-* Evil and general.el
+* general.el + which-key
 
-=general.el= must be loaded before every usage of =:general= key in =use-package=, and separated with an =(elpaca-wait)= instruction.
+=general.el= must be loaded before every usage of =:general= key in =use-package=, and separated with an =(elpaca-wait)= instruction. =which-key= is loaded here to integrate with =general.el= and assign keymaps names.
+
+** which-key
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-setup-minibuffer)
+    (which-key-mode))
+#+end_src
 
 ** general.el
 
@@ -173,7 +183,7 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   (elpaca-wait)
 #+end_src
 
-** Evil
+* Evil
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package evil
@@ -191,7 +201,9 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     :general
     (:states '(normal)
              :prefix "SPC"
-             ;; windows
+
+             ;; window
+             "w" '(:ignore t :which-key "window")
              "w <left>" #'evil-window-left
              "w <down>" #'evil-window-down
              "w <up>" #'evil-window-up
@@ -499,7 +511,7 @@ Specify external programs to open specific file extensions.
 ** Magit
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Make sure transient is up to date
+  ;; Make sure dependencies are up to date
   (use-package transient
     :ensure t
     :defer t)
@@ -512,6 +524,7 @@ Specify external programs to open specific file extensions.
     :general
     (:states '(normal)
              :prefix "SPC"
+             "g" '(:ignore t :which-key "magit")
              "g g" #'magit-status
              ))
 #+end_src
@@ -600,11 +613,15 @@ Specify external programs to open specific file extensions.
     :general
     (:states '(normal)
              :prefix "SPC"
+
+             "c" '(:ignore t :which-key "consult")
              "c d" #'consult-fd
              "c f" #'consult-flymake
              "c l" #'consult-line
              "c m" #'consult-man
              "c r" #'consult-ripgrep
+
+             "b" '(:ignore t :which-key "buffer")
              "b b" #'consult-buffer))
 #+end_src
 
@@ -643,16 +660,6 @@ work also in tty:
     )
 #+end_src
 
-** which-key
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package which-key
-    :ensure t
-    :config
-    (which-key-setup-minibuffer)
-    (which-key-mode))
-#+end_src
-
 ** yasnippet
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -674,17 +681,7 @@ work also in tty:
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package writegood-mode
     :ensure (writegood-mode :host github :repo "bnbeckwith/writegood-mode")
-    :defer t
-
-    :general
-    (:states '(normal visual)
-             :prefix "SPC"
-             :keymaps 'writegood-mode-map
-             "w g" #'writegood-grade-level
-             "w r" #'writegood-reading-ease)
-    (:states '(normal)
-             :prefix "SPC"
-             "w w" #'writegood-mode))
+    :defer t)
 #+end_src
 ** Elpaca wait
 
@@ -706,6 +703,7 @@ Install latest org-mode.
     :general
     (:states '(normal)
              :prefix "SPC"
+             "o" '(:ignore t :which-key "org")
              "o a" #'org-agenda
              "o c" #'org-capture)
 
@@ -764,6 +762,7 @@ Install latest org-mode.
     :general
     (:states '(normal)
              :prefix "SPC"
+             "n" '(:ignore t :which-key "notes")
              "n n" #'denote
              "n g" #'denote-grep))
 
@@ -839,6 +838,7 @@ This block ensures that =eglot= is updated to the latest release.
     (:states '(normal)
              :keymaps 'eglot-mode-map
              :prefix "SPC"
+             "e" '(:ignore t :which-key "eglot")
              "e a" #'eglot-code-actions
              "e o" #'eglot-code-action-organize-imports
              "e r" #'eglot-rename
@@ -888,6 +888,7 @@ Install and configure Matlab mode:
     (:states '(normal)
              :prefix "SPC"
              :keymaps 'LaTeX-mode-map
+             "l" '(:ignore t :which-key "latex")
              "l l" #'TeX-command-master
              "l a" #'TeX-command-run-all)
 
@@ -1250,4 +1251,4 @@ Execute an action in =org-mode= based on where the point is.
     (unless (server-running-p)
       (server-start)))
 #+end_src
-
+<
