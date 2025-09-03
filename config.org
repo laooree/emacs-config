@@ -271,6 +271,9 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   ;; Accept y or n as yes or no
   (fset 'yes-or-no-p 'y-or-n-p)
 
+  ;; Confirm on kill-emacs
+  (setq confirm-kill-emacs 'y-or-n-p)
+
   ;;Require files to end with a newline.
   (setq require-final-newline t)
 
