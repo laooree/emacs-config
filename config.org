@@ -103,6 +103,10 @@ as =Elpaca= is used instead.
   (add-hook 'after-init-hook #'elpaca-process-queues)
   (elpaca `(,@elpaca-order))
 
+  ;; Disable symlinks on MS Windows
+  (when (eq system-type 'windows-nt)
+    (elpaca-no-symlink-mode))
+
   ;; Install use-package support
   (elpaca elpaca-use-package
     ;; Enable use-package :ensure support for Elpaca.
@@ -727,21 +731,28 @@ Install latest org-mode.
        `(org-level-8 ((t (:foreground ,miasma-copper))))
        ))
 
-    (setq org-agenda-files (list "~/pCloudSync/org/agenda.org"
-                                 "~/pCloudSync/org/todo.org"
-                                 "~/pCloudSync/org/inbox.org"
-                                 "~/pCloudSync/org/calendar.org"
-                                 ))
-    (setq org-capture-templates
-          '(("t" "Todo" entry (file+headline "~/pCloudSync/org/agenda.org" "Tasks")
-             "* TODO %?\n  %i\n  %a\n")
-            ("e" "Event" entry (file+headline "~/pCloudSync/org/agenda.org" "Events")
-             "* %?\n  %^T\n")
-            ("j" "Journal" entry (file+datetree "~/pCloudSync/org/journal.org")
-             "* %?\nEntered on %U\n")
-            ("i" "Idea" entry (file+headline "~/pCloudSync/org/inbox.org" "Ideas")
-             "* %?\n %U\n")
-            )))
+    (let ((pcloud-base-folder (cond
+                               ((eq system-type 'windows-nt) "p:/")
+                               ((eq system-type 'gnu/linux) "~/pCloudSync")
+                               (t "~/pCloudSync")))) ;; fallback
+
+      ;; org-agenda-files
+      (setq org-agenda-files
+            (list (expand-file-name "org/agenda.org" pcloud-base-folder)
+                  (expand-file-name "org/todo.org" pcloud-base-folder)
+                  (expand-file-name "org/inbox.org" pcloud-base-folder)
+                  (expand-file-name "org/calendar.org" pcloud-base-folder)))
+
+      ;; org-capture-templates
+      (setq org-capture-templates
+            `(("t" "Todo" entry (file+headline ,(expand-file-name "org/agenda.org" pcloud-base-folder) "Tasks")
+               "* TODO %?\n  %i\n  %a\n")
+              ("e" "Event" entry (file+headline ,(expand-file-name "org/agenda.org" pcloud-base-folder) "Events")
+               "* %?\n  %^T\n")
+              ("j" "Journal" entry (file+datetree ,(expand-file-name "org/journal.org" pcloud-base-folder))
+               "* %?\nEntered on %U\n")
+              ("i" "Idea" entry (file+headline ,(expand-file-name "org/inbox.org" pcloud-base-folder) "Ideas")
+               "* %?\n %U\n")))))
 
   ;; Use nice bullets for org-mode headers
   (use-package org-bullets
