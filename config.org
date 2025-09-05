@@ -727,6 +727,7 @@ Install latest org-mode.
 
     :init
     (setq org-startup-indented t)
+
     :general
     (:states '(normal)
              :prefix "SPC"
@@ -757,15 +758,18 @@ Install latest org-mode.
                "* %?\nEntered on %U\n")
               ("i" "Idea" entry (file+headline ,(expand-file-name "org/inbox.org" pcloud-base-folder) "Ideas")
                "* %?\n %U\n")))))
-
-  ;; Use nice bullets for org-mode headers
-  (use-package org-bullets
-    :ensure t
-    :after org
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
 
+** org-modern
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package org-modern
+    :ensure t
+    :defer t
+
+    :hook
+    (org-mode . org-modern-mode)
+    (org-agenda-finalize . org-modern-agenda))
+#+end_src
 * Notes
 ** Denote
 #+begin_src emacs-lisp :tangle "init.el"
