@@ -684,19 +684,21 @@ work also in tty:
     :ensure t)
 #+end_src
 
-** Syntax and grammar
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package writegood-mode
-    :ensure (writegood-mode :host github :repo "bnbeckwith/writegood-mode")
-    :defer t)
-#+end_src
 ** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
   (elpaca-wait)
 #+end_src
 
+** Grammarly
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package flymake-grammarly
+    :ensure (flymake-grammarly :host github :repo "emacs-grammarly/flymake-grammarly")
+    :defer t)
+#+end_src
 * Org-mode
+
+** org-mode
 
 Install latest org-mode.
 
