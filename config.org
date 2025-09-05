@@ -1226,6 +1226,10 @@ Execute an action in =org-mode= based on where the point is.
   (define-key evil-normal-state-map (kbd "M-<up>")    'evil-window-up)
   (define-key evil-normal-state-map (kbd "M-<right>") 'evil-window-right)
 
+  ;; Point movements
+  (global-unset-key (kbd "C-e"))
+  (define-key evil-normal-state-map (kbd "C-e")  'end-of-visual-line)
+
   ;; org-agenda-earlier and later
   (with-eval-after-load 'org-agenda
     (define-key org-agenda-mode-map (kbd "[") #'org-agenda-earlier)
@@ -1270,4 +1274,3 @@ Execute an action in =org-mode= based on where the point is.
     (unless (server-running-p)
       (server-start)))
 #+end_src
-<
