@@ -119,17 +119,129 @@ as =Elpaca= is used instead.
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
+
   (use-package ef-themes
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-autumn :no-confirm))
+    (ef-themes-select 'ef-bio))
 
+  ;; Fonts
   (let ((mono-spaced-font "Iosevka Nerd Font"))
     (set-face-attribute 'default nil :family mono-spaced-font :height 180)
     (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
 
   (elpaca-wait)
+#+end_src
+
+*** Export theme colors to stylix.nix
+#+begin_src emacs-lisp :tangle "init.el"
+  (defun my/theme-colors-to-stylix (colors-list stylix-bases)
+    "Turn a list of strings into a string, putting each element on a new line."
+    (cond
+     ((= 0 (length colors-list)) "")
+     (t (concat (car stylix-bases) " = " (car colors-list) ";\n" (my/theme-colors-to-stylix (cdr colors-list) (cdr stylix-bases))))
+     ))
+
+  (defun my/format-colors-for-nix (colors-string)
+    "Format the colors string with proper indentation and quotes for Nix."
+    (let ((lines (split-string colors-string "\n" t "\\s *")))
+      (mapconcat
+       (lambda (line)
+         (when (string-match "^\\s *\\(base[0-9A-F]+\\)\\s *=\\s *\\(#?[0-9A-Fa-f]+\\)\\s *;?\\s *$" line)
+           (let ((base-name (match-string 1 line))
+                 (color-value (match-string 2 line)))
+             ;; Add # if not present and ensure proper formatting
+             (unless (string-prefix-p "#" color-value)
+               (setq color-value (concat "#" color-value)))
+             (format "      %s = \"%s\";" base-name color-value))))
+       lines
+       "\n")))
+
+  (defun my/export-theme-to-stylix (file-path new-colors-string)
+    "Replace the base16Scheme colors in a Nix file while preserving the rest of the structure."
+    (with-temp-buffer
+      ;; Read the existing file
+      (insert-file-contents file-path)
+
+      ;; Use a more precise regex to find the base16Scheme block
+      (goto-char (point-min))
+      (when (re-search-forward "base16Scheme\\s *=\\s *{" nil t)
+        (let ((start-pos (line-beginning-position))
+              (brace-count 1)
+              end-pos)
+
+          ;; Find the matching closing brace by counting braces
+          (while (and (> brace-count 0) (re-search-forward "[{}]" nil t))
+            (if (string= (match-string 0) "{")
+                (setq brace-count (1+ brace-count))
+              (setq brace-count (1- brace-count))))
+
+          (when (= brace-count 0)
+            (setq end-pos (line-end-position))
+            ;; Replace the entire base16Scheme block
+            (delete-region start-pos end-pos)
+            (goto-char start-pos)
+            (insert (concat "    base16Scheme = {\n"
+                            (my/format-colors-for-nix new-colors-string)
+                            "\n    };")))))
+      (write-region (point-min) (point-max) file-path)))
+
+  (with-eval-after-load 'ef-themes
+    (let
+        ((colors (ef-themes-with-colors
+                   (list bg-main
+                         bg-dim
+                         bg-alt
+                         bg-active
+                         fg-dim
+                         fg-main
+                         fg-mode-line
+                         keybind
+                         red
+                         yellow-warmer
+                         yellow
+                         green
+                         cyan
+                         blue
+                         magenta
+                         yellow-faint
+                         bg-mode-line
+                         fg-alt
+                         bg-graph-red-1
+                         bg-graph-green-1
+                         bg-graph-yellow-1
+                         bg-graph-blue-1
+                         bg-graph-magenta-1
+                         bg-graph-cyan-1
+                         )))
+         (bases (list "base00"
+                      "base01"
+                      "base02"
+                      "base03"
+                      "base04"
+                      "base05"
+                      "base06"
+                      "base07"
+                      "base08"
+                      "base09"
+                      "base0A"
+                      "base0B"
+                      "base0C"
+                      "base0D"
+                      "base0E"
+                      "base0F"
+                      "base10"
+                      "base11"
+                      "base12"
+                      "base13"
+                      "base14"
+                      "base15"
+                      "base16"
+                      "base17"
+                      )))
+      (my/export-theme-to-stylix (expand-file-name "~/.dotfiles/modules/nixos/stylix.nix")
+                                        (my/theme-colors-to-stylix colors bases))))
 #+end_src
 
 * Eldoc
@@ -479,7 +591,8 @@ Install and use nerd-icons.
 #+begin_src  emacs-lisp :tangle "init.el"
   (use-package doom-modeline
     :ensure t
-    :init (doom-modeline-mode 1))
+    :config (doom-modeline-mode 1))
+
 #+end_src
 
 ** Rainbow csv
