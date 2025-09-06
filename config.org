@@ -1044,13 +1044,18 @@ Install and configure Matlab mode:
 
     :init
     (setq python-indent-guess-indent-offset t
-          ;; Let python guess indentation silently
           python-indent-guess-indent-offset-verbose nil
-          ;; Set default indentation level to 4
           python-indent-offset 4)
 
+    :hook
+    (python-mode . eglot-ensure)
+
     :config
-    (evil-set-initial-state 'inferior-python-mode 'emacs))
+    (evil-set-initial-state 'inferior-python-mode 'emacs)
+    (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+                   '(python-mode . ("pyright-langserver" "--stdio")))
+    ))
 #+end_src
 
 ** Shell
@@ -1074,7 +1079,16 @@ Install and configure Matlab mode:
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package haskell-mode
     :ensure t
-    :defer t)
+    :defer t
+
+    :hook
+    (haskell-mode . eglot-ensure)
+
+    :config
+    (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+                   '(haskell-mode . ("haskell-language-server-wrapper" "--lsp"))))
+    )
 #+end_src
 
 ** Faces
