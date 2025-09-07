@@ -124,7 +124,7 @@ as =Elpaca= is used instead.
     :ensure t
     :demand t
     :config
-    (ef-themes-select 'ef-bio))
+    (ef-themes-select 'ef-autumn))
 
   ;; Fonts
   (let ((mono-spaced-font "Iosevka Nerd Font"))
