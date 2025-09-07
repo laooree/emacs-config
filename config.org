@@ -681,6 +681,12 @@ Specify external programs to open specific file extensions.
     (beacon-mode 1))
 #+end_src
 
+** Highlight indentation
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package highlight-indentation
+    :ensure (highlight-indentation :host github :repo "antonj/Highlight-Indentation-for-Emacs")
+    :defer t)
+#+end_src
 ** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -1049,6 +1055,7 @@ Install and configure Matlab mode:
 
     :hook
     (python-mode . eglot-ensure)
+    (python-mode . highlight-indentation-mode)
 
     :config
     (evil-set-initial-state 'inferior-python-mode 'emacs)
