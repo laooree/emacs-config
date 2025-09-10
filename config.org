@@ -675,9 +675,10 @@ Specify external programs to open specific file extensions.
     :ensure t
     :if (display-graphic-p)
     :init
-    (setq beacon-size 40
+    (setq beacon-size 10
           beacon-blink-duration 0.5
-          beacon-color "#78834b")
+          beacon-blink-delay 0.0
+          beacon-color (ef-themes-with-colors cursor))
     :config
     (beacon-mode 1))
 #+end_src
