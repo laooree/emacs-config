@@ -1010,6 +1010,12 @@ Install and configure Matlab mode:
     :init
     (setq font-latex-fontify-script nil
           font-latex-fontify-sectioning 'color)
+    (setq LaTeX-clean-intermediate-suffixes
+          (list "\\.aux" "\\.bbl" "\\.blg" "\\.brf" "\\.fot" "\\.glo" "\\.gls"
+                "\\.idx" "\\.ilg" "\\.ind" "\\.lof" "\\.log" "\\.lot" "\\.nav"
+                "\\.out" "\\.snm" "\\.toc" "\\.url" "\\.synctex\\.gz" "\\.bcf"
+                "\\.run\\.xml" "\\.fls" "-blx\\.bib" "\\.fdb_latexmk" "\\.atfi"
+                "\\.acn" "\\.acr" "\\.alg" "\\.glg" "\\.ist" "\\.dbx"))
 
     :hook
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
