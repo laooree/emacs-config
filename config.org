@@ -903,9 +903,8 @@ Install latest org-mode.
     (:states '(normal)
              :prefix "SPC"
              "n" '(:ignore t :which-key "notes")
-             "n n" #'denote
+             "n n" #'denote-open-or-create
              "n g" #'denote-grep))
-
 #+end_src
 ** Elpaca wait
 
