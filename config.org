@@ -42,228 +42,69 @@ the [[https://github.com/yilkalargaw/org-auto-tangle][org-auto-tangle]] package.
 ** Speed up the startup
 
 Based on Nicolas Rougier's [[https://github.com/rougier/dotemacs/blob/master/dotemacs.org][early-init file]]. It disables garbage collection at
-startup and enables it afterwards. Most importantly, it disables =package.el=,
-as =Elpaca= is used instead.
+startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-
-  (setq
-   gc-cons-threshold most-positive-fixnum    ; Very large threshold for garbage
-                                             ; collector during init
-   package-enable-at-startup nil)            ; We'll use straight.el
-
+  (setq gc-cons-threshold most-positive-fixnum) ; Very large threshold for garbage
+                                                ; collector during init
   (setq native-comp-eln-load-path
         (list (expand-file-name "eln-cache" user-emacs-directory)))
 
   ;; Reset garbage collector limit after init process has ended (8Mo)
   (add-hook 'after-init-hook
             #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
-
 #+end_src
 
 ** Package manager
-
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (defvar elpaca-installer-version 0.11)
-  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                                :ref nil :depth 1 :inherit ignore
-                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                                :build (:not elpaca--activate-package)))
-  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-         (build (expand-file-name "elpaca/" elpaca-builds-directory))
-         (order (cdr elpaca-order))
-         (default-directory repo))
-    (add-to-list 'load-path (if (file-exists-p build) build repo))
-    (unless (file-exists-p repo)
-      (make-directory repo t)
-      (when (<= emacs-major-version 28) (require 'subr-x))
-      (condition-case-unless-debug err
-          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                    ,@(when-let* ((depth (plist-get order :depth)))
-                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                    ,(plist-get order :repo) ,repo))))
-                    ((zerop (call-process "git" nil buffer t "checkout"
-                                          (or (plist-get order :ref) "--"))))
-                    (emacs (concat invocation-directory invocation-name))
-                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                    ((require 'elpaca))
-                    ((elpaca-generate-autoloads "elpaca" repo)))
-              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-            (error "%s" (with-current-buffer buffer (buffer-string))))
-        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-    (unless (require 'elpaca-autoloads nil t)
-      (require 'elpaca)
-      (elpaca-generate-autoloads "elpaca" repo)
-      (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
-  (add-hook 'after-init-hook #'elpaca-process-queues)
-  (elpaca `(,@elpaca-order))
+  (setq native-comp-speed 2)
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-deferred-compilation t)
 
-  ;; Disable symlinks on MS Windows
-  (when (eq system-type 'windows-nt)
-    (elpaca-no-symlink-mode))
+  ;; Enable ahead-of-time compilation
+  (setq package-native-compile t)
+  (setq use-package-always-defer nil)
 
-  ;; Install use-package support
-  (elpaca elpaca-use-package
-    ;; Enable use-package :ensure support for Elpaca.
-    (elpaca-use-package-mode))
+  ;; Initialize package manager
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+  ;; Hide compilation warnings
+  (add-to-list 'display-buffer-alist
+             '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+               (display-buffer-no-window)
+               (allow-no-window . t)))
 #+end_src
 
-** Theme and fonts
+** Appearance, theme and fonts
 
 #+begin_src emacs-lisp :tangle "early-init.el"
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
+  ;; (use-package modus-themes
+  ;;   :ensure t
+  ;;   :config
+  ;;   (load-theme 'modus-vivendi :no-confirm-loading))
 
-  (use-package ef-themes
-    :ensure t
-    :demand t
-    :config
-    (ef-themes-select 'ef-autumn))
+  (add-to-list 'custom-theme-load-path (concat user-emacs-directory "/themes/"))
+  (load-theme 'understory t)
 
   ;; Fonts
-  (let ((mono-spaced-font "Iosevka Nerd Font"))
-    (set-face-attribute 'default nil :family mono-spaced-font :height 180)
-    (set-face-attribute 'fixed-pitch nil :family mono-spaced-font :height 180))
+  (set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 180)
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka Nerd Font" :height 180)
+  (set-face-attribute 'variable-pitch nil :family "DINish" :height 180)
 
-  (elpaca-wait)
-#+end_src
-
-*** Export theme colors to stylix.nix
-#+begin_src emacs-lisp :tangle "init.el"
-  (defun my/theme-colors-to-stylix (colors-list stylix-bases)
-    "Turn a list of strings into a string, putting each element on a new line."
-    (cond
-     ((= 0 (length colors-list)) "")
-     (t (concat (car stylix-bases) " = " (car colors-list) ";\n" (my/theme-colors-to-stylix (cdr colors-list) (cdr stylix-bases))))
-     ))
-
-  (defun my/format-colors-for-nix (colors-string)
-    "Format the colors string with proper indentation and quotes for Nix."
-    (let ((lines (split-string colors-string "\n" t "\\s *")))
-      (mapconcat
-       (lambda (line)
-         (when (string-match "^\\s *\\(base[0-9A-F]+\\)\\s *=\\s *\\(#?[0-9A-Fa-f]+\\)\\s *;?\\s *$" line)
-           (let ((base-name (match-string 1 line))
-                 (color-value (match-string 2 line)))
-             ;; Add # if not present and ensure proper formatting
-             (unless (string-prefix-p "#" color-value)
-               (setq color-value (concat "#" color-value)))
-             (format "      %s = \"%s\";" base-name color-value))))
-       lines
-       "\n")))
-
-  (defun my/export-theme-to-stylix (file-path new-colors-string)
-    "Replace the base16Scheme colors in a Nix file while preserving the rest of the structure."
-    (with-temp-buffer
-      ;; Read the existing file
-      (insert-file-contents file-path)
-
-      ;; Use a more precise regex to find the base16Scheme block
-      (goto-char (point-min))
-      (when (re-search-forward "base16Scheme\\s *=\\s *{" nil t)
-        (let ((start-pos (line-beginning-position))
-              (brace-count 1)
-              end-pos)
-
-          ;; Find the matching closing brace by counting braces
-          (while (and (> brace-count 0) (re-search-forward "[{}]" nil t))
-            (if (string= (match-string 0) "{")
-                (setq brace-count (1+ brace-count))
-              (setq brace-count (1- brace-count))))
-
-          (when (= brace-count 0)
-            (setq end-pos (line-end-position))
-            ;; Replace the entire base16Scheme block
-            (delete-region start-pos end-pos)
-            (goto-char start-pos)
-            (insert (concat "    base16Scheme = {\n"
-                            (my/format-colors-for-nix new-colors-string)
-                            "\n    };")))))
-      (write-region (point-min) (point-max) file-path)))
-
-  (with-eval-after-load 'ef-themes
-    (let
-        ((colors (ef-themes-with-colors
-                   (list bg-main
-                         bg-dim
-                         bg-alt
-                         bg-active
-                         fg-dim
-                         fg-main
-                         fg-mode-line
-                         keybind
-                         red
-                         yellow-warmer
-                         yellow
-                         green
-                         cyan
-                         blue
-                         magenta
-                         yellow-faint
-                         bg-mode-line
-                         fg-alt
-                         bg-graph-red-1
-                         bg-graph-green-1
-                         bg-graph-yellow-1
-                         bg-graph-blue-1
-                         bg-graph-magenta-1
-                         bg-graph-cyan-1
-                         )))
-         (bases (list "base00"
-                      "base01"
-                      "base02"
-                      "base03"
-                      "base04"
-                      "base05"
-                      "base06"
-                      "base07"
-                      "base08"
-                      "base09"
-                      "base0A"
-                      "base0B"
-                      "base0C"
-                      "base0D"
-                      "base0E"
-                      "base0F"
-                      "base10"
-                      "base11"
-                      "base12"
-                      "base13"
-                      "base14"
-                      "base15"
-                      "base16"
-                      "base17"
-                      )))
-      (my/export-theme-to-stylix (expand-file-name "~/.dotfiles/modules/nixos/stylix.nix")
-                                        (my/theme-colors-to-stylix colors bases))))
-#+end_src
-
-* Eldoc
-
-Ensure latest version of =eldoc= is installed. =use-package= is giving some
-issues here, so this workaround is used instead. The first three lines ensure
-that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
-=eldoc=, which is then loaded.
-
-#+begin_src emacs-lisp :tangle "init.el"
-(unload-feature 'eldoc t)
-(setq custom-delayed-init-variables '())
-(defvar global-eldoc-mode nil)
-
-(elpaca eldoc
-  (require 'eldoc)
-  (global-eldoc-mode))
+  ;; Remove bars
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
 #+end_src
 
 * general.el + which-key
 
-=general.el= must be loaded before every usage of =:general= key in =use-package=, and separated with an =(elpaca-wait)= instruction. =which-key= is loaded here to integrate with =general.el= and assign keymaps names.
+=general.el= must be loaded before every usage of =:general= key in =use-package=. =which-key= is loaded here to integrate with =general.el= and assign keymaps names.
 
 ** which-key
 
@@ -295,8 +136,6 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
      "F f" #'find-file-other-frame
      "F k" #'delete-frame
     ))
-
-  (elpaca-wait)
 #+end_src
 
 * Evil
@@ -357,15 +196,12 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
     :config
     (evil-snipe-mode +1)
     (evil-snipe-override-mode +1))
-
-  (elpaca-wait)
 #+end_src
 
 * UI and UX
 ** Some built-in options:
 
 #+begin_src emacs-lisp :tangle "init.el"
-
   ;; Set different file for M-x customize interface
   (setq custom-file (locate-user-emacs-file "custom.el"))
   (load custom-file :no-error-if-file-is-missing)
@@ -409,18 +245,8 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
   (setq-default visible-bell nil             ;; No visual bell
                 ring-bell-function 'ignore)  ;; No bell
 
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
-
   (setq inhibit-startup-message t)
   ;; (setq initial-scratch-message nil)
-
-  ;; Prevent compilation warnings to pop-up
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
-                 (display-buffer-no-window)
-                 (allow-no-window . t)))
 
   ;; whitespace-mode
   (setq whitespace-style '(face trailing))
@@ -428,7 +254,6 @@ that =eldoc= does not load before =elpaca=, allowing for =elpaca= to update
 
   (setq display-line-numbers t)
   (global-display-line-numbers-mode)
-
  #+end_src
 
 ** org-auto-tangle
@@ -445,6 +270,7 @@ in the org file for which you want auto tangling.
 #+end_src
 
 ** Spacious padding
+
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package spacious-padding
     :ensure t
@@ -463,6 +289,7 @@ in the org file for which you want auto tangling.
     :config
     (spacious-padding-mode 1))
 #+end_src
+
 ** Dired
 
 Tweak =dired=. Options should be self-explanatory.
@@ -498,26 +325,10 @@ The =dired-subtree= allows to expand folders using =TAB= key.
     (setq dired-subtree-use-backgrounds nil))
 #+end_src
 
-** Emoji
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package emojify
-    :ensure t
-    ;;:defer t
-    :init
-    (setq emojify-display-style 'unicode)
-    (setq emojify-emoji-styles '(unicode))
-    (when (member "Noto Color Emoji" (font-family-list))
-      (set-fontset-font
-       t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend))
-    :config
-    (bind-key* (kbd "C-c .") #'emojify-insert-emoji)
-    :hook
-    (after-init . global-emojify-mode))
-#+end_src
-
 ** Terminal
+
 *** Wayland clipboard
+
 #+begin_src emacs-lisp :tangle "init.el"
   ;; credit: yorickvP on Github
   (when (string= (getenv "XDG_SESSION_TYPE") "wayland")
@@ -541,6 +352,7 @@ The =dired-subtree= allows to expand folders using =TAB= key.
 #+end_src
 
 *** Cursor shape
+
 #+begin_src emacs-lisp :tangle "init.el"
   (defun my/set-cursor-shape ()
     "Set terminal cursor shape based on evil state."
@@ -559,6 +371,7 @@ The =dired-subtree= allows to expand folders using =TAB= key.
     (add-hook 'post-command-hook #'my/set-cursor-shape))
 #+end_src
 #+end_src
+
 ** Nerd icons
 
 Install and use nerd-icons.
@@ -593,7 +406,6 @@ Install and use nerd-icons.
   (use-package doom-modeline
     :ensure t
     :config (doom-modeline-mode 1))
-
 #+end_src
 
 ** Rainbow csv
@@ -602,7 +414,8 @@ Paint each column in =.csv= files with different colors.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package rainbow-csv
-    :ensure (rainbow-csv :host github :repo "emacs-vs/rainbow-csv")
+    :ensure t
+    :vc (:url "https://github.com/emacs-vs/rainbow-csv")
     :defer t
     :config
     (add-hook 'csv-mode-hook #'rainbow-csv-mode)
@@ -647,15 +460,10 @@ Specify external programs to open specific file extensions.
     :config
     (openwith-mode t))
 #+end_src
+
 ** Magit
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Make sure dependencies are up to date
-  (use-package transient
-    :ensure t
-    :defer t)
-
-  ;; Install magit
   (use-package magit
     :ensure t
     :defer t
@@ -678,38 +486,40 @@ Specify external programs to open specific file extensions.
     (setq beacon-size 10
           beacon-blink-duration 0.5
           beacon-blink-delay 0.0
-          beacon-color (ef-themes-with-colors cursor))
+          beacon-color "#FFFF00")
     :config
     (beacon-mode 1))
 #+end_src
 
 ** Highlight indentation
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package highlight-indentation
-    :ensure (highlight-indentation :host github :repo "antonj/Highlight-Indentation-for-Emacs")
-    :defer t)
-#+end_src
-** Elpaca wait
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (elpaca-wait)
+  (use-package highlight-indentation
+    :ensure t
+    :vc (:url "https://github.com/antonj/Highlight-Indentation-for-Emacs")
+    :defer t)
+#+end_src
+
+** Nyan mode
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package nyan-mode
+    :ensure t
+    :init
+    (setq nyan-animate-nyancat t
+          nyan-animation-frame-interval 0.1
+          nyan-wavy-trail t)
+    )
 #+end_src
 
 * Completions and suggestions
+
 ** Vertico
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package vertico
-    :ensure (vertico :files (:defaults "extensions/*")
-                     :includes (vertico-mouse
-                                vertico-directory))
+    :ensure t
     :config (vertico-mode))
-
-  ;;Enable mouse integration
-  (use-package vertico-mouse
-    :after (vertico)
-    :ensure nil
-    :config (vertico-mouse-mode))
 
   ;; Faster navigation in vertico minibuffer
   (use-package vertico-directory
@@ -746,7 +556,6 @@ Specify external programs to open specific file extensions.
           completion-ignore-case t
           orderless-matching-styles '(orderless-literal
                                       orderless-regexp)))
-                                      ;; orderless-flex)))
 #+end_src
 
 ** Consult
@@ -774,7 +583,6 @@ Specify external programs to open specific file extensions.
 ** Corfu
 
 #+begin_src emacs-lisp :tangle "init.el"
-
   (use-package corfu
     :ensure t
 
@@ -790,7 +598,6 @@ Specify external programs to open specific file extensions.
     (global-corfu-mode) ;; Enable corfu everywhere
     (corfu-history-mode) ;; Save completion history
     )
-
 #+end_src
 
 Corfu uses childframes, which are not available in tty. This package makes corfu
@@ -798,7 +605,8 @@ work also in tty:
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package corfu-terminal
-    :ensure (corfu-terminal :host codeberg :repo "akib/emacs-corfu-terminal")
+    :ensure t
+    :vc (:url "https://codeberg.org/akib/emacs-corfu-terminal")
     :demand t
     :config
     (unless (display-graphic-p)
@@ -809,7 +617,6 @@ work also in tty:
 ** yasnippet
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Install yasnippet
   (use-package yasnippet
     :ensure t
     :defer t
@@ -818,32 +625,26 @@ work also in tty:
     :hook
     (prog-mode . yas-minor-mode))
 
-  ;; Install official yasnippet snippets
   (use-package yasnippet-snippets
     :ensure t)
 #+end_src
 
-** Elpaca wait
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (elpaca-wait)
-#+end_src
-
 ** Grammarly
+
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package flymake-grammarly
-    :ensure (flymake-grammarly :host github :repo "emacs-grammarly/flymake-grammarly")
+    :ensure t
+    :vc (:url "https://github.com/emacs-grammarly/flymake-grammarly")
     :defer t)
 #+end_src
+
 * Org-mode
 
 ** org-mode
 
-Install latest org-mode.
-
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package org
-    :ensure t
+    :ensure nil ;; built-in
     :defer t
 
     :init
@@ -882,6 +683,7 @@ Install latest org-mode.
 #+end_src
 
 ** org-modern
+
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package org-modern
     :ensure t
@@ -891,8 +693,9 @@ Install latest org-mode.
     (org-mode . org-modern-mode)
     (org-agenda-finalize . org-modern-agenda))
 #+end_src
-* Notes
-** Denote
+
+* Denote
+
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package denote
     :ensure t
@@ -906,12 +709,9 @@ Install latest org-mode.
              "n n" #'denote-open-or-create
              "n g" #'denote-grep))
 #+end_src
-** Elpaca wait
 
-#+begin_src emacs-lisp :tangle "init.el"
-  (elpaca-wait)
-#+end_src
 * Programming
+
 ** Indentation
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -934,22 +734,6 @@ Install latest org-mode.
                                 ))))
 #+end_src
 
-** tree-sitter
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package tree-sitter
-    :ensure t
-    :after tree-sitter-langs
-    :demand t
-    :config
-    (global-tree-sitter-mode)
-    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
-
-  (use-package tree-sitter-langs
-    :ensure t
-    :demand t)
-#+end_src
-
 ** Formatter
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -963,15 +747,9 @@ Install latest org-mode.
 This block ensures that =eglot= is updated to the latest release.
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Ensure flymake is up to date
-  (use-package flymake
-    :ensure t
-    :defer t)
-
   (use-package eglot
-    :ensure t
+    :ensure nil ;; built-in
     :defer t
-    :after general
 
     :general
     (:states '(normal)
@@ -1020,11 +798,7 @@ Install and configure Matlab mode:
     :hook
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
     (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
-    (LaTeX-mode . flyspell-mode) ;; enable grammar checking
-    (LaTeX-mode . flymake-mode) ;; enable LaTeX syntax checking
-    (LaTeX-mode . (lambda ()
-                    (setq-local eglot-stay-out-of '(flymake))
-                    (eglot-ensure)))
+    (LaTeX-mode . eglot-ensure)
     (LaTeX-mode . (lambda ()
                     (add-hook 'eglot-managed-mode-hook
                               (lambda () (eglot-inlay-hints-mode -1))
@@ -1045,6 +819,8 @@ Install and configure Matlab mode:
     (with-eval-after-load 'eglot
       (add-to-list 'eglot-server-programs
                    '(LaTeX-mode . ("/run/current-system/sw/bin/texlab"))))
+    (with-eval-after-load "bibtex"
+      (bibtex-set-dialect 'biblatex))
     )
 #+end_src
 
@@ -1105,167 +881,6 @@ Install and configure Matlab mode:
     )
 #+end_src
 
-** Faces
-*** font-lock
-
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; (let ((miasma-light-charcoal "#222222")
-  ;;   (miasma-charcoal           "#1c1c1c")
-  ;;   (miasma-obsidian           "#151515")
-  ;;   (miasma-graphite           "#444444")
-  ;;   (miasma-dark-gray          "#666666")
-  ;;   (miasma-light-gray         "#c2c2b0")
-  ;;   (miasma-marble             "#eaeaea")
-  ;;   (miasma-river              "#1f3a5f")
-  ;;   (miasma-sky                "#87CEEB")
-  ;;   (miasma-forest             "#242d1d")
-  ;;   (miasma-moss               "#2f361f")
-  ;;   (miasma-olive              "#43492a")
-  ;;   (miasma-ivy                "#335533")
-  ;;   (miasma-eucalyptus         "#5f875f")
-  ;;   (miasma-reseda             "#78834b")
-  ;;   (miasma-walnut             "#685742")
-  ;;   (miasma-tangerine          "#fd9720")
-  ;;   (miasma-copper             "#bb7744")
-  ;;   (miasma-cedar              "#b36d43")
-  ;;   (miasma-terracota          "#c86448")
-  ;;   (miasma-chestnut           "#553333")
-  ;;   (miasma-fire               "#824040")
-  ;;   (miasma-lemon              "#fbec9f")
-  ;;   (miasma-ecru               "#d7c483")
-  ;;   (miasma-brass              "#c9a554"))
-  ;;   (custom-set-faces
-  ;;    `(font-lock-constant-face      ((t (:foreground ,miasma-light-gray :slant italic))))
-  ;;    `(font-lock-function-name-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-lock-variable-name-face ((t (:foreground ,miasma-light-gray))))
-  ;;    ))
-#+end_src
-
-*** tree-sitter
-
-The goal of this section is to reduce the number of colors used in code
-highlighting.
-
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; (with-eval-after-load 'tree-sitter
-  ;;   (let ((miasma-light-charcoal "#222222")
-  ;;     (miasma-charcoal           "#1c1c1c")
-  ;;     (miasma-obsidian           "#151515")
-  ;;     (miasma-graphite           "#444444")
-  ;;     (miasma-dark-gray          "#666666")
-  ;;     (miasma-light-gray         "#c2c2b0")
-  ;;     (miasma-marble             "#eaeaea")
-  ;;     (miasma-river              "#1f3a5f")
-  ;;     (miasma-sky                "#87CEEB")
-  ;;     (miasma-forest             "#242d1d")
-  ;;     (miasma-moss               "#2f361f")
-  ;;     (miasma-olive              "#43492a")
-  ;;     (miasma-ivy                "#335533")
-  ;;     (miasma-eucalyptus         "#5f875f")
-  ;;     (miasma-reseda             "#78834b")
-  ;;     (miasma-walnut             "#685742")
-  ;;     (miasma-tangerine          "#fd9720")
-  ;;     (miasma-copper             "#bb7744")
-  ;;     (miasma-cedar              "#b36d43")
-  ;;     (miasma-terracota          "#c86448")
-  ;;     (miasma-chestnut           "#553333")
-  ;;     (miasma-fire               "#824040")
-  ;;     (miasma-lemon              "#fbec9f")
-  ;;     (miasma-ecru               "#d7c483")
-  ;;     (miasma-brass              "#c9a554"))
-  ;;     (custom-set-faces
-  ;;      `(tree-sitter-hl-face:attribute             ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:comment               ((t (:foreground ,miasma-dark-gray ))))
-  ;;      `(tree-sitter-hl-face:constant              ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:constant.builtin      ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:constructor           ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:doc                   ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:embedded              ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:escape                ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:function              ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:function.builtin      ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:function.call         ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:function.macro        ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:function.special      ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:keyword               ((t (:foreground ,miasma-copper    ))))
-  ;;      `(tree-sitter-hl-face:label                 ((t (:foreground ,miasma-copper    ))))
-  ;;      `(tree-sitter-hl-face:method                ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:method.call           ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:number                ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:operator              ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:property              ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:property.definition   ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:punctuation           ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:punctuation.bracket   ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:punctuation.delimiter ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:punctuation.special   ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:string                ((t (:foreground ,miasma-reseda    ))))
-  ;;      `(tree-sitter-hl-face:string.special        ((t (:foreground ,miasma-reseda    ))))
-  ;;      `(tree-sitter-hl-face:tag                   ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:type                  ((t (:foreground ,miasma-light-gray :slant italic))))
-  ;;      `(tree-sitter-hl-face:type.argument         ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:type.builtin          ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:type.parameter        ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:type.super            ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:variable              ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:variable.builtin      ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:variable.parameter    ((t (:foreground ,miasma-light-gray))))
-  ;;      `(tree-sitter-hl-face:variable.special      ((t (:foreground ,miasma-light-gray))))
-  ;;      )))
-#+end_src
-
-*** TeX
-
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; (let ((miasma-light-charcoal "#222222")
-  ;;   (miasma-charcoal           "#1c1c1c")
-  ;;   (miasma-obsidian           "#151515")
-  ;;   (miasma-graphite           "#444444")
-  ;;   (miasma-dark-gray          "#666666")
-  ;;   (miasma-light-gray         "#c2c2b0")
-  ;;   (miasma-marble             "#eaeaea")
-  ;;   (miasma-river              "#1f3a5f")
-  ;;   (miasma-sky                "#87CEEB")
-  ;;   (miasma-forest             "#242d1d")
-  ;;   (miasma-moss               "#2f361f")
-  ;;   (miasma-olive              "#43492a")
-  ;;   (miasma-ivy                "#335533")
-  ;;   (miasma-eucalyptus         "#5f875f")
-  ;;   (miasma-reseda             "#78834b")
-  ;;   (miasma-walnut             "#685742")
-  ;;   (miasma-tangerine          "#fd9720")
-  ;;   (miasma-copper             "#bb7744")
-  ;;   (miasma-cedar              "#b36d43")
-  ;;   (miasma-terracota          "#c86448")
-  ;;   (miasma-chestnut           "#553333")
-  ;;   (miasma-fire               "#824040")
-  ;;   (miasma-lemon              "#fbec9f")
-  ;;   (miasma-ecru               "#d7c483")
-  ;;   (miasma-brass              "#c9a554"))
-  ;;   (custom-set-faces
-  ;;    `(font-latex-bold-face         ((t (:foreground ,miasma-light-gray :weight bold))))
-  ;;    `(font-latex-italic-face       ((t (:foreground ,miasma-light-gray :slant italic))))
-  ;;    `(font-latex-underline-face       ((t (:foreground ,miasma-light-gray :underline t))))
-  ;;    `(font-latex-math-face         ((t (:foreground ,miasma-ecru))))
-  ;;    `(font-latex-string-face       ((t (:foreground ,miasma-ecru))))
-  ;;    `(font-latex-script-char-face  ((t (:foreground ,miasma-ecru))))
-  ;;    `(font-latex-sectioning-0-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-latex-sectioning-1-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-latex-sectioning-2-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-latex-sectioning-3-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-latex-sectioning-4-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-latex-sectioning-5-face ((t (:foreground ,miasma-light-gray))))
-  ;;    `(font-latex-sedate-face      ((t (:foreground ,miasma-eucalyptus))))
-  ;;    `(font-latex-warning-face      ((t (:foreground ,miasma-ecru))))
-  ;;    ))
-#+end_src
-
-** Elpaca wait
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (elpaca-wait)
-#+end_src
-
 * Custom functions
 
 This section defines custom functions.
@@ -1305,9 +920,49 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
 Execute an action in =org-mode= based on where the point is.
 
 #+begin_src emacs-lisp :tangle "init.el"
+#+end_src
+
+* Keybindings
+
+** my/keyboard-quit-dwim
+
+This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configuration/#h:e5e7b781-4b04-4c53-bf23-5e81789549ce][Protesilaos]].
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (defun my/keyboard-quit-dwim ()
+    "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+  The generic `keyboard-quit' does not do the expected thing when
+  the minibuffer is open.  Whereas we want it to close the
+  minibuffer, even without explicitly focusing it.
+
+  The DWIM behaviour of this command is as follows:
+
+  - When the region is active, disable it.
+  - When a minibuffer is open, but not focused, close the minibuffer.
+  - When the Completions buffer is selected, close it.
+  - In every other case use the regular `keyboard-quit'."
+    (interactive)
+    (cond
+     ((region-active-p)
+      (keyboard-quit))
+     ((derived-mode-p 'completion-list-mode)
+      (delete-completion-window))
+     ((> (minibuffer-depth) 0)
+      (abort-recursive-edit))
+     (t
+      (keyboard-quit))))
+
+  ;; Keyboard quit
+  (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
+#+end_src
+
+** org-mode
+
+#+begin_src emacs-lisp :tangle "init.el"
   (defun my/org-dwim-at-point ()
     "Do-what-I-mean at point.
-  Handles common Org elements intuitively."
+     Handles common Org elements intuitively."
     (interactive)
     (let* ((context (org-element-context))
            (type (org-element-type context)))
@@ -1339,43 +994,31 @@ Execute an action in =org-mode= based on where the point is.
 
        (t
         (message "No specific action for this element")))))
-#+end_src
 
-* Keybindings
-
-** Generic
-
-#+begin_src emacs-lisp :tangle "init.el"
-
-  ;; Keyboard quit
-  (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
-
-  ;; Org dwim at point
   (with-eval-after-load 'evil
     (add-hook 'org-mode-hook
               (lambda ()
                 (evil-define-key 'normal org-mode-map
                   (kbd "RET") #'my/org-dwim-at-point))))
 
-  ;; Window movements
-  (global-unset-key (kbd "M-<left>"))
-  (global-unset-key (kbd "M-<down>"))
-  (global-unset-key (kbd "M-<up>"))
-  (global-unset-key (kbd "M-<right>"))
-  (define-key evil-normal-state-map (kbd "M-<left>")  'evil-window-left)
-  (define-key evil-normal-state-map (kbd "M-<down>")  'evil-window-down)
-  (define-key evil-normal-state-map (kbd "M-<up>")    'evil-window-up)
-  (define-key evil-normal-state-map (kbd "M-<right>") 'evil-window-right)
-
-  ;; Point movements
-  (global-unset-key (kbd "C-e"))
-  (define-key evil-normal-state-map (kbd "C-e")  'end-of-visual-line)
-
   ;; org-agenda-earlier and later
   (with-eval-after-load 'org-agenda
     (define-key org-agenda-mode-map (kbd "[") #'org-agenda-earlier)
     (define-key org-agenda-mode-map (kbd "]") #'org-agenda-later))
+#+end_src
 
+** Point movements
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Point movements
+  (global-unset-key (kbd "C-e"))
+  (define-key evil-normal-state-map (kbd "C-e") 'end-of-visual-line)
+  (define-key evil-visual-state-map (kbd "C-e") 'end-of-visual-line)
+#+end_src
+
+** visual-line movements
+
+#+begin_src emacs-lisp :tangle "init.el"
   ;; arrows move in visual lines
   (with-eval-after-load 'evil
     (define-key evil-normal-state-map [down] 'evil-next-visual-line)
@@ -1392,19 +1035,42 @@ Execute an action in =org-mode= based on where the point is.
               (define-key evil-visual-state-local-map [up]   'evil-previous-line)
               (define-key evil-motion-state-local-map [down] 'evil-next-line)
               (define-key evil-motion-state-local-map [up]   'evil-previous-line))))
+#+end_src
 
+** window movements
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (with-eval-after-load 'evil
+    (global-unset-key (kbd "M-<left>"))
+    (global-unset-key (kbd "M-<down>"))
+    (global-unset-key (kbd "M-<up>"))
+    (global-unset-key (kbd "M-<right>"))
+    (define-key evil-normal-state-map (kbd "M-<left>")  'evil-window-left)
+    (define-key evil-normal-state-map (kbd "M-<down>")  'evil-window-down)
+    (define-key evil-normal-state-map (kbd "M-<up>")    'evil-window-up)
+    (define-key evil-normal-state-map (kbd "M-<right>") 'evil-window-right))
 #+end_src
 
 ** Commands
-*** :k
-#+begin_src emacs-lisp :tangle "init.el"
-(defun my/kill-current-buffer ()
-  "Kill the current buffer without confirmation."
-  (interactive)
-  (kill-buffer (current-buffer)))
 
-(evil-ex-define-cmd "k" 'my/kill-current-buffer)
+*** :k, :K
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (defun my/kill-current-buffer ()
+    "Kill the current buffer without confirmation."
+    (interactive)
+    (kill-buffer (current-buffer)))
+
+  (defun my/kill-current-buffer-and-close-window ()
+    "Kill the current buffer and close its window."
+    (interactive)
+    (kill-buffer (current-buffer))
+    (delete-window))
+
+  (evil-ex-define-cmd "k" 'my/kill-current-buffer)
+  (evil-ex-define-cmd "K" 'my/kill-current-buffer-and-close-window)
 #+end_src
+
 * Emacs server
 
 #+begin_src emacs-lisp :tangle "init.el"
