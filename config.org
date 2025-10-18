@@ -403,9 +403,37 @@ Install and use nerd-icons.
 ** Mode-line
 
 #+begin_src  emacs-lisp :tangle "init.el"
-  (use-package doom-modeline
+  (use-package mood-line
     :ensure t
-    :config (doom-modeline-mode 1))
+    :config
+    (setq mood-line-glyph-alist mood-line-glyphs-ascii)
+    (setq mood-line-format
+          (mood-line-defformat
+           :left
+           (
+            ;; Evil current mode
+            ((cond ((string= "<N>" (mood-line-segment-modal)) "(N)")
+                   ((string= "<I>" (mood-line-segment-modal)) "(I)")
+                   ((string= "<V>" (mood-line-segment-modal)) "(V)")
+                   ((string= "<R>" (mood-line-segment-modal)) "(R)")
+                   ((string= "<O>" (mood-line-segment-modal)) "(O)")
+                   ((string= "<M>" (mood-line-segment-modal)) "(M)")
+                   ((string= "<E>" (mood-line-segment-modal)) "(E)")
+                   (t "")) . " ")
+            ;; Buffer name
+            ((mood-line-segment-buffer-name) . " ")
+            ;; Buffer status
+            ((cond ((string= "*" (mood-line-segment-buffer-status)) "󰙏")
+                   ((string= "#" (mood-line-segment-buffer-status)) "")
+                   (t "")) . "  ")
+            ((mood-line-segment-scroll) . " ")
+            )
+           :right
+           (
+            ((mood-line-segment-checker) . " ")
+            )
+           ))
+    (mood-line-mode))
 #+end_src
 
 ** Rainbow csv
