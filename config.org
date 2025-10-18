@@ -472,8 +472,8 @@ Specify external programs to open specific file extensions.
     (:states '(normal)
              :prefix "SPC"
              "g" '(:ignore t :which-key "magit")
-             "g g" #'magit-status
-             ))
+             "g g" #'magit-status)
+    )
 #+end_src
 
 ** Beacon
@@ -577,7 +577,8 @@ Specify external programs to open specific file extensions.
              "c r" #'consult-ripgrep
 
              "b" '(:ignore t :which-key "buffer")
-             "b b" #'consult-buffer))
+             "b b" #'consult-buffer)
+    )
 #+end_src
 
 ** Corfu
@@ -707,7 +708,8 @@ work also in tty:
              :prefix "SPC"
              "n" '(:ignore t :which-key "notes")
              "n n" #'denote-open-or-create
-             "n g" #'denote-grep))
+             "n g" #'denote-grep)
+    )
 #+end_src
 
 * Programming
@@ -803,6 +805,7 @@ Install and configure Matlab mode:
                     (add-hook 'eglot-managed-mode-hook
                               (lambda () (eglot-inlay-hints-mode -1))
                               nil t)))
+
     :general
     (:states '(normal)
              :prefix "SPC"
