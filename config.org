@@ -77,19 +77,18 @@ startup and enables it afterwards.
                (allow-no-window . t)))
 #+end_src
 
-** Appearance, theme and fonts
+* Appearance, theme and fonts
 
-#+begin_src emacs-lisp :tangle "early-init.el"
+#+begin_src emacs-lisp :tangle "init.el"
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
-  ;; (use-package modus-themes
-  ;;   :ensure t
-  ;;   :config
-  ;;   (load-theme 'modus-vivendi :no-confirm-loading))
-
-  (add-to-list 'custom-theme-load-path (concat user-emacs-directory "/themes/"))
-  (load-theme 'understory t)
+  (use-package minimalogy-theme
+    :ensure t
+    :vc (:url "https://github.com/laooree/minimalogy-theme.el")
+    :config
+    (setq minimalogy-color-scheme 'understory)
+    (load-theme 'minimalogy :no-confirm-loading))
 
   ;; Fonts
   (set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 180)
