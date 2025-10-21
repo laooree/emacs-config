@@ -811,7 +811,9 @@ Install and configure Matlab mode:
                 matlab-indent-function-body t) ;; Indent function bodies
     :config
     (evil-set-initial-state 'matlab-shell-mode 'emacs)
-  )
+    (custom-set-faces
+     `(matlab-sections-highlight-face ((t ()))))
+    )
 #+end_src
 
 ** Latex
