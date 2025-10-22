@@ -96,7 +96,7 @@ startup and enables it afterwards.
                     ((eq system-type 'gnu/linux) "Iosevka Nerd Font")
                     (t "Iosevka Nerd Font"))) ;; fallback
         (font-size (cond
-                    ((eq system-type 'windows-nt) 140)
+                    ((eq system-type 'windows-nt) 130)
                     ((eq system-type 'gnu/linux) 180)
                     (t 180)))) ;; fallback
     (set-face-attribute 'default nil :family font-name :height font-size)
