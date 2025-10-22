@@ -519,8 +519,7 @@ Specify external programs to open specific file extensions.
     :init
     (setq beacon-size 10
           beacon-blink-duration 0.5
-          beacon-blink-delay 0.0
-          beacon-color "#FFFF00")
+          beacon-blink-delay 0.0)
     :config
     (beacon-mode 1))
 #+end_src
