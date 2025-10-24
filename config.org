@@ -552,12 +552,6 @@ Specify external programs to open specific file extensions.
   (use-package magit
     :ensure t
     :defer t
-
-    :general
-    (:states '(normal)
-             :prefix "SPC"
-             "g" '(:ignore t :which-key "magit")
-             "g g" #'magit-status)
     )
 #+end_src
 
@@ -710,6 +704,21 @@ work also in tty:
   (elpaca-wait)
 #+end_src
 
+** GPTel
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package gptel
+    :ensure t
+    :defer t
+    :init
+    (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
+    :general
+    (:states '(normal visual)
+             :prefix "SPC"
+             "g" '(:ignore t :which-key "GPTel")
+             "g g" #'gptel-menu
+             "g r" #'gptel-rewrite
+             ))
+#+end_src
 * Org-mode
 
 ** org-mode
