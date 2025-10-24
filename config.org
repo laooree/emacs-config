@@ -53,28 +53,71 @@ startup and enables it afterwards.
   ;; Reset garbage collector limit after init process has ended (8Mo)
   (add-hook 'after-init-hook
             #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
+
+  ;; Native compilation settings
+  (setq native-comp-speed 2)
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-deferred-compilation t)
 #+end_src
 
 ** Package manager
 #+begin_src emacs-lisp :tangle "early-init.el"
-  (setq native-comp-speed 2)
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq native-comp-deferred-compilation t)
+  ;; Disable package.el
+  (setq package-enable-at-startup nil)
 
-  ;; Enable ahead-of-time compilation
-  (setq package-native-compile t)
-  (setq use-package-always-defer nil)
+  ;; Bootstrap elpaca package manager
+  (defvar elpaca-installer-version 0.11)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1 :inherit ignore
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (<= emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
 
-  ;; Initialize package manager
-  (require 'package)
-  (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  ;; Enable no symlinks mode when on windows
+  (when (eq system-type 'windows-nt)
+    (elpaca-no-symlink-mode))
+
+  ;; Enable integration with use-package
+  (elpaca elpaca-use-package
+          (elpaca-use-package-mode))
 
   ;; Hide compilation warnings
   (add-to-list 'display-buffer-alist
-             '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
-               (display-buffer-no-window)
-               (allow-no-window . t)))
+               '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+                 (display-buffer-no-window)
+                 (allow-no-window . t)))
 #+end_src
 
 * Appearance, theme and fonts
@@ -84,8 +127,7 @@ startup and enables it afterwards.
   (setq-default frame-title-format '("Gnu Emacs"))
 
   (use-package minimalogy-theme
-    :ensure t
-    :vc (:url "https://github.com/laooree/minimalogy-theme.el")
+    :ensure (:host github :repo "laooree/minimalogy-theme.el")
     :config
     (setq minimalogy-color-scheme 'understory)
     (load-theme 'minimalogy :no-confirm-loading))
@@ -116,7 +158,7 @@ startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package which-key
-    :ensure t
+    :ensure nil
     :config
     (which-key-setup-side-window-bottom)
     (which-key-mode))
@@ -142,6 +184,8 @@ startup and enables it afterwards.
      "F f" #'find-file-other-frame
      "F k" #'delete-frame
     ))
+
+  (elpaca-wait)
 #+end_src
 
 * Evil
@@ -202,6 +246,8 @@ startup and enables it afterwards.
     :config
     (evil-snipe-mode +1)
     (evil-snipe-override-mode +1))
+
+  (elpaca-wait)
 #+end_src
 
 * UI and UX
@@ -448,8 +494,7 @@ Paint each column in =.csv= files with different colors.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package rainbow-csv
-    :ensure t
-    :vc (:url "https://github.com/emacs-vs/rainbow-csv")
+    :ensure (:host github :repo "emacs-vs/rainbow-csv")
     :defer t
     :config
     (add-hook 'csv-mode-hook #'rainbow-csv-mode)
@@ -498,6 +543,12 @@ Specify external programs to open specific file extensions.
 ** Magit
 
 #+begin_src emacs-lisp :tangle "init.el"
+  ;; Update transient
+  (use-package transient
+    :ensure t
+    :defer t)
+
+  ;; Install magit
   (use-package magit
     :ensure t
     :defer t
@@ -528,8 +579,7 @@ Specify external programs to open specific file extensions.
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package highlight-indentation
-    :ensure t
-    :vc (:url "https://github.com/antonj/Highlight-Indentation-for-Emacs")
+    :ensure (:host github :repo "antonj/Highlight-Indentation-for-Emacs")
     :defer t)
 #+end_src
 
@@ -639,8 +689,7 @@ work also in tty:
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package corfu-terminal
-    :ensure t
-    :vc (:url "https://codeberg.org/akib/emacs-corfu-terminal")
+    :ensure (:host codeberg :repo "akib/emacs-corfu-terminal")
     :demand t
     :config
     (unless (display-graphic-p)
@@ -667,9 +716,10 @@ work also in tty:
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package flymake-grammarly
-    :ensure t
-    :vc (:url "https://github.com/emacs-grammarly/flymake-grammarly")
+    :ensure (:host github :repo "emacs-grammarly/flymake-grammarly")
     :defer t)
+
+  (elpaca-wait)
 #+end_src
 
 * Org-mode
@@ -951,13 +1001,6 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
       (abort-recursive-edit))
      (t
       (keyboard-quit))))
-#+end_src
-
-** my/org-dwim-at-point
-
-Execute an action in =org-mode= based on where the point is.
-
-#+begin_src emacs-lisp :tangle "init.el"
 #+end_src
 
 * Keybindings
