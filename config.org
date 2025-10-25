@@ -464,25 +464,30 @@ Install and use nerd-icons.
            :left
            (
             ;; Evil current mode
-            ((cond ((string= "<N>" (mood-line-segment-modal)) "(N)")
-                   ((string= "<I>" (mood-line-segment-modal)) "(I)")
-                   ((string= "<V>" (mood-line-segment-modal)) "(V)")
-                   ((string= "<R>" (mood-line-segment-modal)) "(R)")
-                   ((string= "<O>" (mood-line-segment-modal)) "(O)")
-                   ((string= "<M>" (mood-line-segment-modal)) "(M)")
-                   ((string= "<E>" (mood-line-segment-modal)) "(E)")
-                   (t "")) . " ")
+            ((cond ((string= "<N>" (mood-line-segment-modal)) "(N) ")
+                   ((string= "<I>" (mood-line-segment-modal)) "(I) ")
+                   ((string= "<V>" (mood-line-segment-modal)) "(V) ")
+                   ((string= "<R>" (mood-line-segment-modal)) "(R) ")
+                   ((string= "<O>" (mood-line-segment-modal)) "(O) ")
+                   ((string= "<M>" (mood-line-segment-modal)) "(M) ")
+                   ((string= "<E>" (mood-line-segment-modal)) "(E) ")
+                   (t "")) . "")
+            ;; Macro recording
+            ((cond (defining-kbd-macro "REC ")
+                   (t "")) . "")
             ;; Buffer name
             ((mood-line-segment-buffer-name) . " ")
             ;; Buffer status
-            ((cond ((string= "*" (mood-line-segment-buffer-status)) "󰙏")
-                   ((string= "#" (mood-line-segment-buffer-status)) "")
-                   (t "")) . "  ")
-            ((mood-line-segment-scroll) . " ")
+            ((cond ((string= "*" (mood-line-segment-buffer-status)) "󰙏  ")
+                   ((string= "#" (mood-line-segment-buffer-status)) "  ")
+                   (t "")) . "")
             )
            :right
            (
+            ;; flymake etc.
             ((mood-line-segment-checker) . " ")
+            ;; Scroll segment
+            ((format-mode-line "%o") . " ")
             )
            ))
     (mood-line-mode))
