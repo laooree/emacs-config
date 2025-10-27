@@ -712,7 +712,8 @@ work also in tty:
     :ensure t
     :defer t
     :init
-    (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
+    (setq gptel-model 'gpt-5-mini
+          gptel-backend (gptel-make-gh-copilot "Copilot"))
     :general
     (:states '(normal visual)
              :prefix "SPC"
