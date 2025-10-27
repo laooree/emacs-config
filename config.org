@@ -515,9 +515,6 @@ very useful everywhere else.
   (use-package rainbow-delimiters
     :ensure t
     :defer t
-    :hook
-    (emacs-lisp-mode . rainbow-delimiters-mode)
-    (nix-mode . rainbow-delimiters-mode)
     )
 #+end_src
 
@@ -786,7 +783,11 @@ work also in tty:
   (use-package denote
     :ensure t
     :init
-    (setq denote-directory (expand-file-name "~/pCloudSync/org/notes"))
+    (let ((pcloud-base-folder (cond
+                               ((eq system-type 'windows-nt) "p:/")
+                               ((eq system-type 'gnu/linux) "~/pCloudSync")
+                               (t "~/pCloudSync")))) ;; fallback
+      (setq denote-directory (expand-file-name "org/notes" pcloud-base-folder)))
 
     :general
     (:states '(normal)
