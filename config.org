@@ -873,7 +873,7 @@ Install and configure Matlab mode:
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package auctex
-    :ensure t
+    :ensure (:host github :branch "master" :repo "emacsmirror/auctex")
     :defer t
 
     :init
