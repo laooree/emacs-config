@@ -658,11 +658,11 @@ Specify external programs to open specific file extensions.
     (corfu-cycle t) ;; Enable cycling through candidates
     (corfu-auto t)  ;; Automatically pop-up
     (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
-    (corfu-auto-delay 0.5) ;; Wait half a second before pop-up
+    (corfu-auto-delay 0.1) ;; Time to wait before pop-up
     (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
     (corfu-preview-current 'insert) ;; Do not preview candidates in buffer
 
-    :init
+    :config
     (global-corfu-mode) ;; Enable corfu everywhere
     (corfu-history-mode) ;; Save completion history
     )
@@ -706,6 +706,30 @@ work also in tty:
   (elpaca-wait)
 #+end_src
 
+** Cape
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package cape
+    :ensure t
+    :defer t
+    :init
+    (add-hook 'completion-at-point-functions #'cape-file) ;; Complete filenames
+    )
+#+end_src
+** Embark
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package embark
+    :ensure t
+    :bind
+    (("C-." . embark-act)
+     ("M-." . embark-dwim)
+     ("C-h B" . embark-bindings))
+    )
+
+  (use-package embark-consult
+    :ensure t ;; only need to install it, embark loads it after consult if found
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
 ** GPTel
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package gptel
