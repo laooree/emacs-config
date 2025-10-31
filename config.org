@@ -126,23 +126,26 @@ startup and enables it afterwards.
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
-  (use-package minimalogy-theme
-    :ensure (:host github :repo "laooree/minimalogy-theme.el")
+  (use-package modus-themes
+    :ensure t
+    :init
+    (setq modus-themes-mixed-fonts t)
     :config
-    (setq minimalogy-color-scheme 'understory)
-    (load-theme 'minimalogy :no-confirm-loading))
+    (modus-themes-load-theme 'modus-operandi))
 
   ;; Fonts
-  (let ((font-name (cond
-                    ((eq system-type 'windows-nt) "Iosevka NFM")
-                    ((eq system-type 'gnu/linux) "Iosevka Nerd Font")
-                    (t "Iosevka Nerd Font"))) ;; fallback
+  (let ((mono-font-name (cond
+                         ((eq system-type 'windows-nt) "RobotoMono Nerd Font")
+                         ((eq system-type 'gnu/linux) "Iosevka Nerd Font")
+                         (t "Iosevka Nerd Font"))) ;; fallback
+        (prop-font-name "Arimo Nerd Font")
         (font-size (cond
-                    ((eq system-type 'windows-nt) 130)
+                    ((eq system-type 'windows-nt) 120)
                     ((eq system-type 'gnu/linux) 180)
                     (t 180)))) ;; fallback
-    (set-face-attribute 'default nil :family font-name :height font-size)
-    (set-face-attribute 'fixed-pitch nil :family font-name :height font-size))
+    (set-face-attribute 'default nil        :family mono-font-name :height font-size)
+    (set-face-attribute 'fixed-pitch nil    :family mono-font-name :height font-size)
+    (set-face-attribute 'variable-pitch nil :family prop-font-name :height font-size))
 
   ;; Remove bars
   (tool-bar-mode -1)
@@ -764,7 +767,9 @@ work also in tty:
     :defer t
 
     :init
-    (setq org-startup-indented t)
+    (setq org-startup-indented t
+          org-pretty-entities t)
+
 
     :general
     (:states '(normal)
@@ -772,6 +777,9 @@ work also in tty:
              "o" '(:ignore t :which-key "org")
              "o a" #'org-agenda
              "o c" #'org-capture)
+
+    :hook
+    (org-mode . variable-pitch-mode)
 
     :config
     (let ((pcloud-base-folder (cond
@@ -801,13 +809,17 @@ work also in tty:
 ** org-modern
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package org-modern
-    :ensure t
-    :defer t
+    (use-package org-modern
+      :ensure t
+      :defer t
 
-    :hook
-    (org-mode . org-modern-mode)
-    (org-agenda-finalize . org-modern-agenda))
+      :init
+      (setq org-modern-fold-stars
+            '(("" . "") ("" . "")))
+
+      :hook
+      (org-mode . org-modern-mode)
+      (org-agenda-finalize . org-modern-agenda))
 #+end_src
 
 * Denote
