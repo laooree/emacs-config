@@ -128,8 +128,6 @@ startup and enables it afterwards.
 
   (use-package modus-themes
     :ensure t
-    :init
-    (setq modus-themes-mixed-fonts t)
     :config
     (modus-themes-load-theme 'modus-operandi))
 
