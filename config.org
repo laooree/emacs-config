@@ -134,15 +134,12 @@ startup and enables it afterwards.
     (modus-themes-load-theme 'modus-operandi))
 
   ;; Fonts
-  (let ((mono-font-name (cond
-                         ((eq system-type 'windows-nt) "RobotoMono Nerd Font")
-                         ((eq system-type 'gnu/linux) "Iosevka Nerd Font")
-                         (t "Iosevka Nerd Font"))) ;; fallback
-        (prop-font-name "Arimo Nerd Font")
+  (let ((mono-font-name "RecMonoLinear Nerd Font")
+        (prop-font-name "Ubuntu Nerd Font")
         (font-size (cond
                     ((eq system-type 'windows-nt) 120)
-                    ((eq system-type 'gnu/linux) 180)
-                    (t 180)))) ;; fallback
+                    ((eq system-type 'gnu/linux) 160)
+                    (t 160)))) ;; fallback
     (set-face-attribute 'default nil        :family mono-font-name :height font-size)
     (set-face-attribute 'fixed-pitch nil    :family mono-font-name :height font-size)
     (set-face-attribute 'variable-pitch nil :family prop-font-name :height font-size))
