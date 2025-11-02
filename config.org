@@ -128,8 +128,10 @@ startup and enables it afterwards.
 
   (use-package modus-themes
     :ensure t
+    :init
+    (setq modus-themes-mixed-fonts t)
     :config
-    (modus-themes-load-theme 'modus-operandi))
+    (modus-themes-load-theme 'modus-vivendi))
 
   ;; Fonts
   (let ((mono-font-name "RecMonoLinear Nerd Font")
@@ -140,7 +142,8 @@ startup and enables it afterwards.
                     (t 160)))) ;; fallback
     (set-face-attribute 'default nil        :family mono-font-name :height font-size)
     (set-face-attribute 'fixed-pitch nil    :family mono-font-name :height font-size)
-    (set-face-attribute 'variable-pitch nil :family prop-font-name :height font-size))
+    (set-face-attribute 'variable-pitch nil :family prop-font-name :height font-size)
+    )
 
   ;; Remove bars
   (tool-bar-mode -1)
