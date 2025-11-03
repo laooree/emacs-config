@@ -751,6 +751,25 @@ work also in tty:
              "g r" #'gptel-rewrite
              ))
 #+end_src
+** copilot.el
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package track-changes
+    :ensure t
+    :defer t)
+
+  (use-package copilot
+    :ensure (:host github :repo "copilot-emacs/copilot.el")
+    :bind (:map copilot-completion-map
+                ("<tab>" . 'copilot-accept-completion)
+                ("TAB" . 'copilot-accept-completion)
+                ("C-TAB" . 'copilot-accept-completion-by-word)
+                ("C-<tab>" . 'copilot-accept-completion-by-word))
+    :config
+    (add-to-list 'copilot-indentation-alist '(prog-mode 2))
+    (add-to-list 'copilot-indentation-alist '(org-mode 2))
+    (add-to-list 'copilot-indentation-alist '(python-mode 4))
+    )
+#+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
   (elpaca-wait)
