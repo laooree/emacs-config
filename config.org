@@ -950,9 +950,9 @@ Install and configure Matlab mode:
     (:states '(normal)
              :prefix "SPC"
              :keymaps 'LaTeX-mode-map
-             "l" '(:ignore t :which-key "latex")
-             "l l" #'TeX-command-master
-             "l a" #'TeX-command-run-all)
+             "m" '(:ignore t :which-key "make (latex)")
+             "m m" #'TeX-command-master
+             "m a" #'TeX-command-run-all)
 
     :config
     (with-eval-after-load 'tex
