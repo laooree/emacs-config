@@ -1024,6 +1024,21 @@ Install and configure Matlab mode:
     )
 #+end_src
 
+** Markdown
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package markdown-mode
+    :ensure t
+    :mode ("README\\.md\\'" . gfm-mode)
+    :init (setq markdown-command "multimarkdown")
+
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             :keymaps 'markdown-mode-map
+             "m" '(:ignore t :which-key "make (markdown)")
+             "m m" #'markdown-do)
+    )
+#+end_src
 * Custom functions
 
 This section defines custom functions.
