@@ -596,6 +596,16 @@ Specify external programs to open specific file extensions.
     :defer t)
 #+end_src
 
+** Keycast
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package keycast
+    :ensure t
+    :demand t
+    :config
+    (push '(self-insert-command nil nil) keycast-substitute-alist)
+    (push '(org-self-insert-command nil nil) keycast-substitute-alist)
+    )
+#+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
   (elpaca-wait)
