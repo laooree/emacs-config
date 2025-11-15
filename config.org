@@ -455,6 +455,29 @@ Install and use nerd-icons.
 
 ** Mode-line
 
+These custom functions are used to fetch infos to be displayed in mode-line as strings.
+#+begin_src  emacs-lisp :tangle "init.el"
+  (defun laooree/get-concise-evil-state nil
+    "Returns a concise identifier for the active evil-state."
+    (cond ((eq evil-state 'normal)   "(N) ")
+          ((eq evil-state 'insert)   "(I) ")
+          ((eq evil-state 'visual)   "(V) ")
+          ((eq evil-state 'replace)  "(R) ")
+          ((eq evil-state 'motion)   "(M) ")
+          ((eq evil-state 'operator) "(O) ")
+          ((eq evil-state 'emacs)    "(E) ")
+          (t ""))
+    )
+
+  (defun laooree/get-buffer-status-glyph nil
+    "Returns a glyph representing the buffer status."
+    (cond ((buffer-modified-p) "󰙏  ")
+          ((eq buffer-read-only t) "  ")
+          (t ""))
+    )
+#+end_src
+
+Set mood-line as mode-line.
 #+begin_src  emacs-lisp :tangle "init.el"
   (use-package mood-line
     :ensure t
@@ -465,14 +488,7 @@ Install and use nerd-icons.
            :left
            (
             ;; Evil current mode
-            ((cond ((string= "<N>" (mood-line-segment-modal)) "(N) ")
-                   ((string= "<I>" (mood-line-segment-modal)) "(I) ")
-                   ((string= "<V>" (mood-line-segment-modal)) "(V) ")
-                   ((string= "<R>" (mood-line-segment-modal)) "(R) ")
-                   ((string= "<O>" (mood-line-segment-modal)) "(O) ")
-                   ((string= "<M>" (mood-line-segment-modal)) "(M) ")
-                   ((string= "<E>" (mood-line-segment-modal)) "(E) ")
-                   (t "")) . "")
+            ((laooree/get-concise-evil-state) . "")
             ;; Macro recording
             ((cond (defining-kbd-macro "REC ")
                    (t "")) . "")
@@ -489,9 +505,9 @@ Install and use nerd-icons.
             ((mood-line-segment-checker) . " ")
             ;; Scroll segment
             ((format-mode-line "%o") . " ")
-            )
-           ))
-    (mood-line-mode))
+            )))
+    (mood-line-mode)
+    )
 #+end_src
 
 ** Rainbow csv
