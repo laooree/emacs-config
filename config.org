@@ -956,12 +956,18 @@ Install and configure Matlab mode:
   (use-package matlab-mode
     :ensure t
     :defer t
-    :init (setq matlab-indent-level 2  ;; Set indentation level to 2
-                matlab-indent-function-body t) ;; Indent function bodies
+    :init
+    (setq matlab-indent-level 2  ;; Set indentation level to 2
+          matlab-indent-function-body t) ;; Indent function bodies
+    :hook
+    (matlab-mode . (lambda ()
+                     (set-face-attribute 'matlab-sections-highlight-face nil
+                                         :background (modus-themes-get-color-value 'bg-dim)
+                                         :extend t
+                                         :weight 'normal)
+                     ))
     :config
     (evil-set-initial-state 'matlab-shell-mode 'emacs)
-    (custom-set-faces
-     `(matlab-sections-highlight-face ((t ()))))
     )
 #+end_src
 
