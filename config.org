@@ -1010,9 +1010,13 @@ Install and configure Matlab mode:
       (add-to-list 'TeX-command-list
                    '("LuaLaTeX" "lualatex %s" TeX-run-TeX nil t
                      :help "Run LuaLaTeX")))
-    (with-eval-after-load 'eglot
-      (add-to-list 'eglot-server-programs
-                   '(LaTeX-mode . ("/run/current-system/sw/bin/texlab"))))
+    (let ((texlab-path (cond
+                        ((eq system-type 'windows-nt) "c:/portable/texlab/texlab.exe")
+                        ((eq system-type 'gnu/linux) "/run/current-system/sw/bin/texlab")
+                        (t "/run/current-system/sw/bin/texlab"))))
+      (with-eval-after-load 'eglot
+        (add-to-list 'eglot-server-programs
+                     `(LaTeX-mode . (,texlab-path)))))
     (with-eval-after-load "bibtex"
       (bibtex-set-dialect 'biblatex))
     )
