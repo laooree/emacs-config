@@ -1099,6 +1099,16 @@ Install and configure Matlab mode:
              "m m" #'markdown-do)
     )
 #+end_src
+** Julia
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package julia-mode
+    :ensure t
+    :defer t)
+
+  (use-package eglot-jl
+    :ensure t
+    :defer t)
+#+end_src
 * Custom functions
 
 This section defines custom functions.
