@@ -1101,9 +1101,18 @@ Install and configure Matlab mode:
 #+end_src
 ** Julia
 #+begin_src emacs-lisp :tangle "init.el"
+  (defvar my-eglot-jl-initialized nil
+    "Flag to track if eglot-jl has been initialized.")
+
   (use-package julia-mode
     :ensure t
-    :defer t)
+    :defer t
+    :hook (julia-mode . (lambda ()
+                          (require 'eglot-jl)
+                          (unless my-eglot-jl-initialized
+                            (eglot-jl-init)
+                            (setq my-eglot-jl-initialized t))
+                          (eglot-ensure))))
 
   (use-package eglot-jl
     :ensure t
