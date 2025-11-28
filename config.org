@@ -593,7 +593,11 @@ Specify external programs to open specific file extensions.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package highlight-indentation
     :ensure (:host github :repo "antonj/Highlight-Indentation-for-Emacs")
-    :defer t)
+    :defer t
+    :config
+    (set-face-attribute 'highlight-indentation-face nil
+                        :background (modus-themes-get-color-value 'bg-dim))
+    )
 #+end_src
 
 ** Keycast
