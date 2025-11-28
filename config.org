@@ -963,7 +963,8 @@ Install and configure Matlab mode:
     :defer t
     :init
     (setq matlab-indent-level 2  ;; Set indentation level to 2
-          matlab-indent-function-body t) ;; Indent function bodies
+          matlab-indent-function-body t  ;; Indent function bodies
+          matlab-sections-highlight-section nil)
     :hook
     (matlab-mode . (lambda ()
                      (set-face-attribute 'matlab-sections-highlight-face nil
