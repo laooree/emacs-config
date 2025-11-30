@@ -45,6 +45,8 @@ Based on Nicolas Rougier's [[https://github.com/rougier/dotemacs/blob/master/dot
 startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
+  ;;; -*- lexical-binding: t -*-
+
   (setq gc-cons-threshold most-positive-fixnum) ; Very large threshold for garbage
                                                 ; collector during init
   (setq native-comp-eln-load-path
@@ -111,7 +113,7 @@ startup and enables it afterwards.
 
   ;; Enable integration with use-package
   (elpaca elpaca-use-package
-          (elpaca-use-package-mode))
+    (elpaca-use-package-mode))
 
   ;; Hide compilation warnings
   (add-to-list 'display-buffer-alist
@@ -123,15 +125,16 @@ startup and enables it afterwards.
 * Appearance, theme and fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
+  ;;; -*- lexical-binding: t -*-
+
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
-  (use-package modus-themes
+  (use-package doric-themes
     :ensure t
-    :init
-    (setq modus-themes-mixed-fonts t)
+    :demand t
     :config
-    (modus-themes-load-theme 'modus-vivendi))
+    (doric-themes-select 'doric-dark))
 
   ;; Fonts
   (let ((mono-font-name "RecMonoLinear Nerd Font")
