@@ -707,12 +707,12 @@ Specify external programs to open specific file extensions.
     )
 #+end_src
 
-Corfu uses childframes, which are not available in tty. This package makes corfu
-work also in tty:
+Corfu uses childframes, which are not available in tty for Emacs < 31. This package makes corfu work also in tty:
 
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package corfu-terminal
     :ensure (:host codeberg :repo "akib/emacs-corfu-terminal")
+    :if (< emacs-major-version 31)
     :demand t
     :config
     (unless (display-graphic-p)
