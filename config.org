@@ -207,7 +207,7 @@ Evaluate the following block to generate a list of available fonts:
 
     :init
     (setq evil-want-fine-undo t)
-    (setq evil-respect-visual-line-mode t)
+    (setq evil-respect-visual-line-mode nil)
     ;; Required by evil collection
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
