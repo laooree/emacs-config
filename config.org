@@ -465,59 +465,85 @@ Install and use nerd-icons.
 
 ** Mode-line
 
-These custom functions are used to fetch infos to be displayed in mode-line as strings.
-#+begin_src  emacs-lisp :tangle "init.el"
-  (defun laooree/get-concise-evil-state nil
-    "Returns a concise identifier for the active evil-state."
-    (cond ((eq evil-state 'normal)   "(N) ")
-          ((eq evil-state 'insert)   "(I) ")
-          ((eq evil-state 'visual)   "(V) ")
-          ((eq evil-state 'replace)  "(R) ")
-          ((eq evil-state 'motion)   "(M) ")
-          ((eq evil-state 'operator) "(O) ")
-          ((eq evil-state 'emacs)    "(E) ")
-          (t ""))
-    )
+My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
+*Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
 
-  (defun laooree/get-buffer-status-glyph nil
+*** Functions
+
+#+begin_src  emacs-lisp :tangle "init.el"
+  (defun laooree-modeline--buffer-status ()
     "Returns a glyph representing the buffer status."
-    (cond ((buffer-modified-p) "󰙏  ")
-          ((eq buffer-read-only t) "  ")
-          (t ""))
-    )
+    (cond ((eq buffer-read-only t) " ")
+          ((buffer-modified-p) "󰙏 ")
+          (t "")))
+
+  (defun laooree-modeline--evil-state-tag ()
+    "Get evil-mode state tag using () as delimiters."
+    (replace-regexp-in-string " <\\([^>]*\\)> " "(\\1)" (format-mode-line evil-mode-line-tag)))
+
+  (defun laooree-modeline--major-mode-name ()
+    "Get buffer major mode name, without `-mode'."
+    (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))
+
+  (defun laooree-modeline--smart-divider (s)
+    "Returns the divider specified in string `s' if the window is focused, otherwise it returns an empty string."
+    (cond ((mode-line-window-selected-p) (format "%s" s))
+          (t "")
+          ))
 #+end_src
 
-Set mood-line as mode-line.
+*** Expressions
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (defvar-local laooree-modeline-buffer-name
+    '(:eval
+      (cond ((mode-line-window-selected-p) (propertize (buffer-name) 'face 'bold))
+            ("t" (buffer-name))
+            ))
+    "Expression to show buffer-name on the mode-line.")
+
+  (defvar-local laooree-modeline-buffer-status
+    '(:eval (laooree-modeline--buffer-status))
+    "Expression to show current buffer status on the mode-line.")
+
+  (defvar-local laooree-modeline-evil-state-tag
+    '(:eval
+      (when (mode-line-window-selected-p)
+        (laooree-modeline--evil-state-tag)))
+    "Expression to show current evil state on the mode-line.")
+
+  (defvar-local laooree-modeline-major-mode
+    '(:eval (format "[%s]" (laooree-modeline--major-mode-name)))
+    "Expression to show buffer major mode on the mode-line.")
+
+  (defvar-local laooree-modeline-space-divider
+    '(:eval (laooree-modeline--smart-divider " "))
+    "Expression to add a space on the mode-line only when focused.")
+#+end_src
+
+Add =risky-local-variable t= property to the expressions:
+#+begin_src emacs-lisp :tangle "init.el"
+  (dolist (expression '(laooree-modeline-buffer-name
+                        laooree-modeline-buffer-status
+                        laooree-modeline-evil-state-tag
+                        laooree-modeline-major-mode
+                        laooree-modeline-space-divider
+                        ))
+    (put expression 'risky-local-variable t))
+#+end_src
+
+*** mode-line-format
+
 #+begin_src  emacs-lisp :tangle "init.el"
-  (use-package mood-line
-    :ensure t
-    :config
-    (setq mood-line-glyph-alist mood-line-glyphs-ascii)
-    (setq mood-line-format
-          (mood-line-defformat
-           :left
-           (
-            ;; Evil current mode
-            ((laooree/get-concise-evil-state) . "")
-            ;; Macro recording
-            ((cond (defining-kbd-macro "REC ")
-                   (t "")) . "")
-            ;; Buffer name
-            ((mood-line-segment-buffer-name) . " ")
-            ;; Buffer status
-            ((cond ((string= "*" (mood-line-segment-buffer-status)) "󰙏  ")
-                   ((string= "#" (mood-line-segment-buffer-status)) "  ")
-                   (t "")) . "")
-            )
-           :right
-           (
-            ;; flymake etc.
-            ((mood-line-segment-checker) . " ")
-            ;; Scroll segment
-            ((format-mode-line "%o") . " ")
-            )))
-    (mood-line-mode)
-    )
+  (setq-default mode-line-format
+                '(" "
+                  laooree-modeline-evil-state-tag
+                  laooree-modeline-space-divider
+                  laooree-modeline-buffer-status
+                  laooree-modeline-buffer-name
+                  " "
+                  laooree-modeline-major-mode
+                  ))
 #+end_src
 
 ** Rainbow csv
@@ -616,9 +642,12 @@ Specify external programs to open specific file extensions.
   (use-package keycast
     :ensure t
     :demand t
+    :init
+    (setq keycast-mode-line-insert-after 'laooree-modeline-major-mode)
     :config
-    (push '(self-insert-command nil nil) keycast-substitute-alist)
+    (push '(self-insert-command nil nil)     keycast-substitute-alist)
     (push '(org-self-insert-command nil nil) keycast-substitute-alist)
+    (push '(isearch-printing-char nil nil)   keycast-substitute-alist)
     )
 #+end_src
 ** elpaca-wait
