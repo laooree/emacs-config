@@ -134,7 +134,7 @@ startup and enables it afterwards.
     :ensure t
     :demand t
     :config
-    (doric-themes-select 'doric-dark))
+    (doric-themes-select 'doric-light))
 
   ;; Fonts
   (let ((mono-font-name "RecMonoLinear Nerd Font")
@@ -232,7 +232,8 @@ Evaluate the following block to generate a list of available fonts:
     (add-hook 'org-mode-hook
               (lambda ()
                 (evil-local-set-key 'normal (kbd "TAB") 'org-cycle)
-                (evil-local-set-key 'normal (kbd "<tab>") 'org-cycle))))
+                (evil-local-set-key 'normal (kbd "<tab>") 'org-cycle)))
+    )
 
   ;; Evil collection
   (use-package evil-collection
@@ -606,7 +607,7 @@ Specify external programs to open specific file extensions.
     :defer t
     :config
     (set-face-attribute 'highlight-indentation-face nil
-                        :background (modus-themes-get-color-value 'bg-dim))
+                        :background "#eeeeee")
     )
 #+end_src
 
@@ -977,7 +978,7 @@ Install and configure Matlab mode:
     :hook
     (matlab-mode . (lambda ()
                      (set-face-attribute 'matlab-sections-highlight-face nil
-                                         :background (modus-themes-get-color-value 'bg-dim)
+                                         :background "#eeeeee"
                                          :extend t
                                          :weight 'normal)
                      ))
@@ -1254,27 +1255,7 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
   (global-unset-key (kbd "C-e"))
   (define-key evil-normal-state-map (kbd "C-e") 'end-of-visual-line)
   (define-key evil-visual-state-map (kbd "C-e") 'end-of-visual-line)
-#+end_src
-
-** visual-line movements
-
-#+begin_src emacs-lisp :tangle "init.el"
-  ;; arrows move in visual lines
-  (with-eval-after-load 'evil
-    (define-key evil-normal-state-map [down] 'evil-next-visual-line)
-    (define-key evil-normal-state-map [up]   'evil-previous-visual-line)
-    (define-key evil-visual-state-map [down] 'evil-next-visual-line)
-    (define-key evil-visual-state-map [up]   'evil-previous-visual-line)
-    (define-key evil-motion-state-map [down] 'evil-next-visual-line)
-    (define-key evil-motion-state-map [up]   'evil-previous-visual-line)
-    (add-hook 'org-mode-hook
-            (lambda ()
-              (define-key evil-normal-state-local-map [down] 'evil-next-line)
-              (define-key evil-normal-state-local-map [up]   'evil-previous-line)
-              (define-key evil-visual-state-local-map [down] 'evil-next-line)
-              (define-key evil-visual-state-local-map [up]   'evil-previous-line)
-              (define-key evil-motion-state-local-map [down] 'evil-next-line)
-              (define-key evil-motion-state-local-map [up]   'evil-previous-line))))
+  (define-key evil-emacs-state-map  (kbd "C-e") 'end-of-visual-line)
 #+end_src
 
 ** window movements
