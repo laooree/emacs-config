@@ -1160,6 +1160,19 @@ Install and configure Matlab mode:
     :ensure t
     :defer t)
 #+end_src
+** Elisp
+
+#+begin_src emacs-lisp :tangle "init.el"
+  (with-eval-after-load 'general
+    (general-define-key
+     :states '(normal visual)
+     :keymaps 'emacs-lisp-mode-map
+     :prefix "SPC"
+     "m" '(:ignore t :which-key "make")
+     "m m" #'eval-buffer
+     "m r" #'eval-region)
+    )
+#+end_src
 * Custom functions
 
 This section defines custom functions.
