@@ -1166,7 +1166,7 @@ Install and configure Matlab mode:
   (with-eval-after-load 'general
     (general-define-key
      :states '(normal visual)
-     :keymaps 'emacs-lisp-mode-map
+     :keymaps '(emacs-lisp-mode-map lisp-interaction-mode-map)
      :prefix "SPC"
      "m" '(:ignore t :which-key "make")
      "m m" #'eval-buffer
