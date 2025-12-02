@@ -67,6 +67,11 @@ startup and enables it afterwards.
   ;; Disable package.el
   (setq package-enable-at-startup nil)
 
+  ;; When using unreleased emacs versions, use today's date as elpaca-core-date.
+  (when (= emacs-minor-version 0)
+    (setq elpaca-core-date `(,(string-to-number (format-time-string "%Y%m%d"))
+                             )))
+
   ;; Bootstrap elpaca package manager
   (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
