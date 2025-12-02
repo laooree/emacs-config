@@ -905,17 +905,19 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 ** org-modern
 
 #+begin_src emacs-lisp :tangle "init.el"
-    (use-package org-modern
-      :ensure t
-      :defer t
+  (use-package org-modern
+    :ensure t
+    :defer t
 
-      :init
-      (setq org-modern-fold-stars
-            '(("" . "") ("" . "")))
+    :init
+    (setq org-modern-fold-stars
+          '(("" . "") ("" . "")))
+    (when (>= emacs-major-version 31)
+      (setq org-modern-table nil)) ;; Ugly in 31
 
-      :hook
-      (org-mode . org-modern-mode)
-      (org-agenda-finalize . org-modern-agenda))
+    :hook
+    (org-mode . org-modern-mode)
+    (org-agenda-finalize . org-modern-agenda))
 #+end_src
 
 * Denote
