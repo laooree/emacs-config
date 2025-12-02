@@ -154,6 +154,11 @@ startup and enables it afterwards.
   (menu-bar-mode -1)
 #+end_src
 
+Evaluate the following block to generate a list of available fonts:
+#+begin_src emacs-lisp
+  (font-family-list)
+#+end_src
+
 * general.el + which-key
 
 =general.el= must be loaded before every usage of =:general= key in =use-package=. =which-key= is loaded here to integrate with =general.el= and assign keymaps names.
