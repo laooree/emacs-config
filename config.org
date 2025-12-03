@@ -422,7 +422,7 @@ The =dired-subtree= allows to expand folders using =TAB= key.
 *** Cursor shape
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (defun my/set-cursor-shape ()
+  (defun laooree/set-cursor-shape ()
     "Set terminal cursor shape based on evil state."
     (let ((shape
            (cond
@@ -436,7 +436,7 @@ The =dired-subtree= allows to expand folders using =TAB= key.
 
   ;; Hook into Evil state changes
   (unless (display-graphic-p)
-    (add-hook 'post-command-hook #'my/set-cursor-shape))
+    (add-hook 'post-command-hook #'laooree/set-cursor-shape))
 #+end_src
 #+end_src
 
@@ -1180,12 +1180,12 @@ Install and configure Matlab mode:
 #+end_src
 * Keybindings
 
-** laooree-keyboard-quit-dwim
+** laooree/keyboard-quit-dwim
 
 This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configuration/#h:e5e7b781-4b04-4c53-bf23-5e81789549ce][Protesilaos]].
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (defun laooree-keyboard-quit-dwim ()
+  (defun laooree/keyboard-quit-dwim ()
     "Do-What-I-Mean behaviour for a general `keyboard-quit'.
 
   The generic `keyboard-quit' does not do the expected thing when
@@ -1205,7 +1205,7 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
      (t (keyboard-quit))))
 
   ;; Keyboard quit
-  (define-key global-map (kbd "C-g") #'my/keyboard-quit-dwim)
+  (define-key global-map (kbd "C-g") #'laooree/keyboard-quit-dwim)
 #+end_src
 
 ** org-mode
