@@ -486,15 +486,54 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
     "Get evil-mode state tag using () as delimiters."
     (replace-regexp-in-string " <\\([^>]*\\)> " "(\\1)" (format-mode-line evil-mode-line-tag)))
 
+  ;; Taken from mood-line package
+  (defun laooree-modeline--flymake-count (type)
+    "Return count of current flymake reports of TYPE."
+    (cl-loop for diag in (flymake-diagnostics)
+             as diag-type = (flymake-diagnostic-type diag)
+             count (eq (flymake--lookup-type-property diag-type 'severity)
+                       (flymake--lookup-type-property type 'severity))))
+
+  (defun laooree-modeline--flymake-diagnostics ()
+    "Get `:error', `:warning', and `:note' flymake diagnostic count."
+    (format " %s  %s 󱂻 %s"
+            (laooree-modeline--flymake-count :error)
+            (laooree-modeline--flymake-count :warning)
+            (laooree-modeline--flymake-count :note)
+            ))
+
   (defun laooree-modeline--major-mode-name ()
-    "Get buffer major mode name, without `-mode'."
-    (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))
+    "Get buffer major mode name, without `-mode' and `-'."
+    (capitalize (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
 
   (defun laooree-modeline--smart-divider (s)
     "Returns the divider specified in string `s' if the window is focused, otherwise it returns an empty string."
     (cond ((mode-line-window-selected-p) (format "%s" s))
           (t "")
           ))
+
+  (defun laooree-modeline--flyspell-mode ()
+    "Indicate if flyspell-mode is active on the current buffer."
+    (cond (flyspell-mode " ")
+          (t "")))
+
+  (defun laooree-modeline--eglot-managed ()
+    "Indicate if a buffer is being managed by Eglot."
+    (concat "" (with-eval-after-load 'eglot
+      (cond (eglot--managed-mode " ")
+            (t "")))))
+
+  (defun laooree-modeline--copilot-mode ()
+    "Indicate if copilot-mode is active on the current buffer."
+    (cond (copilot-mode " ")
+          (t "")))
+
+  (defun laooree-modeline--active-tools ()
+    "Indicate the active tools on the current buffer."
+    (format "[%s%s%s]"
+            (laooree-modeline--eglot-managed)
+            (laooree-modeline--copilot-mode)
+            (laooree-modeline--flyspell-mode)))
 #+end_src
 
 *** Expressions
@@ -515,7 +554,13 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
     '(:eval
       (when (mode-line-window-selected-p)
         (laooree-modeline--evil-state-tag)))
-    "Expression to show current evil state on the mode-line.")
+    "Expression to show current evil state on the focused mode-line.")
+
+  (defvar-local laooree-modeline-flymake-diagnostics
+    '(:eval (when (and flymake-mode (mode-line-window-selected-p))
+              (laooree-modeline--flymake-diagnostics)))
+    "Expression to show flymake diagnostics count on the focused mode-line."
+    )
 
   (defvar-local laooree-modeline-major-mode
     '(:eval (format "[%s]" (laooree-modeline--major-mode-name)))
@@ -524,17 +569,26 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   (defvar-local laooree-modeline-space-divider
     '(:eval (laooree-modeline--smart-divider " "))
     "Expression to add a space on the mode-line only when focused.")
+
+  (defvar-local laooree-modeline-active-tools
+    '(:eval (when (mode-line-window-selected-p)
+              (laooree-modeline--active-tools)))
+    "Expression to show the active tools on the focused mode-line."
+    )
 #+end_src
 
 Add =risky-local-variable t= property to the expressions:
 #+begin_src emacs-lisp :tangle "init.el"
-  (dolist (expression '(laooree-modeline-buffer-name
-                        laooree-modeline-buffer-status
-                        laooree-modeline-evil-state-tag
-                        laooree-modeline-major-mode
-                        laooree-modeline-space-divider
-                        ))
-    (put expression 'risky-local-variable t))
+    (dolist (expression '(laooree-modeline-buffer-name
+                          laooree-modeline-buffer-status
+                          laooree-modeline-eglot
+                          laooree-modeline-evil-state-tag
+                          laooree-modeline-flymake-diagnostics
+                          laooree-modeline-major-mode
+                          laooree-modeline-space-divider
+                          laooree-modeline-active-tools
+                          ))
+      (put expression 'risky-local-variable t))
 #+end_src
 
 *** mode-line-format
@@ -548,6 +602,11 @@ Add =risky-local-variable t= property to the expressions:
                   laooree-modeline-buffer-name
                   " "
                   laooree-modeline-major-mode
+                  mode-line-format-right-align
+                  laooree-modeline-active-tools
+                  laooree-modeline-space-divider
+                  laooree-modeline-flymake-diagnostics
+                  " "
                   ))
 #+end_src
 
