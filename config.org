@@ -1021,6 +1021,11 @@ Install and configure Matlab mode:
     :config
     (evil-set-initial-state 'matlab-shell-mode 'emacs)
     )
+
+  (when (eq system-type 'windows-nt)
+    (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+                   '(matlab-mode . ("node" "C:/portable/matlab_language_server/out/index.js" "--stdio")))))
 #+end_src
 
 ** Latex
