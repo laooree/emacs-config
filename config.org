@@ -520,8 +520,8 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   (defun laooree-modeline--eglot-managed ()
     "Indicate if a buffer is being managed by Eglot."
     (concat "" (with-eval-after-load 'eglot
-      (cond (eglot--managed-mode " ")
-            (t "")))))
+                 (cond (eglot--managed-mode " ")
+                       (t "")))))
 
   (defun laooree-modeline--copilot-mode ()
     "Indicate if copilot-mode is active on the current buffer."
@@ -530,10 +530,12 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
   (defun laooree-modeline--active-tools ()
     "Indicate the active tools on the current buffer."
-    (format "[%s%s%s]"
-            (laooree-modeline--eglot-managed)
-            (laooree-modeline--copilot-mode)
-            (laooree-modeline--flyspell-mode)))
+    (replace-regexp-in-string
+     "\\[\\]" ""
+     (format "[%s%s%s]"
+             (laooree-modeline--eglot-managed)
+             (laooree-modeline--copilot-mode)
+             (laooree-modeline--flyspell-mode))))
 #+end_src
 
 *** Expressions
@@ -559,8 +561,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   (defvar-local laooree-modeline-flymake-diagnostics
     '(:eval (when (and flymake-mode (mode-line-window-selected-p))
               (laooree-modeline--flymake-diagnostics)))
-    "Expression to show flymake diagnostics count on the focused mode-line."
-    )
+    "Expression to show flymake diagnostics count on the focused mode-line.")
 
   (defvar-local laooree-modeline-major-mode
     '(:eval (format "[%s]" (laooree-modeline--major-mode-name)))
@@ -573,8 +574,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   (defvar-local laooree-modeline-active-tools
     '(:eval (when (mode-line-window-selected-p)
               (laooree-modeline--active-tools)))
-    "Expression to show the active tools on the focused mode-line."
-    )
+    "Expression to show the active tools on the focused mode-line.")
 #+end_src
 
 Add =risky-local-variable t= property to the expressions:
