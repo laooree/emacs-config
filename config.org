@@ -496,7 +496,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
   (defun laooree-modeline--flymake-diagnostics ()
     "Get `:error', `:warning', and `:note' flymake diagnostic count."
-    (format " %s  %s 󱂻 %s"
+    (format " %s   %s  󱂻 %s"
             (laooree-modeline--flymake-count :error)
             (laooree-modeline--flymake-count :warning)
             (laooree-modeline--flymake-count :note)
@@ -579,16 +579,16 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
 Add =risky-local-variable t= property to the expressions:
 #+begin_src emacs-lisp :tangle "init.el"
-    (dolist (expression '(laooree-modeline-buffer-name
-                          laooree-modeline-buffer-status
-                          laooree-modeline-eglot
-                          laooree-modeline-evil-state-tag
-                          laooree-modeline-flymake-diagnostics
-                          laooree-modeline-major-mode
-                          laooree-modeline-space-divider
-                          laooree-modeline-active-tools
-                          ))
-      (put expression 'risky-local-variable t))
+  (dolist (expression '(laooree-modeline-buffer-name
+                        laooree-modeline-buffer-status
+                        laooree-modeline-eglot
+                        laooree-modeline-evil-state-tag
+                        laooree-modeline-flymake-diagnostics
+                        laooree-modeline-major-mode
+                        laooree-modeline-space-divider
+                        laooree-modeline-active-tools
+                        ))
+    (put expression 'risky-local-variable t))
 #+end_src
 
 *** mode-line-format
@@ -603,7 +603,7 @@ Add =risky-local-variable t= property to the expressions:
                   " "
                   laooree-modeline-major-mode
                   mode-line-format-right-align
-                  laooree-modeline-active-tools
+                  ;; laooree-modeline-active-tools
                   laooree-modeline-space-divider
                   laooree-modeline-flymake-diagnostics
                   " "
