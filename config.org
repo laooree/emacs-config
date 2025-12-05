@@ -135,11 +135,11 @@ startup and enables it afterwards.
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
-  (use-package doric-themes
+  (use-package modus-themes
     :ensure t
     :demand t
     :config
-    (doric-themes-select 'doric-light))
+    (modus-themes-load-theme 'modus-vivendi))
 
   ;; Fonts
   (let ((mono-font-name "RecMonoLinear Nerd Font")
