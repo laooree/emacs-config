@@ -940,8 +940,8 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
              "o a" #'org-agenda
              "o c" #'org-capture)
 
-    :hook
-    (org-mode . variable-pitch-mode)
+    ;; :hook
+    ;; (org-mode . variable-pitch-mode)
 
     :config
     (let ((pcloud-base-folder (cond
