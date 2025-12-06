@@ -654,7 +654,9 @@ Specify external programs to open specific file extensions.
     :ensure t
     :init
     (setq openwith-associations '(("\\.pdf\\'" "evince" (file))
-                                  ("\\.png\\'" "loupe" (file))))
+                                  ("\\.png\\'" "loupe" (file))
+                                  ("\\.jpg\\'" "loupe" (file))
+                                  ))
 
     :config
     (openwith-mode t))
