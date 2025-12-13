@@ -495,7 +495,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
   (defun laooree-modeline--evil-state-tag ()
     "Get evil-mode state tag using () as delimiters."
-    (replace-regexp-in-string " <\\([^>]*\\)> " "(\\1)" (format-mode-line evil-mode-line-tag)))
+    (replace-regexp-in-string " <\\([^>]*\\)> " "(\\1)" evil-mode-line-tag))
 
   ;; Taken from mood-line package
   (defun laooree-modeline--flymake-count (type)
@@ -507,11 +507,9 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
   (defun laooree-modeline--flymake-diagnostics ()
     "Get `:error', `:warning', and `:note' flymake diagnostic count."
-    (format " %s   %s  󱂻 %s"
-            (laooree-modeline--flymake-count :error)
-            (laooree-modeline--flymake-count :warning)
-            (laooree-modeline--flymake-count :note)
-            ))
+    (concat (propertize (format " %s " (laooree-modeline--flymake-count :error)) 'face 'error)
+            (propertize (format " %s " (laooree-modeline--flymake-count :warning)) 'face 'warning)
+            (propertize (format "󱂻 %s"   (laooree-modeline--flymake-count :note)) 'face 'success)))
 
   (defun laooree-modeline--major-mode-name ()
     "Get buffer major mode name, without `-mode' and `-'."
@@ -538,6 +536,12 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
     "Indicate if copilot-mode is active on the current buffer."
     (cond (copilot-mode " ")
           (t "")))
+
+  (defun laooree-modeline--defining-kbd-macro ()
+    "Indicate if a keyboard macro is being defined."
+    (propertize (format "%s" (cond (defining-kbd-macro "   Rec ")
+                                   (t "")))
+                'face 'highlight))
 
   (defun laooree-modeline--active-tools ()
     "Indicate the active tools on the current buffer."
@@ -582,6 +586,10 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
     '(:eval (laooree-modeline--smart-divider " "))
     "Expression to add a space on the mode-line only when focused.")
 
+  (defvar-local laooree-modeline-keyboard-macro-indicator
+    '(:eval (laooree-modeline--defining-kbd-macro))
+    "Expression to indicate on the mode-line when a keyboard macro is being defined.")
+
   (defvar-local laooree-modeline-active-tools
     '(:eval (when (mode-line-window-selected-p)
               (laooree-modeline--active-tools)))
@@ -597,17 +605,20 @@ Add =risky-local-variable t= property to the expressions:
                         laooree-modeline-flymake-diagnostics
                         laooree-modeline-major-mode
                         laooree-modeline-space-divider
+                        laooree-modeline-keyboard-macro-indicator
                         laooree-modeline-active-tools
                         ))
     (put expression 'risky-local-variable t))
 #+end_src
 
-*** mode-line-format
+*** Customize mode line
 
 #+begin_src  emacs-lisp :tangle "init.el"
   (setq-default mode-line-format
                 '(" "
                   laooree-modeline-evil-state-tag
+                  laooree-modeline-space-divider
+                  laooree-modeline-keyboard-macro-indicator
                   laooree-modeline-space-divider
                   laooree-modeline-buffer-status
                   laooree-modeline-buffer-name
@@ -621,6 +632,12 @@ Add =risky-local-variable t= property to the expressions:
                   ))
 #+end_src
 
+*** Faces
+#+begin_src emacs-lisp :tangle "init.el"
+  (set-face-attribute 'mode-line           nil :box nil)
+  (set-face-attribute 'mode-line-active    nil :box nil)
+  (set-face-attribute 'mode-line-inactive  nil :box nil)
+#+end_src
 ** Rainbow csv
 
 Paint each column in =.csv= files with different colors.
