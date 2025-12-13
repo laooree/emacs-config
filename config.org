@@ -699,7 +699,7 @@ Specify external programs to open specific file extensions.
     :defer t
     :config
     (set-face-attribute 'highlight-indentation-face nil
-                        :background "#eeeeee")
+                        :background (modus-themes-get-color-value 'bg-dim))
     )
 #+end_src
 
@@ -1105,6 +1105,11 @@ Install and configure Matlab mode:
                 "\\.out" "\\.snm" "\\.toc" "\\.url" "\\.synctex\\.gz" "\\.bcf"
                 "\\.run\\.xml" "\\.fls" "-blx\\.bib" "\\.fdb_latexmk" "\\.atfi"
                 "\\.acn" "\\.acr" "\\.alg" "\\.glg" "\\.ist" "\\.dbx"))
+    (setq TeX-view-program-selection
+          '((output-pdf "Evince")))
+    (setq TeX-source-correlate-mode t)
+    (setq TeX-source-correlate-method 'synctex)
+    (setq TeX-source-correlate-start-server t)
 
     :hook
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
