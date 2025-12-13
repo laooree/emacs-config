@@ -127,7 +127,7 @@ startup and enables it afterwards.
                  (allow-no-window . t)))
 #+end_src
 
-* Appearance, theme and fonts
+* Theme and toolbars
 
 #+begin_src emacs-lisp :tangle "init.el"
   ;;; -*- lexical-binding: t -*-
@@ -135,28 +135,40 @@ startup and enables it afterwards.
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
+  ;; Remove bars
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+
   (use-package modus-themes
     :ensure t
     :demand t
+    :init
+    (setq modus-themes-variable-pitch-ui nil)
+    (setq modus-themes-mixed-fonts t)
     :config
     (modus-themes-load-theme 'modus-vivendi))
 
-  ;; Fonts
-  (let ((mono-font-name "RecMonoLinear Nerd Font")
-        (prop-font-name "Ubuntu Nerd Font")
+#+end_src
+
+* Fonts
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;; Default fonts
+  (let ((mono-font-name "Iosevka Nerd Font")
+        (prop-font-name "DINish")
         (font-size (cond
                     ((eq system-type 'windows-nt) 120)
-                    ((eq system-type 'gnu/linux) 160)
-                    (t 160)))) ;; fallback
+                    ((eq system-type 'gnu/linux)  160)
+                    (t 160))) ;; fallback
+        )
     (set-face-attribute 'default nil        :family mono-font-name :height font-size)
     (set-face-attribute 'fixed-pitch nil    :family mono-font-name :height font-size)
     (set-face-attribute 'variable-pitch nil :family prop-font-name :height font-size)
     )
 
-  ;; Remove bars
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
+  ;; Set italic to use VictorMono
+  (set-face-attribute 'italic nil :family "VictorMono Nerd Font" :slant 'italic)
 #+end_src
 
 Evaluate the following block to generate a list of available fonts:
