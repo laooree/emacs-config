@@ -968,9 +968,10 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
              "o a" #'org-agenda
              "o c" #'org-capture)
 
-    ;; :hook
-    ;; (org-mode . variable-pitch-mode)
+    :hook
+    (org-mode . variable-pitch-mode)
 
+    ;; :
     :config
     (let ((pcloud-base-folder (cond
                                ((eq system-type 'windows-nt) "p:/")
@@ -1005,9 +1006,8 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 
     :init
     (setq org-modern-fold-stars
-          '(("" . "") ("" . "")))
-    (when (>= emacs-major-version 31)
-      (setq org-modern-table nil)) ;; Ugly in 31
+          '(("" . "")))
+    (setq org-modern-table nil)
 
     :hook
     (org-mode . org-modern-mode)
