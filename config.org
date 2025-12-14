@@ -484,6 +484,30 @@ Install and use nerd-icons.
 My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
 *Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
 
+*** Faces
+#+begin_src emacs-lisp :tangle "init.el"
+  (defgroup laooree-modeline nil
+    "My custom mode-line."
+    :group 'mode-line)
+
+  (defgroup laooree-modeline-faces nil
+    "My custom mode-line faces."
+    :group 'laooree-modeline)
+
+  (defface laooree-modeline-white-standout
+    '((t (:foreground  "#000000" :background "#ffffff")))
+    "Face for elements that should stand out in the mode-line, with white background."
+    :group 'laooree-modeline-faces)
+
+  (defface laooree-modeline-magenta-standout
+    '((t (:foreground  "#000000" :background "#ff66ff")))
+    "Face for elements that should stand out in the mode-line, with magenta background."
+    :group 'laooree-modeline-faces)
+
+  (set-face-attribute 'mode-line           nil :box nil)
+  (set-face-attribute 'mode-line-active    nil :box nil)
+  (set-face-attribute 'mode-line-inactive  nil :box nil)
+#+end_src
 *** Functions
 
 #+begin_src  emacs-lisp :tangle "init.el"
@@ -496,6 +520,11 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   (defun laooree-modeline--evil-state-tag ()
     "Get evil-mode state tag using () as delimiters."
     (replace-regexp-in-string " <\\([^>]*\\)> " "(\\1)" evil-mode-line-tag))
+
+  (defun laooree-modeline--evil-state-tag-propertized ()
+    "Get evil-mode state tag with propertized faces."
+    (cond ((string= (laooree-modeline--evil-state-tag) "(N)") (laooree-modeline--evil-state-tag))
+          (t (propertize (format "%s" (laooree-modeline--evil-state-tag)) 'face 'laooree-modeline-white-standout))))
 
   ;; Taken from mood-line package
   (defun laooree-modeline--flymake-count (type)
@@ -541,7 +570,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
     "Indicate if a keyboard macro is being defined."
     (propertize (format "%s" (cond (defining-kbd-macro "   Rec ")
                                    (t "")))
-                'face 'highlight))
+                'face 'laooree-modeline-magenta-standout))
 
   (defun laooree-modeline--active-tools ()
     "Indicate the active tools on the current buffer."
@@ -573,6 +602,12 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
         (laooree-modeline--evil-state-tag)))
     "Expression to show current evil state on the focused mode-line.")
 
+  (defvar-local laooree-modeline-evil-state-tag-propertized
+    '(:eval
+      (when (mode-line-window-selected-p)
+        (laooree-modeline--evil-state-tag-propertized)))
+    "Expression to show current evil state on the focused mode-line.")
+
   (defvar-local laooree-modeline-flymake-diagnostics
     '(:eval (when (and flymake-mode (mode-line-window-selected-p))
               (laooree-modeline--flymake-diagnostics)))
@@ -602,6 +637,7 @@ Add =risky-local-variable t= property to the expressions:
                         laooree-modeline-buffer-status
                         laooree-modeline-eglot
                         laooree-modeline-evil-state-tag
+                        laooree-modeline-evil-state-tag-propertized
                         laooree-modeline-flymake-diagnostics
                         laooree-modeline-major-mode
                         laooree-modeline-space-divider
@@ -616,7 +652,7 @@ Add =risky-local-variable t= property to the expressions:
 #+begin_src  emacs-lisp :tangle "init.el"
   (setq-default mode-line-format
                 '(" "
-                  laooree-modeline-evil-state-tag
+                  laooree-modeline-evil-state-tag-propertized
                   laooree-modeline-space-divider
                   laooree-modeline-keyboard-macro-indicator
                   laooree-modeline-space-divider
@@ -632,12 +668,6 @@ Add =risky-local-variable t= property to the expressions:
                   ))
 #+end_src
 
-*** Faces
-#+begin_src emacs-lisp :tangle "init.el"
-  (set-face-attribute 'mode-line           nil :box nil)
-  (set-face-attribute 'mode-line-active    nil :box nil)
-  (set-face-attribute 'mode-line-inactive  nil :box nil)
-#+end_src
 ** Rainbow csv
 
 Paint each column in =.csv= files with different colors.
