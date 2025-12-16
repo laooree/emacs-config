@@ -968,7 +968,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 #+begin_src emacs-lisp :tangle "init.el"
   (elpaca-wait)
 #+end_src
-* Org-mode
+* Org
 
 ** org-mode
 
@@ -979,7 +979,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 
     :init
     (setq org-startup-indented t
-          org-pretty-entities t
+          org-pretty-entities nil
           org-format-latex-options
           '(:foreground default
                         :background default
