@@ -157,8 +157,10 @@ startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "init.el"
   ;; Default fonts
-  (let ((mono-font-name "Iosevka Nerd Font")
-        (prop-font-name "DINish")
+  (let ((mono-font-name (cond
+                         ((eq system-type 'windows-nt) "Iosevka NFM")
+                         ((eq system-type 'gnu/linux)  "Iosevka Nerd Font Mono")))
+        (prop-font-name "Arimo Nerd Font")
         (font-size (cond
                     ((eq system-type 'windows-nt) 120)
                     ((eq system-type 'gnu/linux)  160)
