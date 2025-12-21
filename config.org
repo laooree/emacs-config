@@ -22,6 +22,18 @@ execute =org-babel-tangle= command (=C-c C-v t=). The next times, the tangling
 happens automatically every time the the =config.org= file is saved, thanks to
 the [[https://github.com/yilkalargaw/org-auto-tangle][org-auto-tangle]] package.
 
+* Lexical binding
+
+The following adds lexical binding cookie to =early-init.el= and =init.el=.
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+  ;;; -*- lexical-binding: t -*-
+#+end_src
+
+#+begin_src emacs-lisp :tangle "init.el"
+  ;;; -*- lexical-binding: t -*-
+#+end_src
+
 * Early initialization
 ** Speed up the startup
 
@@ -29,8 +41,6 @@ Based on Nicolas Rougier's [[https://github.com/rougier/dotemacs/blob/master/dot
 startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
-  ;;; -*- lexical-binding: t -*-
-
   (setq gc-cons-threshold most-positive-fixnum) ; Very large threshold for garbage
                                                 ; collector during init
   (setq native-comp-eln-load-path
@@ -114,8 +124,6 @@ startup and enables it afterwards.
 * Theme and toolbars
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;;; -*- lexical-binding: t -*-
-
   ;; Default frame title
   (setq-default frame-title-format '("Gnu Emacs"))
 
