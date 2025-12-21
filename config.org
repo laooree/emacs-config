@@ -671,10 +671,7 @@ Paint each column in =.csv= files with different colors.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package rainbow-csv
     :ensure (:host github :repo "emacs-vs/rainbow-csv")
-    :defer t
-    :config
-    (add-hook 'csv-mode-hook #'rainbow-csv-mode)
-    (add-hook 'tsv-mode-hook #'rainbow-csv-mode))
+    :defer t)
 #+end_src
 
 ** Rainbow delimiters
@@ -1135,7 +1132,6 @@ Install and configure Matlab mode:
     :hook
     (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
     (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
-    (LaTeX-mode . eglot-ensure)
     (LaTeX-mode . (lambda ()
                     (add-hook 'eglot-managed-mode-hook
                               (lambda () (eglot-inlay-hints-mode -1))
@@ -1179,7 +1175,6 @@ Install and configure Matlab mode:
           python-indent-offset 4)
 
     :hook
-    (python-mode . eglot-ensure)
     (python-mode . highlight-indentation-mode)
 
     :config
@@ -1212,9 +1207,6 @@ Install and configure Matlab mode:
   (use-package haskell-mode
     :ensure t
     :defer t
-
-    :hook
-    (haskell-mode . eglot-ensure)
 
     :config
     (with-eval-after-load 'eglot
