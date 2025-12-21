@@ -369,6 +369,9 @@ Tweak =dired=. Options should be self-explanatory.
   (use-package dired
     :ensure nil
     :commands (dired)
+    :init
+    (setq dired-hide-details-preserved-columns '(5 6 7 8 9)
+          dired-hide-details-hide-information-lines nil)
     :hook
     ((dired-mode . dired-hide-details-mode)
      (dired-mode . hl-line-mode))
@@ -984,7 +987,8 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
               ("j" "Journal" entry (file+datetree ,(expand-file-name "org/journal.org" pcloud-base-folder))
                "* %?\nEntered on %U\n")
               ("i" "Idea" entry (file+headline ,(expand-file-name "org/inbox.org" pcloud-base-folder) "Ideas")
-               "* %?\n %U\n")))))
+               "* %?\n %U\n"))))
+    )
 #+end_src
 
 ** org-modern
