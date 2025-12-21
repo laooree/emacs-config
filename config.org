@@ -450,7 +450,10 @@ Install and use nerd-icons.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package nerd-icons
     :defer t
-    :ensure t)
+    :ensure t
+    :config
+    (add-to-list 'nerd-icons-extension-icon-alist '("m" nerd-icons-devicon "nf-dev-matlab" :face nerd-icons-dorange))
+    )
 
   (use-package nerd-icons-completion
     :ensure t
