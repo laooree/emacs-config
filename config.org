@@ -361,26 +361,6 @@ in the org file for which you want auto tangling.
     :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
-** Spacious padding
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package spacious-padding
-    :ensure t
-    :demand t
-
-    :init
-    (setq spacious-padding-widths
-          '( :internal-border-width 15
-             :header-line-width 4
-             :mode-line-width 6
-             :tab-width 4
-             :right-divider-width 30
-             :scroll-bar-width 8))
-
-    :config
-    (spacious-padding-mode 1))
-#+end_src
-
 ** Dired
 
 Tweak =dired=. Options should be self-explanatory.
@@ -743,20 +723,6 @@ Specify external programs to open specific file extensions.
     )
 #+end_src
 
-** Beacon
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package beacon
-    :ensure t
-    :if (display-graphic-p)
-    :init
-    (setq beacon-size 10
-          beacon-blink-duration 0.5
-          beacon-blink-delay 0.0)
-    :config
-    (beacon-mode 1))
-#+end_src
-
 ** Highlight indentation
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -888,21 +854,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
     )
 #+end_src
 
-** yasnippet
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package yasnippet
-    :ensure t
-    :defer t
-    :config
-    (yas-reload-all)
-    :hook
-    (prog-mode . yas-minor-mode))
-
-  (use-package yasnippet-snippets
-    :ensure t)
-#+end_src
-
 ** Grammarly
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -955,10 +906,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 #+end_src
 ** copilot.el
 #+begin_src emacs-lisp :tangle "init.el"
-  (use-package track-changes
-    :ensure t
-    :defer t)
-
   (use-package copilot
     :ensure (:host github :repo "copilot-emacs/copilot.el")
     :bind (:map copilot-completion-map
@@ -1282,25 +1229,6 @@ Install and configure Matlab mode:
              "m" '(:ignore t :which-key "make")
              "m m" #'markdown-do)
     )
-#+end_src
-** Julia
-#+begin_src emacs-lisp :tangle "init.el"
-  (defvar my-eglot-jl-initialized nil
-    "Flag to track if eglot-jl has been initialized.")
-
-  (use-package julia-mode
-    :ensure t
-    :defer t
-    :hook (julia-mode . (lambda ()
-                          (require 'eglot-jl)
-                          (unless my-eglot-jl-initialized
-                            (eglot-jl-init)
-                            (setq my-eglot-jl-initialized t))
-                          (eglot-ensure))))
-
-  (use-package eglot-jl
-    :ensure t
-    :defer t)
 #+end_src
 ** Elisp
 
