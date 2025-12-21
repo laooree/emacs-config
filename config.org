@@ -121,17 +121,9 @@ startup and enables it afterwards.
                  (allow-no-window . t)))
 #+end_src
 
-* Theme and toolbars
+* Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Default frame title
-  (setq-default frame-title-format '("Gnu Emacs"))
-
-  ;; Remove bars
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
-
   (use-package modus-themes
     :ensure t
     :demand t
@@ -274,6 +266,14 @@ Evaluate the following block to generate a list of available fonts:
 ** Some built-in options:
 
 #+begin_src emacs-lisp :tangle "init.el"
+  ;; Default frame title
+  (setq-default frame-title-format '("Gnu Emacs"))
+
+  ;; Remove bars
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+
   ;; Set different file for M-x customize interface
   (setq custom-file (locate-user-emacs-file "custom.el"))
   (load custom-file :no-error-if-file-is-missing)
