@@ -538,7 +538,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
   (defun laooree-modeline--major-mode-name ()
     "Get buffer major mode name, without `-mode' and `-'."
-    (capitalize (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))))
+    (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))
 
   (defun laooree-modeline--smart-divider (s)
     "Returns the divider specified in string `s' if the window is focused, otherwise it returns an empty string."
