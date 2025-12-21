@@ -499,6 +499,11 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 *** Functions
 
 #+begin_src  emacs-lisp :tangle "init.el"
+  ;; Require flymake (built-in)
+  (use-package flymake
+    :ensure nil
+    :demand t)
+
   (defun laooree-modeline--buffer-status ()
     "Returns a glyph representing the buffer status."
     (cond ((eq buffer-read-only t) " ")
