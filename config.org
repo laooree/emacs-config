@@ -1123,7 +1123,6 @@ Install and configure Matlab mode:
     (setq TeX-source-correlate-start-server t)
 
     :hook
-    (LaTeX-mode . yas-minor-mode) ;; enable yasnippet mode
     (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
     (LaTeX-mode . (lambda ()
                     (add-hook 'eglot-managed-mode-hook
