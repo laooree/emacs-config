@@ -904,6 +904,12 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 #+end_src
 ** copilot.el
 #+begin_src emacs-lisp :tangle "init.el"
+  ;; copilot.el requires very recent track-changes
+  (use-package track-changes
+    :ensure t
+    :defer t
+    )
+
   (use-package copilot
     :ensure (:host github :repo "copilot-emacs/copilot.el")
     :bind (:map copilot-completion-map
