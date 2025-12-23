@@ -408,6 +408,7 @@ This package is not X11 exclusive, and automatically detects when on Wayland.
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package xclip
     :ensure t
+    :if (eq system-type 'gnu/linux)
     :demand t
     :config
     (xclip-mode 1)
