@@ -502,9 +502,10 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
   (defun laooree-modeline--buffer-status ()
     "Returns a glyph representing the buffer status."
-    (cond ((eq buffer-read-only t) " ")
-          ((buffer-modified-p) "󰙏 ")
-          (t "")))
+    (unless (eq buffer-file-name nil)
+      (cond ((eq buffer-read-only t) " ")
+            ((buffer-modified-p) "󰙏 ")
+            (t ""))))
 
   (defun laooree-modeline--evil-state-tag ()
     "Get evil-mode state tag using () as delimiters."
