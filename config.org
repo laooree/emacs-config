@@ -853,16 +853,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
     )
 #+end_src
 
-** Grammarly
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (use-package flymake-grammarly
-    :ensure (:host github :repo "emacs-grammarly/flymake-grammarly")
-    :defer t)
-
-  (elpaca-wait)
-#+end_src
-
 ** Cape
 #+begin_src emacs-lisp :tangle "init.el"
   (use-package cape
