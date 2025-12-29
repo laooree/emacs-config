@@ -909,8 +909,8 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
                 ("C-TAB" . 'copilot-accept-completion-by-word)
                 ("C-<tab>" . 'copilot-accept-completion-by-word))
     :config
-    (add-to-list 'copilot-indentation-alist '(prog-mode 2))
-    (add-to-list 'copilot-indentation-alist '(org-mode 2))
+    (add-to-list 'copilot-indentation-alist '(prog-mode 4))
+    (add-to-list 'copilot-indentation-alist '(org-mode 4))
     (add-to-list 'copilot-indentation-alist '(python-mode 4))
     )
 #+end_src
@@ -1023,7 +1023,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 #+begin_src emacs-lisp :tangle "init.el"
   (setq-default indent-tabs-mode nil        ;; Stop using tabs to indent
                 tab-always-indent 'complete ;; Indent first then try completions
-                tab-width 2)                ;; Set 2 as tab width
+                tab-width 4)                ;; Set 4 as tab width
   (setq indent-line-function 'insert-tab)
 #+end_src
 
@@ -1048,6 +1048,10 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
     :defer t)
 #+end_src
 
+** C
+#+begin_src emacs-lisp :tangle "init.el"
+  (setq-default c-basic-offset 4)
+#+end_src
 ** Eglot
 
 This block ensures that =eglot= is updated to the latest release.
@@ -1078,7 +1082,7 @@ Install and configure Matlab mode:
     :ensure t
     :defer t
     :init
-    (setq matlab-indent-level 2  ;; Set indentation level to 2
+    (setq matlab-indent-level 4  ;; Set indentation level to 4
           matlab-indent-function-body t  ;; Indent function bodies
           matlab-sections-highlight-section nil)
     :hook
@@ -1178,8 +1182,8 @@ Install and configure Matlab mode:
 ** Shell
 
 #+begin_src emacs-lisp :tangle "init.el"
-  ;; Set shell indentation to 2
-  (setq sh-basic-offset 2)
+  ;; Set shell indentation to 4
+  (setq sh-basic-offset 4)
 #+end_src
 
 ** Nix
