@@ -1137,7 +1137,8 @@ Install and configure Matlab mode:
              :keymaps 'LaTeX-mode-map
              "m" '(:ignore t :which-key "make")
              "m m" #'TeX-command-master
-             "m a" #'TeX-command-run-all)
+             "m a" #'TeX-command-run-all
+             "m l" #'TeX-recenter-output-buffer)
 
     :config
     (with-eval-after-load 'tex
