@@ -1330,23 +1330,7 @@ This is from [[https://protesilaos.com/codelog/2024-11-28-basic-emacs-configurat
 ** window movements
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (with-eval-after-load 'evil
-    (global-unset-key (kbd "M-<left>"))
-    (global-unset-key (kbd "M-<down>"))
-    (global-unset-key (kbd "M-<up>"))
-    (global-unset-key (kbd "M-<right>"))
-    (define-key evil-normal-state-map (kbd "M-<left>")  'evil-window-left)
-    (define-key evil-normal-state-map (kbd "M-<down>")  'evil-window-down)
-    (define-key evil-normal-state-map (kbd "M-<up>")    'evil-window-up)
-    (define-key evil-normal-state-map (kbd "M-<right>") 'evil-window-right)
-    (define-key evil-insert-state-map (kbd "M-<left>")  'evil-window-left)
-    (define-key evil-insert-state-map (kbd "M-<down>")  'evil-window-down)
-    (define-key evil-insert-state-map (kbd "M-<up>")    'evil-window-up)
-    (define-key evil-insert-state-map (kbd "M-<right>") 'evil-window-right)
-    (define-key evil-emacs-state-map  (kbd "M-<left>")  'evil-window-left)
-    (define-key evil-emacs-state-map  (kbd "M-<down>")  'evil-window-down)
-    (define-key evil-emacs-state-map  (kbd "M-<up>")    'evil-window-up)
-    (define-key evil-emacs-state-map  (kbd "M-<right>") 'evil-window-right))
+  (global-set-key (kbd "M-o") 'other-window)
 #+end_src
 
 ** Commands
