@@ -263,14 +263,6 @@ Evaluate the following block to generate a list of available fonts:
     :config
     (evil-collection-init))
 
-  ;; Evil numbers
-  (use-package evil-numbers
-    :ensure t
-    :after evil
-    :config
-    (define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
-    (define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt))
-
   ;; Evil snipe
   (use-package evil-snipe
     :ensure t
@@ -746,6 +738,19 @@ Specify external programs to open specific file extensions.
     (push '(org-self-insert-command nil nil) keycast-substitute-alist)
     (push '(isearch-printing-char nil nil)   keycast-substitute-alist)
     )
+#+end_src
+** shift-number
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package shift-number
+    :ensure t
+    :init
+    (setq shift-number-pad-default t)
+
+    :general
+    (:states '(normal)
+             "+" #'shift-number-up
+             "-" #'shift-number-down)
+   )
 #+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
