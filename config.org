@@ -1143,6 +1143,7 @@ Install and configure Matlab mode:
              "m" '(:ignore t :which-key "make")
              "m m" #'TeX-command-master
              "m a" #'TeX-command-run-all
+             "m v" #'TeX-view
              "m l" #'TeX-recenter-output-buffer)
 
     :config
