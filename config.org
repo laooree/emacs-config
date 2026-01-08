@@ -830,7 +830,7 @@ Specify external programs to open specific file extensions.
     (corfu-cycle t) ;; Enable cycling through candidates
     (corfu-auto t)  ;; Automatically pop-up
     (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
-    (corfu-auto-delay 0.1) ;; Time to wait before pop-up
+    (corfu-auto-delay 1) ;; Time to wait before pop-up
     (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
     (corfu-preview-current 'insert) ;; Do not preview candidates in buffer
 
