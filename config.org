@@ -233,6 +233,13 @@ Evaluate the following block to generate a list of available fonts:
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
     (setq evil-undo-system 'undo-redo)
+    (setq evil-default-cursor t
+          evil-emacs-state-cursor nil
+          evil-insert-state-cursor nil
+          evil-motion-state-cursor nil
+          evil-operator-state-cursor nil
+          evil-replace-state-cursor nil
+          evil-visual-state-cursor nil)
 
     :general
     (:states '(normal)
@@ -405,27 +412,6 @@ This package is not X11 exclusive, and automatically detects when on Wayland.
     :config
     (xclip-mode 1)
     )
-#+end_src
-
-*** Cursor shape
-
-#+begin_src emacs-lisp :tangle "init.el"
-  (defun laooree/set-cursor-shape ()
-    "Set terminal cursor shape based on evil state."
-    (let ((shape
-           (cond
-            ((evil-insert-state-p) "\e[5 q")  ;; Blinking bar
-            ((evil-motion-state-p) "\e[0 q")  ;; Block
-            ((evil-operator-state-p) "\e[3 q");; Underline
-            ((evil-replace-state-p) "\e[3 q") ;; Underline
-            ((evil-visual-state-p) "\e[0 q")  ;; Block
-            (t "\e[0 q"))))                   ;; Block
-      (send-string-to-terminal shape)))
-
-  ;; Hook into Evil state changes
-  (unless (display-graphic-p)
-    (add-hook 'post-command-hook #'laooree/set-cursor-shape))
-#+end_src
 #+end_src
 
 ** Nerd icons
