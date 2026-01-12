@@ -1230,6 +1230,30 @@ Install and configure Matlab mode:
      "m r" #'eval-region)
     )
 #+end_src
+** Typst
+#+begin_src emacs-lisp :tangle "init.el"
+  (use-package typst-ts-mode
+    :ensure t
+    :defer t
+
+    :general
+    (:states '(normal)
+             :prefix "SPC"
+             :keymaps 'typst-ts-mode-map
+             "m" '(:ignore t :which-key "make")
+             "m t" #'typst-ts-watch-mode
+             "m m" #'typst-ts-compile-and-preview
+             "m c" #'typst-ts-compile
+             )
+
+    :config
+    ;; Install typst tree-sitter grammar
+    (add-to-list 'treesit-language-source-alist
+                 '(typst "https://github.com/uben0/tree-sitter-typst"))
+    (unless (treesit-language-available-p 'typst)
+      (treesit-install-language-grammar 'typst))
+    )
+#+end_src
 * Keybindings
 
 ** laooree/keyboard-quit-dwim
