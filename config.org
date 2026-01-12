@@ -1016,6 +1016,8 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
                 tab-always-indent 'complete ;; Indent first then try completions
                 tab-width 4)                ;; Set 4 as tab width
   (setq indent-line-function 'insert-tab)
+
+  (setq org-src-preserve-indentation t)
 #+end_src
 
 ** Load languages in org-babel
