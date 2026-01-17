@@ -132,25 +132,26 @@ startup and enables it afterwards.
   (setq modus-themes-mixed-fonts t)
   :config
   (modus-themes-load-theme 'modus-vivendi)
-
-  ;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;;; Custom faces ;;;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;
-
-  ;; Org-mode faces
-  (with-eval-after-load 'org
-    (modus-themes-with-colors
-      (set-face-attribute 'org-block-begin-line nil
-                          :background bg-inactive
-                          :foreground fg-dim)
-      (set-face-attribute 'org-block-end-line nil
-                          :background bg-inactive
-                          :foreground fg-dim)))
-  (set-face-attribute 'mode-line            nil :box nil :underline nil)
-  (set-face-attribute 'mode-line-active     nil :box nil :underline nil)
-  (set-face-attribute 'mode-line-inactive   nil :box nil :underline nil)
-  (set-face-attribute 'mode-line-highlight  nil :box nil :underline nil)
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Custom faces ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Org-mode faces
+(with-eval-after-load 'org
+  (modus-themes-with-colors
+   (set-face-attribute 'org-block-begin-line nil
+                       :background bg-inactive
+                       :foreground fg-dim)
+   (set-face-attribute 'org-block-end-line nil
+                       :background bg-inactive
+                       :foreground fg-dim)))
+(set-face-attribute 'mode-line            nil :box nil :underline nil)
+(set-face-attribute 'mode-line-active     nil :box nil :underline nil)
+(set-face-attribute 'mode-line-inactive   nil :box nil :underline nil)
+(set-face-attribute 'mode-line-highlight  nil :box nil :underline nil)
+)
 #+end_src
 
 * Fonts
@@ -285,66 +286,66 @@ Evaluate the following block to generate a list of available fonts:
 ** Some built-in options:
 
 #+begin_src emacs-lisp :tangle "init.el"
-; Default frame title
-setq-default frame-title-format '("Gnu Emacs"))
+;; Default frame title
+(setq-default frame-title-format '("Gnu Emacs"))
 
-; Remove bars
-tool-bar-mode -1)
-scroll-bar-mode -1)
-menu-bar-mode -1)
+;; Remove bars
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+;; (menu-bar-mode -1)
 
-; Set different file for M-x customize interface
-setq custom-file (locate-user-emacs-file "custom.el"))
-load custom-file :no-error-if-file-is-missing)
+;; Set different file for M-x customize interface
+(setq custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file :no-error-if-file-is-missing)
 
-; Easily visit recent files
-recentf-mode 1)
+;; Easily visit recent files
+(recentf-mode 1)
 
-; Wrap lines and set fill-column width
-setq-default fill-column 80)
-global-visual-line-mode 1)
+;; Wrap lines and set fill-column width
+(setq-default fill-column 80)
+(global-visual-line-mode 1)
 
-; Warn user if trying to open a file bigger than 100MB
-setq large-file-warning-threshold 100000000)
+;; Warn user if trying to open a file bigger than 100MB
+(setq large-file-warning-threshold 100000000)
 
-; Accept y or n as yes or no
-fset 'yes-or-no-p 'y-or-n-p)
+;; Accept y or n as yes or no
+(fset 'yes-or-no-p 'y-or-n-p)
 
-; Confirm on kill-emacs
-setq confirm-kill-emacs 'y-or-n-p)
+;; Confirm on kill-emacs
+(setq confirm-kill-emacs 'y-or-n-p)
 
-;Require files to end with a newline.
-setq require-final-newline t)
+;; Require files to end with a newline.
+(setq require-final-newline t)
 
-; Backups and autosaves location
-setq backup-directory-alist
-     `((".*" . ,temporary-file-directory)))
-setq auto-save-file-name-transforms
-     `((".*" ,temporary-file-directory t)))
+;; Backups and autosaves location
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 
-; Automatically revert buffers
-global-auto-revert-mode t)
+;; Automatically revert buffers
+(global-auto-revert-mode t)
 
-; Scroll one line at time
-setq-default scroll-conservatively 10000
-             scroll-step 1
-             scroll-margin 5)
+;; Scroll one line at time
+(setq-default scroll-conservatively 10000
+              scroll-step 1
+              scroll-margin 5)
 
-; Prefer utf-8 encoding
-prefer-coding-system 'utf-8)
+;; Prefer utf-8 encoding
+(prefer-coding-system 'utf-8)
 
-setq-default visible-bell nil             ;; No visual bell
-             ring-bell-function 'ignore)  ;; No bell
+(setq-default visible-bell nil             ;; No visual bell
+              ring-bell-function 'ignore)  ;; No bell
 
-setq inhibit-startup-message t)
-; (setq initial-scratch-message nil)
+(setq inhibit-startup-message t)
+;; (setq initial-scratch-message nil)
 
-; whitespace-mode
-setq whitespace-style '(face trailing))
-global-whitespace-mode 1)
+;; whitespace-mode
+(setq whitespace-style '(face trailing))
+(global-whitespace-mode 1)
 
-setq display-line-numbers t)
-global-display-line-numbers-mode)
+(setq display-line-numbers t)
+(global-display-line-numbers-mode)
  #+end_src
 
 ** org-auto-tangle
