@@ -157,22 +157,17 @@ startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "init.el"
 ;; Default fonts
-(let ((mono-font-name (cond
-                       ((eq system-type 'windows-nt) "Iosevka NFM")
-                       ((eq system-type 'gnu/linux)  "Iosevka Nerd Font Mono")))
-      (prop-font-name "Arimo Nerd Font")
+(let ((font-name (cond
+                  ((eq system-type 'windows-nt) "Iosevka NFM")
+                  ((eq system-type 'gnu/linux)  "Iosevka Nerd Font Mono")))
       (font-size (cond
                   ((eq system-type 'windows-nt) 120)
                   ((eq system-type 'gnu/linux)  160)
                   (t 160))) ;; fallback
       )
-  (set-face-attribute 'default nil        :family mono-font-name :height font-size)
-  (set-face-attribute 'fixed-pitch nil    :family mono-font-name :height font-size)
-  (set-face-attribute 'variable-pitch nil :family prop-font-name :height font-size)
+  (set-face-attribute 'default nil     :family font-name :height font-size)
+  (set-face-attribute 'fixed-pitch nil :family font-name :height font-size)
   )
-
-;; Set italic to use VictorMono
-(set-face-attribute 'italic nil :family "VictorMono Nerd Font" :slant 'italic)
 #+end_src
 
 Evaluate the following block to generate a list of available fonts:
@@ -965,10 +960,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
            "o a" #'org-agenda
            "o c" #'org-capture)
 
-  :hook
-  (org-mode . variable-pitch-mode)
-
-  ;; :
   :config
   (let ((pcloud-base-folder (cond
                              ((eq system-type 'windows-nt) "p:/")
