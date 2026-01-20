@@ -445,51 +445,27 @@ Install and use nerd-icons.
 My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
 *Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
 
-*** Faces
-#+begin_src emacs-lisp :tangle "init.el"
-(defgroup laooree-modeline nil
-  "My custom mode-line."
-  :group 'mode-line)
-
-(defgroup laooree-modeline-faces nil
-  "My custom mode-line faces."
-  :group 'laooree-modeline)
-
-(defface laooree-modeline-subtle-indicator
-  '((t (:foreground  "#989898" :background "#303030")))
-  "Face for elements inside an subtle indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-subtle-delimiter
-  '((t (:foreground  "#303030" :background "#555555")))
-  "Face for delimiters of an subtle indicator."
-  :group 'laooree-modeline-faces)
-#+end_src
 
 *** Functions
 
 #+begin_src  emacs-lisp :tangle "init.el"
-(defun laooree-modeline--with-subtle-indicator (instring)
-  "Returns a propertized subtle indicator containing the input string."
-  (concat " "
-          (propertize "" 'face 'laooree-modeline-subtle-delimiter)
-          (propertize instring 'face 'laooree-modeline-subtle-indicator)
-          (propertize "" 'face 'laooree-modeline-subtle-delimiter)
-          ))
-
 (defun laooree-modeline--with-indicator (instring indicator-color foreground-color)
   "Returns the input string inserted in a rounded indicator, applying foreground-color if non-nil."
   (let* ((processed-string (copy-sequence instring))
-         (face-spec (if foreground-color
-                        `(:background ,indicator-color :foreground ,foreground-color)
-                      `(:background ,indicator-color))))
+         (face-spec `(:background ,indicator-color :foreground ,foreground-color))
+         (modeline-color (cond ((mode-line-window-selected-p) "#555555")
+                               ((mode-line-window-selected-p) "#303030"))))
     (add-face-text-property 0 (length processed-string)
                             face-spec
                             nil processed-string)
     (concat " "
-            (propertize "" 'face `(:background "#555555" :foreground ,indicator-color))
+            (propertize "" 'face `(:background ,modeline-color :foreground ,indicator-color))
             processed-string
-            (propertize "" 'face `(:background "#555555" :foreground ,indicator-color)))))
+            (propertize "" 'face `(:background ,modeline-color :foreground ,indicator-color)))))
+
+(defun laooree-modeline--with-subtle-indicator (instring)
+  "Returns a propertized subtle indicator containing the input string."
+  (laooree-modeline--with-indicator instring "#303030" "#989898"))
 
 (defun laooree-modeline--buffer ()
   "Returns the buffer name, using propertization to show its status."
@@ -560,7 +536,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 
 (defvar-local laooree-modeline-flymake-diagnostics
   '(:eval (when (and flymake-mode (mode-line-window-selected-p))
-            (laooree-modeline--with-unpropertized-indicator (laooree-modeline--flymake-diagnostics) "#303030")))
+            (laooree-modeline--with-indicator (laooree-modeline--flymake-diagnostics) "#303030" nil)))
   "Expression to show flymake diagnostics count on the focused mode-line.")
 
 (defvar-local laooree-modeline-major-mode
