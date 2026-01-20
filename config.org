@@ -941,6 +941,12 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 (setq indent-line-function 'insert-tab)
 
 (setq org-src-preserve-indentation t)
+
+;; Turn off automatic indentation in text-mode.
+(add-hook 'text-mode-hook
+          (lambda ()
+            (setq evil-auto-indent nil)
+            (setq indent-line-function 'ignore)))
 #+end_src
 
 ** Load languages in org-babel
