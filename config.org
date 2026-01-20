@@ -712,23 +712,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :defer t)
 #+end_src
 
-** Open files with
-
-Specify external programs to open specific file extensions.
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package openwith
-  :ensure t
-  :init
-  (setq openwith-associations '(("\\.pdf\\'" "evince" (file))
-                                ("\\.png\\'" "loupe" (file))
-                                ("\\.jpg\\'" "loupe" (file))
-                                ))
-
-  :config
-  (openwith-mode t))
-#+end_src
-
 ** Magit
 
 #+begin_src emacs-lisp :tangle "init.el"
