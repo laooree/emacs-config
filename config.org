@@ -455,16 +455,6 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   "My custom mode-line faces."
   :group 'laooree-modeline)
 
-(defface laooree-modeline-idle-indicator
-  '((t (:foreground  "#ffffff" :background "#303030")))
-  "Face for elements inside an idle indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-idle-delimiter
-  '((t (:foreground  "#303030" :background "#555555")))
-  "Face for delimiters of an idle indicator."
-  :group 'laooree-modeline-faces)
-
 (defface laooree-modeline-subtle-indicator
   '((t (:foreground  "#989898" :background "#303030")))
   "Face for elements inside an subtle indicator."
@@ -474,73 +464,15 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   '((t (:foreground  "#303030" :background "#555555")))
   "Face for delimiters of an subtle indicator."
   :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-teal-indicator
-  '((t (:foreground  "#000000" :background "#00d3d0")))
-  "Face for elements inside a teal indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-teal-delimiter
-  '((t (:foreground  "#00d3d0" :background "#555555")))
-  "Face for delimiters of a teal indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-orange-indicator
-  '((t (:foreground  "#000000" :background "#fec43f")))
-  "Face for elements inside a orange indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-orange-delimiter
-  '((t (:foreground  "#fec43f" :background "#555555")))
-  "Face for delimiters of a orange indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-yellow-indicator
-  '((t (:foreground  "#ffffff" :background "#7a6100")))
-  "Face for elements inside a yellow indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-yellow-delimiter
-  '((t (:foreground  "#7a6100" :background "#555555")))
-  "Face for delimiters of a yellow indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-cyan-indicator
-  '((t (:foreground  "#ffffff" :background "#004065")))
-  "Face for elements inside a cyan indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-cyan-delimiter
-  '((t (:foreground  "#004065" :background "#555555")))
-  "Face for delimiters of a cyan indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-purple-indicator
-  '((t (:foreground  "#ffffff" :background "#2266ae")))
-  "Face for elements inside a purple indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-purple-delimiter
-  '((t (:foreground  "#2266ae" :background "#555555")))
-  "Face for delimiters of a purple indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-magenta-indicator
-  '((t (:foreground  "#000000" :background "#ff66ff")))
-  "Face for elements inside a magenta indicator."
-  :group 'laooree-modeline-faces)
-
-(defface laooree-modeline-magenta-delimiter
-  '((t (:foreground  "#ff66ff" :background "#555555")))
-  "Face for delimiters of a teal indicator."
-  :group 'laooree-modeline-faces)
 #+end_src
+
 *** Functions
 
 #+begin_src  emacs-lisp :tangle "init.el"
 (defun laooree-modeline--with-subtle-indicator (instring)
   "Returns a propertized subtle indicator containing the input string."
-  (concat (propertize "" 'face 'laooree-modeline-subtle-delimiter)
+  (concat " "
+          (propertize "" 'face 'laooree-modeline-subtle-delimiter)
           (propertize instring 'face 'laooree-modeline-subtle-indicator)
           (propertize "" 'face 'laooree-modeline-subtle-delimiter)
           ))
@@ -554,7 +486,8 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
     (add-face-text-property 0 (length processed-string)
                             face-spec
                             nil processed-string)
-    (concat (propertize "" 'face `(:background "#555555" :foreground ,indicator-color))
+    (concat " "
+            (propertize "" 'face `(:background "#555555" :foreground ,indicator-color))
             processed-string
             (propertize "" 'face `(:background "#555555" :foreground ,indicator-color)))))
 
@@ -563,7 +496,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   (if (eq buffer-file-name nil)
       (laooree-modeline--with-indicator (propertize (buffer-name) 'face 'bold) "#303030" nil)
     (cond ((eq buffer-read-only t) (laooree-modeline--with-indicator (propertize (concat " " (buffer-name)) 'face 'bold) "#004065" nil))
-          ((buffer-modified-p) (laooree-modeline--with-indicator (propertize (concat "󰙏 " (buffer-name)) 'face 'bold) "#00d3d0" "#000000"))
+          ((buffer-modified-p) (laooree-modeline--with-indicator (propertize (concat "󰙏 " (buffer-name)) 'face 'bold) "#2266ae" nil))
           (t (laooree-modeline--with-indicator (propertize (buffer-name) 'face 'bold) "#004065" nil))
           )))
 
@@ -575,7 +508,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
   "Get a propertized indicator with evil-mode state tag."
   (cond ((string= (laooree-modeline--evil-state-tag) "N") (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#303030" nil))
         ((string= (laooree-modeline--evil-state-tag) "O") (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#fec43f" "#000000"))
-        (t (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#2266ae" nil))
+        (t (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#7030af" nil))
         ))
 
 ;; Require flymake (built-in)
@@ -660,13 +593,10 @@ Add =risky-local-variable t= property to the expressions:
 
 #+begin_src  emacs-lisp :tangle "init.el"
 (setq-default mode-line-format
-              '(" "
+              '(""
                 laooree-modeline-evil-state-indicator
-                laooree-modeline-space-divider
                 laooree-modeline-keyboard-macro-indicator
-                laooree-modeline-space-divider
                 laooree-modeline-buffer
-                " "
                 laooree-modeline-major-mode
                 mode-line-format-right-align
                 laooree-modeline-space-divider
