@@ -267,6 +267,166 @@ Evaluate the following block to generate a list of available fonts:
 (elpaca-wait)
 #+end_src
 
+* Mode-line
+
+My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
+*Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
+
+** laooree-modeline
+*** Functions
+
+#+begin_src  emacs-lisp :tangle "init.el"
+(defun laooree-modeline--with-indicator (instring fg-color bg-color text-color)
+  "Returns `instring' inside an indicator with specified `fg-color' and `bg-color'.
+If non-nil, `text-color' specifies instring color."
+  (concat (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))
+          (let ((str (copy-sequence instring)))
+            (if text-color
+                (add-face-text-property 0 (length str) `(:background ,fg-color :foreground ,text-color) t str)
+              (add-face-text-property 0 (length str) `(:background ,fg-color) t str))
+            str)
+          (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))))
+
+(defun laooree-modeline--buffer-status ()
+  "Returns a glyph representing the buffer status."
+  (unless (eq buffer-file-name nil)
+    (cond ((eq buffer-read-only t) " ")
+          ((buffer-modified-p) "󰙏 ")
+          (t ""))))
+
+(defun laooree-modeline--evil-state-tag ()
+  "Get evil-mode state tag using () as delimiters."
+  (replace-regexp-in-string " <\\([^>]*\\)> " "\\1" evil-mode-line-tag))
+
+(defun laooree-modeline--evil-state-indicator ()
+  "Get evil-mode state tag with propertized faces."
+  (cond ((string= (laooree-modeline--evil-state-tag) "N")
+         (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag)
+                                           (modus-themes-get-color-value 'bg-dim)
+                                           (modus-themes-get-color-value 'bg-mode-line-active)
+                                           nil))
+        (t (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag)
+                                             (modus-themes-get-color-value 'fg-main)
+                                             (modus-themes-get-color-value 'bg-mode-line-active)
+                                             (modus-themes-get-color-value 'bg-main)))))
+
+;; Taken from mood-line package
+(defun laooree-modeline--flymake-count (type)
+  "Return count of current flymake reports of TYPE."
+  (cl-loop for diag in (flymake-diagnostics)
+           as diag-type = (flymake-diagnostic-type diag)
+           count (eq (flymake--lookup-type-property diag-type 'severity)
+                     (flymake--lookup-type-property type 'severity))))
+
+;; Require flymake (built-in)
+(use-package flymake
+  :ensure nil
+  :demand t)
+
+(defun laooree-modeline--flymake-diagnostics ()
+  "Get `:error', `:warning', and `:note' flymake diagnostic count."
+  (laooree-modeline--with-indicator
+   (concat (propertize (format " %s " (laooree-modeline--flymake-count :error)) 'face 'error)
+           (propertize (format " %s " (laooree-modeline--flymake-count :warning)) 'face 'warning)
+           (propertize (format "󱂻 %s"   (laooree-modeline--flymake-count :note)) 'face 'success))
+   (modus-themes-get-color-value 'bg-dim)
+   (modus-themes-get-color-value 'bg-mode-line-active)
+   nil))
+
+(defun laooree-modeline--major-mode-name ()
+  "Get buffer major mode name, without `-mode' and `-'."
+  (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))
+
+(defun laooree-modeline--defining-kbd-macro ()
+  "Indicate if a keyboard macro is being defined."
+  (cond (defining-kbd-macro (concat (propertize "" 'face `(:background ,(modus-themes-get-color-value 'bg-mode-line-active) :foreground ,(modus-themes-get-color-value 'fg-mode-line-active)))
+                                    (propertize "  Rec" 'face `(:background ,(modus-themes-get-color-value 'fg-mode-line-active) :foreground ,(modus-themes-get-color-value 'bg-mode-line-active)))
+                                    (propertize " " 'face `(:background ,(modus-themes-get-color-value 'bg-mode-line-active) :foreground ,(modus-themes-get-color-value 'fg-mode-line-active)))))
+        (t "")))
+#+end_src
+*** Expressions
+
+#+begin_src emacs-lisp :tangle "init.el"
+(defvar-local laooree-modeline-buffer-name
+    '(:eval
+      (cond ((mode-line-window-selected-p) (propertize (buffer-name) 'face 'bold))
+            ("t" (buffer-name))
+            ))
+  "Expression to show buffer-name on the mode-line.")
+
+(defvar-local laooree-modeline-buffer-status
+    '(:eval (laooree-modeline--buffer-status))
+  "Expression to show current buffer status on the mode-line.")
+
+(defvar-local laooree-modeline-evil-state-tag
+    '(:eval
+      (when (mode-line-window-selected-p)
+        (laooree-modeline--evil-state-tag)))
+  "Expression to show current evil state on the focused mode-line.")
+
+(defvar-local laooree-modeline-evil-state-indicator
+    '(:eval
+      (when (mode-line-window-selected-p)
+        (laooree-modeline--evil-state-indicator)))
+  "Expression to show current evil state on the focused mode-line.")
+
+(defvar-local laooree-modeline-flymake-diagnostics
+    '(:eval (when (and flymake-mode (mode-line-window-selected-p))
+              (laooree-modeline--flymake-diagnostics)))
+  "Expression to show flymake diagnostics count on the focused mode-line.")
+
+(defvar-local laooree-modeline-major-mode
+    '(:eval (propertize (format " %s" (laooree-modeline--major-mode-name)) 'face 'font-lock-comment-face))
+  "Expression to show buffer major mode on the mode-line.")
+
+(defvar-local laooree-modeline-keyboard-macro-indicator
+    '(:eval (concat " " (laooree-modeline--defining-kbd-macro)))
+  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
+#+end_src
+
+Add =risky-local-variable t= property to the expressions:
+#+begin_src emacs-lisp :tangle "init.el"
+(dolist (expression '(laooree-modeline-buffer-name
+                      laooree-modeline-buffer-status
+                      laooree-modeline-eglot
+                      laooree-modeline-evil-state-tag
+                      laooree-modeline-evil-state-indicator
+                      laooree-modeline-flymake-diagnostics
+                      laooree-modeline-major-mode
+                      laooree-modeline-keyboard-macro-indicator
+                      laooree-modeline-active-tools
+                      ))
+  (put expression 'risky-local-variable t))
+#+end_src
+
+** laooree-powerline
+
+#+begin_src emacs-lisp :tangle "init.el"
+(defun my/indicator (instring fg-color bg-color text-color)
+  "Returns `instring' inside an indicator with specified `fg-color' and `bg-color'.
+If non-nil, `text-color' specifies instring color."
+  (concat (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))
+          (if text-color
+              (propertize instring 'face `(:foreground ,text-color :background ,fg-color))
+            (propertize instring 'face `(:background ,fg-color)))
+          (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))))
+#+end_src
+
+** Customize mode line
+
+#+begin_src  emacs-lisp :tangle "init.el"
+(setq-default mode-line-format
+              '(" "
+                laooree-modeline-evil-state-indicator
+                laooree-modeline-keyboard-macro-indicator
+                laooree-modeline-buffer-status
+                laooree-modeline-buffer-name
+                laooree-modeline-major-mode
+                mode-line-format-right-align
+                laooree-modeline-flymake-diagnostics
+                " "
+                ))
+#+end_src
 * UI and UX
 ** Some built-in options:
 
@@ -451,147 +611,6 @@ Install and use nerd-icons.
   :defer t
   :hook
   (dired-mode . nerd-icons-dired-mode))
-#+end_src
-
-** Mode-line
-
-My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
-*Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
-
-
-*** Functions
-
-#+begin_src  emacs-lisp :tangle "init.el"
-(defun laooree-modeline--with-indicator (instring indicator-color foreground-color)
-  "Returns the input string inserted in a rounded indicator, applying foreground-color if non-nil."
-  (let* ((processed-string (copy-sequence instring))
-         (face-spec `(:background ,indicator-color :foreground ,foreground-color))
-         (modeline-color (cond ((mode-line-window-selected-p) "#555555")
-                               ((mode-line-window-selected-p) "#303030"))))
-    (add-face-text-property 0 (length processed-string)
-                            face-spec
-                            nil processed-string)
-    (concat " "
-            (propertize "" 'face `(:background ,modeline-color :foreground ,indicator-color))
-            processed-string
-            (propertize "" 'face `(:background ,modeline-color :foreground ,indicator-color)))))
-
-(defun laooree-modeline--with-subtle-indicator (instring)
-  "Returns a propertized subtle indicator containing the input string."
-  (laooree-modeline--with-indicator instring "#303030" "#989898"))
-
-(defun laooree-modeline--buffer ()
-  "Returns the buffer name, using propertization to show its status."
-  (if (eq buffer-file-name nil)
-      (laooree-modeline--with-indicator (propertize (buffer-name) 'face 'bold) "#303030" nil)
-    (cond ((eq buffer-read-only t) (laooree-modeline--with-indicator (propertize (concat " " (buffer-name)) 'face 'bold) "#004065" nil))
-          ((buffer-modified-p) (laooree-modeline--with-indicator (propertize (concat "󰙏 " (buffer-name)) 'face 'bold) "#2266ae" nil))
-          (t (laooree-modeline--with-indicator (propertize (buffer-name) 'face 'bold) "#004065" nil))
-          )))
-
-(defun laooree-modeline--evil-state-tag ()
-  "Get evil-mode state tag without delimiters."
-  (replace-regexp-in-string " <\\([^>]*\\)> " "\\1" evil-mode-line-tag))
-
-(defun laooree-modeline--evil-state-indicator ()
-  "Get a propertized indicator with evil-mode state tag."
-  (cond ((string= (laooree-modeline--evil-state-tag) "N") (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#303030" nil))
-        ((string= (laooree-modeline--evil-state-tag) "O") (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#fec43f" "#000000"))
-        (t (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag) "#7030af" nil))
-        ))
-
-;; Require flymake (built-in)
-(use-package flymake
-  :ensure nil
-  :demand t)
-;; Taken from mood-line package
-(defun laooree-modeline--flymake-count (type)
-  "Return count of current flymake reports of TYPE."
-  (cl-loop for diag in (flymake-diagnostics)
-           as diag-type = (flymake-diagnostic-type diag)
-           count (eq (flymake--lookup-type-property diag-type 'severity)
-                     (flymake--lookup-type-property type 'severity))))
-
-(defun laooree-modeline--flymake-diagnostics ()
-  "Get `:error', `:warning', and `:note' flymake diagnostic count."
-  (concat (propertize (format " %s " (laooree-modeline--flymake-count :error)) 'face 'error)
-          (propertize (format " %s " (laooree-modeline--flymake-count :warning)) 'face 'warning)
-          (propertize (format "󱂻 %s"   (laooree-modeline--flymake-count :note)) 'face 'success)))
-
-(defun laooree-modeline--major-mode-name ()
-  "Get buffer major mode name, without `-mode' and `-'."
-  (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))
-
-(defun laooree-modeline--smart-divider (s)
-  "Returns the divider specified in string `s' if the window is focused, otherwise it returns an empty string."
-  (cond ((mode-line-window-selected-p) (format "%s" s))
-        (t "")
-        ))
-
-(defun laooree-modeline--defining-kbd-macro ()
-  "Indicate if a keyboard macro is being defined."
-  (cond (defining-kbd-macro (laooree-modeline--with-indicator "  Rec" "#ff66ff" "#000000"))
-        (t "")))
-#+end_src
-
-*** Expressions
-
-#+begin_src emacs-lisp :tangle "init.el"
-(defvar-local laooree-modeline-buffer
-  '(:eval (laooree-modeline--buffer))
-  "Expression to show current buffer status and name on the mode-line.")
-
-(defvar-local laooree-modeline-evil-state-indicator
-  '(:eval
-    (when (mode-line-window-selected-p)
-      (laooree-modeline--evil-state-indicator)))
-  "Expression to show current evil state on the focused mode-line, inside a rounded indicator.")
-
-(defvar-local laooree-modeline-flymake-diagnostics
-  '(:eval (when (and flymake-mode (mode-line-window-selected-p))
-            (laooree-modeline--with-indicator (laooree-modeline--flymake-diagnostics) "#303030" nil)))
-  "Expression to show flymake diagnostics count on the focused mode-line.")
-
-(defvar-local laooree-modeline-major-mode
-  '(:eval (laooree-modeline--with-subtle-indicator (laooree-modeline--major-mode-name)))
-  "Expression to show buffer major mode on the mode-line.")
-
-(defvar-local laooree-modeline-space-divider
-  '(:eval (laooree-modeline--smart-divider " "))
-  "Expression to add a space on the mode-line only when focused.")
-
-(defvar-local laooree-modeline-keyboard-macro-indicator
-  '(:eval (laooree-modeline--defining-kbd-macro))
-  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
-#+end_src
-
-Add =risky-local-variable t= property to the expressions:
-#+begin_src emacs-lisp :tangle "init.el"
-(dolist (expression '(laooree-modeline-buffer
-                      laooree-modeline-eglot
-                      laooree-modeline-evil-state-indicator
-                      laooree-modeline-flymake-diagnostics
-                      laooree-modeline-major-mode
-                      laooree-modeline-space-divider
-                      laooree-modeline-keyboard-macro-indicator
-                      ))
-  (put expression 'risky-local-variable t))
-#+end_src
-
-*** Customize mode line
-
-#+begin_src  emacs-lisp :tangle "init.el"
-(setq-default mode-line-format
-              '(""
-                laooree-modeline-evil-state-indicator
-                laooree-modeline-keyboard-macro-indicator
-                laooree-modeline-buffer
-                laooree-modeline-major-mode
-                mode-line-format-right-align
-                laooree-modeline-space-divider
-                laooree-modeline-flymake-diagnostics
-                " "
-                ))
 #+end_src
 
 ** Rainbow csv
