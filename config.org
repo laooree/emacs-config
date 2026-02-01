@@ -382,6 +382,19 @@ If non-nil, `text-color' specifies instring color."
 (defvar-local laooree-modeline-keyboard-macro-indicator
     '(:eval (concat " " (laooree-modeline--defining-kbd-macro)))
   "Expression to indicate on the mode-line when a keyboard macro is being defined.")
+
+(defvar laooree-modeline-format
+  '(" "
+    laooree-modeline-evil-state-indicator
+    laooree-modeline-keyboard-macro-indicator
+    laooree-modeline-buffer-status
+    laooree-modeline-buffer-name
+    laooree-modeline-major-mode
+    mode-line-format-right-align
+    laooree-modeline-flymake-diagnostics
+    ""
+    )
+  "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
 #+end_src
 
 Add =risky-local-variable t= property to the expressions:
@@ -395,38 +408,17 @@ Add =risky-local-variable t= property to the expressions:
                       laooree-modeline-major-mode
                       laooree-modeline-keyboard-macro-indicator
                       laooree-modeline-active-tools
+                      laooree-modeline-format
                       ))
   (put expression 'risky-local-variable t))
-#+end_src
-
-** laooree-powerline
-
-#+begin_src emacs-lisp :tangle "init.el"
-(defun my/indicator (instring fg-color bg-color text-color)
-  "Returns `instring' inside an indicator with specified `fg-color' and `bg-color'.
-If non-nil, `text-color' specifies instring color."
-  (concat (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))
-          (if text-color
-              (propertize instring 'face `(:foreground ,text-color :background ,fg-color))
-            (propertize instring 'face `(:background ,fg-color)))
-          (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))))
 #+end_src
 
 ** Customize mode line
 
 #+begin_src  emacs-lisp :tangle "init.el"
-(setq-default mode-line-format
-              '(" "
-                laooree-modeline-evil-state-indicator
-                laooree-modeline-keyboard-macro-indicator
-                laooree-modeline-buffer-status
-                laooree-modeline-buffer-name
-                laooree-modeline-major-mode
-                mode-line-format-right-align
-                laooree-modeline-flymake-diagnostics
-                " "
-                ))
+(setq-default mode-line-format laooree-modeline-format)
 #+end_src
+
 * UI and UX
 ** Some built-in options:
 
