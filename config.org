@@ -880,6 +880,9 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
                       :matchers
                       ("begin" "$1" "$" "$$" "\\(" "\\[")))
 
+  (setq org-todo-keywords
+        '((sequence "TODO" "|" "DONE" "CANC")))
+
 
   :general
   (:states '(normal)
