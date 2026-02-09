@@ -547,8 +547,6 @@ This package is not X11 exclusive, and automatically detects when on Wayland.
   :ensure t
   :if (eq system-type 'gnu/linux)
   :demand t
-  :init
-  (setq xclip-method 'emacs)
   :config
   (xclip-mode 1)
   )
