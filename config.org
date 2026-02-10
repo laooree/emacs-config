@@ -392,7 +392,7 @@ If non-nil, `text-color' specifies instring color."
     laooree-modeline-major-mode
     mode-line-format-right-align
     laooree-modeline-flymake-diagnostics
-    ""
+    " "
     )
   "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
 #+end_src
