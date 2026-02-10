@@ -1208,6 +1208,14 @@ Install and configure Matlab mode:
                '(typst "https://github.com/uben0/tree-sitter-typst"))
   (unless (treesit-language-available-p 'typst)
     (treesit-install-language-grammar 'typst))
+
+  ;; Setup Tinymist LSP
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 `((typst-ts-mode) .
+                   ,(eglot-alternatives `(,typst-ts-lsp-download-path
+                                          "tinymist"
+                                          "typst-lsp")))))
   )
 #+end_src
 * Keybindings
