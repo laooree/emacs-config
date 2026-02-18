@@ -1148,7 +1148,12 @@ Install and configure Matlab mode:
   (with-eval-after-load 'tex
     (add-to-list 'TeX-command-list
                  '("LuaLaTeX" "lualatex %s" TeX-run-TeX nil t
-                   :help "Run LuaLaTeX")))
+                   :help "Run LuaLaTeX"))
+    (add-to-list 'TeX-command-list
+                 '("LaTeXMk (continuous preview)" "latexmk -pvc %(latexmk-out) %(file-line-error) %(output-dir) %`%(extraopts) %S%(mode)%' %t"
+                   TeX-run-TeX nil (LaTeX-mode docTeX-mode)
+                   :help "Run LaTeXMk with continuous preview"))
+    )
   (let ((texlab-path (cond
                       ((eq system-type 'windows-nt) "c:/portable/texlab/texlab.exe")
                       ((eq system-type 'gnu/linux) "/run/current-system/sw/bin/texlab")
