@@ -1122,6 +1122,17 @@ Install and configure Matlab mode:
                   (add-hook 'eglot-managed-mode-hook
                             (lambda () (eglot-inlay-hints-mode -1))
                             nil t)))
+  (LaTeX-mode . (lambda ()
+                  (local-set-key (kbd "C-c m")
+                                 (lambda ()
+                                   (interactive)
+                                   (insert "\\(\\)")
+                                   (backward-char 2)))
+                  (local-set-key (kbd "C-c M")
+                                 (lambda ()
+                                   (interactive)
+                                   (insert "\\[\\]")
+                                   (backward-char 2)))))
 
   :general
   (:states '(normal)
