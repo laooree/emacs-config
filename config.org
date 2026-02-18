@@ -130,7 +130,10 @@ startup and enables it afterwards.
   :init
   (setq modus-themes-variable-pitch-ui nil)
   :config
-  (modus-themes-load-theme 'modus-vivendi))
+  (modus-themes-load-theme 'modus-vivendi)
+  (unless (display-graphic-p) ;; override tty cursor color
+    (send-string-to-terminal (format "\e]12;%s\a" (modus-themes-get-color-value 'cursor))))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Custom faces ;;;;;
@@ -139,12 +142,12 @@ startup and enables it afterwards.
 ;; Org-mode faces
 (with-eval-after-load 'org
   (modus-themes-with-colors
-   (set-face-attribute 'org-block-begin-line nil
-                       :background bg-inactive
-                       :foreground fg-dim)
-   (set-face-attribute 'org-block-end-line nil
-                       :background bg-inactive
-                       :foreground fg-dim)))
+    (set-face-attribute 'org-block-begin-line nil
+                        :background bg-inactive
+                        :foreground fg-dim)
+    (set-face-attribute 'org-block-end-line nil
+                        :background bg-inactive
+                        :foreground fg-dim)))
 (set-face-attribute 'mode-line            nil :box nil :underline nil)
 (set-face-attribute 'mode-line-active     nil :box nil :underline nil)
 (set-face-attribute 'mode-line-inactive   nil :box nil :underline nil)
@@ -555,21 +558,21 @@ This package is not X11 exclusive, and automatically detects when on Wayland.
 *** Cursor shape
 
 #+begin_src emacs-lisp :tangle "init.el"
-  (defun laooree/set-cursor-shape ()
-    "Set terminal cursor shape based on evil state."
-    (let ((shape
-           (cond
-            ((evil-insert-state-p) "\e[5 q")  ;; Blinking bar
-            ((evil-motion-state-p) "\e[0 q")  ;; Block
-            ((evil-operator-state-p) "\e[3 q");; Underline
-            ((evil-replace-state-p) "\e[3 q") ;; Underline
-            ((evil-visual-state-p) "\e[0 q")  ;; Block
-            (t "\e[0 q"))))                   ;; Block
-      (send-string-to-terminal shape)))
+(defun laooree/set-cursor-shape ()
+  "Set terminal cursor shape based on evil state."
+  (let ((shape
+         (cond
+          ((evil-insert-state-p) "\e[5 q")  ;; Blinking bar
+          ((evil-motion-state-p) "\e[0 q")  ;; Block
+          ((evil-operator-state-p) "\e[3 q");; Underline
+          ((evil-replace-state-p) "\e[3 q") ;; Underline
+          ((evil-visual-state-p) "\e[0 q")  ;; Block
+          (t "\e[0 q"))))                   ;; Block
+    (send-string-to-terminal shape)))
 
-  ;; Hook into Evil state changes
-  (unless (display-graphic-p)
-    (add-hook 'post-command-hook #'laooree/set-cursor-shape))
+;; Hook into Evil state changes
+(unless (display-graphic-p)
+  (add-hook 'post-command-hook #'laooree/set-cursor-shape))
 #+end_src
 
 ** Nerd icons
