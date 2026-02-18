@@ -866,6 +866,39 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   (add-to-list 'copilot-indentation-alist '(python-mode 4))
   )
 #+end_src
+** yasnippet
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package yasnippet
+  :ensure t
+  :defer t
+
+  :general
+  (:states '(normal)
+           :keymaps 'yas-minor-mode-map
+           :prefix "SPC"
+           "y" '(:ignore t :which-key "yasnippet")
+           "y y" #'yas-insert-snippet
+           "y r" #'yas-reload-all
+           "y n" #'yas-new-snippet)
+
+  :hook
+  (LaTeX-mode . yas-minor-mode)
+  (latex-mode . yas-minor-mode)
+  (c-mode . yas-minor-mode)
+  (emacs-lisp-mode . yas-minor-mode)
+  (lisp-interaction-mode . yas-minor-mode)
+  (matlab-mode . yas-minor-mode)
+  (python-mode . yas-minor-mode)
+  (typst-ts-mode . yas-minor-mode)
+
+  :config
+  (yas-reload-all)
+  )
+
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
+#+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
 (elpaca-wait)
