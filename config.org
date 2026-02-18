@@ -346,6 +346,10 @@ If non-nil, `text-color' specifies instring color."
                                     (propertize "  Rec" 'face `(:background ,(modus-themes-get-color-value 'fg-mode-line-active) :foreground ,(modus-themes-get-color-value 'bg-mode-line-active)))
                                     (propertize " " 'face `(:background ,(modus-themes-get-color-value 'bg-mode-line-active) :foreground ,(modus-themes-get-color-value 'fg-mode-line-active)))))
         (t "")))
+
+(defun laooree-modeline--scroll-indicator ()
+  "Indicate the scrolling percentage."
+  (propertize (concat (format "󰮱  %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face 'font-lock-comment-face))
 #+end_src
 *** Expressions
 
@@ -375,7 +379,7 @@ If non-nil, `text-color' specifies instring color."
 
 (defvar-local laooree-modeline-flymake-diagnostics
     '(:eval (when (and flymake-mode (mode-line-window-selected-p))
-              (laooree-modeline--flymake-diagnostics)))
+              (concat (laooree-modeline--flymake-diagnostics) " ")))
   "Expression to show flymake diagnostics count on the focused mode-line.")
 
 (defvar-local laooree-modeline-major-mode
@@ -386,6 +390,10 @@ If non-nil, `text-color' specifies instring color."
     '(:eval (concat " " (laooree-modeline--defining-kbd-macro)))
   "Expression to indicate on the mode-line when a keyboard macro is being defined.")
 
+(defvar-local laooree-modeline-scroll-indicator
+    '(:eval (concat (laooree-modeline--scroll-indicator) " "))
+  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
+
 (defvar laooree-modeline-format
   '(" "
     laooree-modeline-evil-state-indicator
@@ -394,8 +402,8 @@ If non-nil, `text-color' specifies instring color."
     laooree-modeline-buffer-name
     laooree-modeline-major-mode
     mode-line-format-right-align
+    laooree-modeline-scroll-indicator
     laooree-modeline-flymake-diagnostics
-    " "
     )
   "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
 #+end_src
@@ -412,6 +420,7 @@ Add =risky-local-variable t= property to the expressions:
                       laooree-modeline-keyboard-macro-indicator
                       laooree-modeline-active-tools
                       laooree-modeline-format
+                      laooree-modeline-scroll-indicator
                       ))
   (put expression 'risky-local-variable t))
 #+end_src
