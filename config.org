@@ -718,6 +718,24 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
               ("M-o" . other-window))
   )
 #+end_src
+** beacon
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package beacon
+  :ensure t
+  :demand t
+  :init
+  (setq beacon-size 20
+        beacon-color (modus-themes-get-color-value 'fg-main)
+        beacon-blink-delay 0.0
+        beacon-blink-duration 0.3)
+  (setq beacon-blink-when-focused t
+        beacon-blink-when-buffer-changes t
+        beacon-blink-when-point-moves-horizontally 5
+        beacon-blink-when-point-moves-vertically 5)
+  :config
+  (if (display-graphic-p)
+    (beacon-mode 1)))
+#+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
 (elpaca-wait)
