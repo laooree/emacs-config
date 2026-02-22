@@ -945,7 +945,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package org
-  :ensure nil ;; built-in
+  :ensure t ;; use latest org version
   :defer t
 
   :init
