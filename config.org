@@ -129,6 +129,12 @@ startup and enables it afterwards.
   :demand t
   :init
   (setq modus-themes-variable-pitch-ui nil)
+
+  :hook (after-init . (lambda ()
+                        (set-face-attribute 'mode-line nil :box '(:line-width 2 :color "#959595") :underline nil)
+                        (set-face-attribute 'mode-line-active    nil :box '(:line-width 2 :color "#959595") :underline nil)
+                        (set-face-attribute 'mode-line-inactive  nil :box '(:line-width 2 :color "#2d2d2d") :underline nil)
+                        (set-face-attribute 'mode-line-highlight nil :box '(:line-width 2 :color "#959595") :underline nil)))
   :config
   (modus-themes-load-theme 'modus-vivendi)
   (unless (display-graphic-p) ;; override tty cursor color
@@ -148,10 +154,6 @@ startup and enables it afterwards.
     (set-face-attribute 'org-block-end-line nil
                         :background bg-inactive
                         :foreground fg-dim)))
-(set-face-attribute 'mode-line            nil :box nil :underline nil)
-(set-face-attribute 'mode-line-active     nil :box nil :underline nil)
-(set-face-attribute 'mode-line-inactive   nil :box nil :underline nil)
-(set-face-attribute 'mode-line-highlight  nil :box nil :underline nil)
 #+end_src
 
 * Fonts
@@ -326,15 +328,28 @@ If non-nil, `text-color' specifies instring color."
   :ensure nil
   :demand t)
 
+(defun laooree-modeline--flymake-determine-indicator-color (error-count warning-count note-count)
+  "Determine the indicator color based on the worst diagnostic type present."
+  (cond ((> error-count 0) "#3d0200")
+        ((> warning-count 0) "#3d2b00")
+        ((> note-count 0) "#093425")
+        (t (modus-themes-get-color-value 'bg-dim))))
+
 (defun laooree-modeline--flymake-diagnostics ()
   "Get `:error', `:warning', and `:note' flymake diagnostic count."
+  (let ((error-count (laooree-modeline--flymake-count :error))
+        (warning-count (laooree-modeline--flymake-count :warning))
+        (note-count (laooree-modeline--flymake-count :note)))
   (laooree-modeline--with-indicator
-   (concat (propertize (format " %s " (laooree-modeline--flymake-count :error)) 'face 'error)
-           (propertize (format " %s " (laooree-modeline--flymake-count :warning)) 'face 'warning)
-           (propertize (format "󱂻 %s"   (laooree-modeline--flymake-count :note)) 'face 'success))
-   (modus-themes-get-color-value 'bg-dim)
+   (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
+                 (t (propertize (format " %s " error-count) 'face 'error)))
+           (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
+                 (t (propertize (format " %s " warning-count) 'face 'warning)))
+           (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
+                 (t (propertize (format "󱂻 %s" note-count) 'face 'success))))
+   (laooree-modeline--flymake-determine-indicator-color error-count warning-count note-count)
    (modus-themes-get-color-value 'bg-mode-line-active)
-   nil))
+   nil)))
 
 (defun laooree-modeline--major-mode-name ()
   "Get buffer major mode name, without `-mode' and `-'."
@@ -349,7 +364,7 @@ If non-nil, `text-color' specifies instring color."
 
 (defun laooree-modeline--scroll-indicator ()
   "Indicate the scrolling percentage."
-  (propertize (concat (format "󰮱  %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face 'font-lock-comment-face))
+  (propertize (concat (format "󰧮 %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face 'font-lock-comment-face))
 #+end_src
 *** Expressions
 
