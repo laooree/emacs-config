@@ -340,7 +340,7 @@ If non-nil, `text-color' specifies instring color."
 
 (defun laooree-modeline--scroll-indicator ()
   "Indicate the scrolling percentage."
-  (propertize (concat (format "󰧮 %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face '(:background "#4c566a" :foreground "#2e3440")))
+  (propertize (concat (format "󰧮 %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face '(:foreground "#2e3440")))
 #+end_src
 *** Expressions
 
@@ -374,7 +374,7 @@ If non-nil, `text-color' specifies instring color."
   "Expression to show flymake diagnostics count on the focused mode-line.")
 
 (defvar-local laooree-modeline-major-mode
-    '(:eval (propertize (format " %s" (laooree-modeline--major-mode-name)) 'face '(:background "#4c566a" :foreground "#2e3440")))
+    '(:eval (propertize (format " %s" (laooree-modeline--major-mode-name)) 'face '(:foreground "#2e3440")))
   "Expression to show buffer major mode on the mode-line.")
 
 (defvar-local laooree-modeline-keyboard-macro-indicator
