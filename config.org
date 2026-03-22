@@ -1270,6 +1270,10 @@ Install and configure Matlab mode:
    "m r" #'eval-region)
   )
 #+end_src
+** lua
+#+begin_src emacs-lisp :tangle "init.el"
+(add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode))
+#+end_src
 ** Typst
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package typst-ts-mode
