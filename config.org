@@ -703,7 +703,8 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   (:states '(normal)
            :prefix "SPC"
            "t" '(:ignore t :which-key "terminal")
-           "t t" #'eat-project-other-window)
+           "t t" #'eat-other-window
+           "t T" #'eat)
 
   :bind (:map eat-semi-char-mode-map
               ("M-o" . other-window))
