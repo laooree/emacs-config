@@ -483,6 +483,7 @@ Add =risky-local-variable t= property to the expressions:
 ;; whitespace-mode
 (setq whitespace-style '(face trailing))
 (global-whitespace-mode 1)
+(set-face-attribute 'whitespace-trailing nil :background "#BF616A")
 
 (setq display-line-numbers t)
 (global-display-line-numbers-mode)
