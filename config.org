@@ -124,7 +124,7 @@ startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package nord-theme
-  :ensure t
+  :ensure (:type git :host github :repo "laooree/nord-emacs")
   :demand t
 
   :init
