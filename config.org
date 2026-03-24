@@ -123,13 +123,12 @@ startup and enables it afterwards.
 * Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package nord-theme
+(use-package modus-themes
   :ensure t
   :demand t
-
-  :init
-  (load-theme 'nord :no-confirm)
-)
+  :config
+  (modus-themes-load-theme 'modus-vivendi :no-confirm)
+  )
 #+end_src
 
 * Fonts
@@ -283,13 +282,13 @@ If non-nil, `text-color' specifies instring color."
   "Get evil-mode state tag with propertized faces."
   (cond ((string= (laooree-modeline--evil-state-tag) "N")
          (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag)
-                                           "#3b4252"
-                                           "#4c566a"
+                                           (face-attribute 'default :background)
+                                           (face-attribute 'mode-line :background)
                                            nil))
         (t (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag)
-                                             "#88c0d0"
-                                             "#4c566a"
-                                             "#2e3440"))))
+                                             (face-attribute 'default :foreground)
+                                             (face-attribute 'mode-line :background)
+                                             (face-attribute 'default :background)))))
 
 ;; Taken from mood-line package
 (defun laooree-modeline--flymake-count (type)
@@ -304,43 +303,37 @@ If non-nil, `text-color' specifies instring color."
   :ensure nil
   :demand t)
 
-(defun laooree-modeline--flymake-determine-indicator-color (error-count warning-count note-count)
-  "Determine the indicator color based on the worst diagnostic type present."
-  (cond ((> error-count 0) "#3d0200")
-        ((> warning-count 0) "#3d2b00")
-        ((> note-count 0) "#093425")
-        (t "#2e3440")))
-
 (defun laooree-modeline--flymake-diagnostics ()
   "Get `:error', `:warning', and `:note' flymake diagnostic count."
   (let ((error-count (laooree-modeline--flymake-count :error))
         (warning-count (laooree-modeline--flymake-count :warning))
         (note-count (laooree-modeline--flymake-count :note)))
-  (laooree-modeline--with-indicator
-   (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
-                 (t (propertize (format " %s " error-count) 'face 'error)))
-           (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
-                 (t (propertize (format " %s " warning-count) 'face 'warning)))
-           (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
-                 (t (propertize (format "󱂻 %s" note-count) 'face 'success))))
-   (laooree-modeline--flymake-determine-indicator-color error-count warning-count note-count)
-   "#4c556a"
-   nil)))
+    (laooree-modeline--with-indicator
+     (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
+                   (t (propertize (format " %s " error-count) 'face 'error)))
+             (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
+                   (t (propertize (format " %s " warning-count) 'face 'warning)))
+             (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
+                   (t (propertize (format "󱂻 %s" note-count) 'face 'success))))
+     (face-attribute 'default :background)
+     (face-attribute 'mode-line :background)
+     nil)))
 
 (defun laooree-modeline--major-mode-name ()
   "Get buffer major mode name, without `-mode' and `-'."
-  (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))
+  (propertize (format " %s" (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
+  )
 
 (defun laooree-modeline--defining-kbd-macro ()
   "Indicate if a keyboard macro is being defined."
-  (cond (defining-kbd-macro (concat (propertize "" 'face '(:background "#4c566a" :foreground "#88c0d0"))
-                                    (propertize "  Rec" 'face '(:background "#88c0d0" :foreground "#4c566a"))
-                                    (propertize " " 'face '(:background "#4c566a" :foreground "#88c0d0"))))
+  (cond (defining-kbd-macro (concat (propertize "" 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))
+                                    (propertize "  Rec" 'face `(:background ,(face-attribute 'mode-line :foreground) :foreground ,(face-attribute 'default :background)))
+                                    (propertize " " 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))))
         (t "")))
 
 (defun laooree-modeline--scroll-indicator ()
   "Indicate the scrolling percentage."
-  (propertize (concat (format "󰧮 %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face '(:foreground "#2e3440")))
+  (propertize (concat (format "󰧮 %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground))))
 #+end_src
 *** Expressions
 
@@ -374,7 +367,7 @@ If non-nil, `text-color' specifies instring color."
   "Expression to show flymake diagnostics count on the focused mode-line.")
 
 (defvar-local laooree-modeline-major-mode
-    '(:eval (propertize (format " %s" (laooree-modeline--major-mode-name)) 'face '(:foreground "#2e3440")))
+    '(:eval (laooree-modeline--major-mode-name))
   "Expression to show buffer major mode on the mode-line.")
 
 (defvar-local laooree-modeline-keyboard-macro-indicator
@@ -718,7 +711,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :demand t
   :init
   (setq beacon-size 20
-        beacon-color "#e5e9f0"
+        beacon-color (face-attribute 'cursor :background)
         beacon-blink-delay 0.0
         beacon-blink-duration 0.3)
   (setq beacon-blink-when-focused t
@@ -978,11 +971,13 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
              "* %?\n %U\n"))))
 
   (set-face-attribute 'org-block-begin-line nil
-                      :background "#3b4252")
+                      :foreground (face-attribute 'mode-line :foreground)
+                      :background (face-attribute 'mode-line :background))
   (set-face-attribute 'org-block-end-line nil
-                      :background "#3b4252")
+                      :foreground (face-attribute 'mode-line :foreground)
+                      :background (face-attribute 'mode-line :background))
   (set-face-attribute 'org-block nil
-                      :background "#2b303b")
+                      :background (face-attribute 'line-number :background))
 )
 #+end_src
 
