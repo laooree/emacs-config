@@ -136,7 +136,7 @@ startup and enables it afterwards.
 #+begin_src emacs-lisp :tangle "init.el"
 ;; Default fonts
 (let ((font-name (cond
-                  ((eq system-type 'windows-nt) "Iosevka NFM")
+                  ((eq system-type 'windows-nt) "Iosevka NF")
                   ((eq system-type 'gnu/linux)  "Iosevka Nerd Font")))
       (font-size (cond
                   ((eq system-type 'windows-nt) 120)
