@@ -126,6 +126,12 @@ startup and enables it afterwards.
 (use-package modus-themes
   :ensure t
   :demand t
+
+  :init
+  (setq modus-themes-common-palette-overrides
+        '((border-mode-line-active unspecified)
+          (border-mode-line-inactive unspecified)))
+
   :config
   (modus-themes-load-theme 'modus-vivendi :no-confirm)
   )
