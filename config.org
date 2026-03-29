@@ -212,6 +212,16 @@ Evaluate the following block to generate a list of available fonts:
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   (setq evil-undo-system 'undo-redo)
+  (setq evil-emacs-state-tag         " EMACS "
+        evil-normal-state-tag        " NORMAL "
+        evil-insert-state-tag        " INSERT "
+        evil-replace-state-tag       " REPLACE "
+        evil-operator-state-tag      " OPERATOR "
+        evil-motion-state-tag        " MOTION "
+        evil-visual-char-tag         " VISUAL "
+        evil-visual-line-tag         " V-LINE "
+        evil-visual-block-tag        " V-BLOCK "
+        evil-visual-screen-line-tag  " V-LINE ")
 
   :general
   (:states '(normal)
