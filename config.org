@@ -133,7 +133,7 @@ startup and enables it afterwards.
           (border-mode-line-inactive unspecified)))
 
   :config
-  (modus-themes-load-theme 'modus-vivendi :no-confirm)
+  (modus-themes-load-theme 'modus-vivendi)
   )
 #+end_src
 
