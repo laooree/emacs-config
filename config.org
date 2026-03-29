@@ -983,8 +983,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
     (setq org-agenda-files
           (list (expand-file-name "org/agenda.org" pcloud-base-folder)
                 (expand-file-name "org/todo.org" pcloud-base-folder)
-                (expand-file-name "org/inbox.org" pcloud-base-folder)
-                (expand-file-name "org/calendar.org" pcloud-base-folder)))
+                (expand-file-name "org/inbox.org" pcloud-base-folder)))
 
     ;; org-capture-templates
     (setq org-capture-templates
