@@ -269,19 +269,40 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 *Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
 
 ** laooree-modeline
+*** Setup
+
+#+begin_src  emacs-lisp :tangle "init.el"
+(defvar-local laooree-modeline-accent-color "#82b0ec"
+  "Accent color to be used in the mode line.")
+
+(defun laooree-modeline--set-accent-normal   () (setq laooree-modeline-accent-color "#82b0ec"))
+(defun laooree-modeline--set-accent-emacs    () (setq laooree-modeline-accent-color "#88ca9f"))
+(defun laooree-modeline--set-accent-insert   () (setq laooree-modeline-accent-color "#caa6df"))
+(defun laooree-modeline--set-accent-operator () (setq laooree-modeline-accent-color "#ff9580"))
+(defun laooree-modeline--set-accent-replace  () (setq laooree-modeline-accent-color "#caa6df"))
+(defun laooree-modeline--set-accent-visual   () (setq laooree-modeline-accent-color "#d2b580"))
+
+(with-eval-after-load 'evil
+  (add-hook 'evil-normal-state-entry-hook   #'laooree-modeline--set-accent-normal)
+  (add-hook 'evil-emacs-state-entry-hook    #'laooree-modeline--set-accent-emacs)
+  (add-hook 'evil-insert-state-entry-hook   #'laooree-modeline--set-accent-insert)
+  (add-hook 'evil-operator-state-entry-hook #'laooree-modeline--set-accent-operator)
+  (add-hook 'evil-replace-state-entry-hook  #'laooree-modeline--set-accent-replace)
+  (add-hook 'evil-visual-state-entry-hook   #'laooree-modeline--set-accent-visual))
+#+end_src
+
 *** Functions
 
 #+begin_src  emacs-lisp :tangle "init.el"
-(defun laooree-modeline--with-indicator (instring fg-color bg-color text-color)
-  "Returns `instring' inside an indicator with specified `fg-color' and `bg-color'.
+(defun laooree-modeline--with-indicator (instring bg-color text-color)
+  "Returns `instring' inside an indicator with specified `bg-color'.
 If non-nil, `text-color' specifies instring color."
-  (concat (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))
-          (let ((str (copy-sequence instring)))
-            (if text-color
-                (add-face-text-property 0 (length str) `(:background ,fg-color :foreground ,text-color) t str)
-              (add-face-text-property 0 (length str) `(:background ,fg-color) t str))
-            str)
-          (propertize "" 'face `(:foreground ,fg-color :background ,bg-color))))
+  (let ((str (copy-sequence instring)))
+    (if text-color
+        (add-face-text-property 0 (length str) `(:background ,bg-color :foreground ,text-color) t str)
+      (add-face-text-property 0 (length str) `(:background ,bg-color) t str))
+    str)
+  )
 
 (defun laooree-modeline--buffer-status ()
   "Returns a glyph representing the buffer status."
@@ -290,21 +311,14 @@ If non-nil, `text-color' specifies instring color."
           ((buffer-modified-p) "󰙏 ")
           (t ""))))
 
-(defun laooree-modeline--evil-state-tag ()
-  "Get evil-mode state tag using () as delimiters."
-  (replace-regexp-in-string " <\\([^>]*\\)> " "\\1" evil-mode-line-tag))
-
 (defun laooree-modeline--evil-state-indicator ()
   "Get evil-mode state tag with propertized faces."
-  (cond ((string= (laooree-modeline--evil-state-tag) "N")
-         (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag)
-                                           (face-attribute 'default :background)
-                                           (face-attribute 'mode-line :background)
-                                           nil))
-        (t (laooree-modeline--with-indicator (laooree-modeline--evil-state-tag)
-                                             (face-attribute 'default :foreground)
-                                             (face-attribute 'mode-line :background)
-                                             (face-attribute 'default :background)))))
+  (laooree-modeline--with-indicator evil-mode-line-tag laooree-modeline-accent-color "#000000"))
+
+;; Require flymake (built-in)
+(use-package flymake
+  :ensure nil
+  :demand t)
 
 ;; Taken from mood-line package
 (defun laooree-modeline--flymake-count (type)
@@ -314,26 +328,17 @@ If non-nil, `text-color' specifies instring color."
            count (eq (flymake--lookup-type-property diag-type 'severity)
                      (flymake--lookup-type-property type 'severity))))
 
-;; Require flymake (built-in)
-(use-package flymake
-  :ensure nil
-  :demand t)
-
 (defun laooree-modeline--flymake-diagnostics ()
   "Get `:error', `:warning', and `:note' flymake diagnostic count."
   (let ((error-count (laooree-modeline--flymake-count :error))
         (warning-count (laooree-modeline--flymake-count :warning))
         (note-count (laooree-modeline--flymake-count :note)))
-    (laooree-modeline--with-indicator
      (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
                    (t (propertize (format " %s " error-count) 'face 'error)))
              (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
                    (t (propertize (format " %s " warning-count) 'face 'warning)))
              (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
-                   (t (propertize (format "󱂻 %s" note-count) 'face 'success))))
-     (face-attribute 'default :background)
-     (face-attribute 'mode-line :background)
-     nil)))
+                   (t (propertize (format "󱂻 %s" note-count) 'face 'success))))))
 
 (defun laooree-modeline--major-mode-name ()
   "Get buffer major mode name, without `-mode' and `-'."
@@ -349,7 +354,11 @@ If non-nil, `text-color' specifies instring color."
 
 (defun laooree-modeline--scroll-indicator ()
   "Indicate the scrolling percentage."
-  (propertize (concat (format "󰧮 %.0f" (/ (* 100.0 (point)) (point-max))) "%%") 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground))))
+  (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
+         (percent (cond ((string= value "100") "Bot")
+                        ((string= value "0")   "Top")
+                        (t (concat value "%%")))))
+    (laooree-modeline--with-indicator (concat " " percent "  ") laooree-modeline-accent-color "#000000")))
 #+end_src
 *** Expressions
 
@@ -395,7 +404,7 @@ If non-nil, `text-color' specifies instring color."
   "Expression to indicate on the mode-line when a keyboard macro is being defined.")
 
 (defvar laooree-modeline-format
-  '(" "
+  '(""
     laooree-modeline-evil-state-indicator
     laooree-modeline-keyboard-macro-indicator
     laooree-modeline-buffer-status
