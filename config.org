@@ -400,7 +400,8 @@ If non-nil, `text-color' specifies instring color."
   "Expression to indicate on the mode-line when a keyboard macro is being defined.")
 
 (defvar-local laooree-modeline-scroll-indicator
-    '(:eval (concat (laooree-modeline--scroll-indicator) " "))
+    '(:eval (when (mode-line-window-selected-p)
+        (laooree-modeline--scroll-indicator)))
   "Expression to indicate on the mode-line when a keyboard macro is being defined.")
 
 (defvar laooree-modeline-format
@@ -411,13 +412,14 @@ If non-nil, `text-color' specifies instring color."
     laooree-modeline-buffer-name
     laooree-modeline-major-mode
     mode-line-format-right-align
-    laooree-modeline-scroll-indicator
     laooree-modeline-flymake-diagnostics
+    laooree-modeline-scroll-indicator
     )
   "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
 #+end_src
 
 Add =risky-local-variable t= property to the expressions:
+
 #+begin_src emacs-lisp :tangle "init.el"
 (dolist (expression '(laooree-modeline-buffer-name
                       laooree-modeline-buffer-status
