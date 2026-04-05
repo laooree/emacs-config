@@ -1098,6 +1098,65 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 ** C
 #+begin_src emacs-lisp :tangle "init.el"
 (setq-default c-basic-offset 4)
+
+(defun laooree-clang-compile ()
+  "Compile the current buffer's file using `clang', outputting <file-name>.out."
+  (interactive)
+  (if buffer-file-name
+      (shell-command (concat "clang "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))))
+    (user-error "Buffer is not visiting a file")))
+
+(defun laooree-gcc-compile ()
+  "Compile the current buffer's file using `gcc', outputting <file-name>.out."
+  (interactive)
+  (if buffer-file-name
+      (shell-command (concat "clang "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))))
+    (user-error "Buffer is not visiting a file")))
+
+(defun laooree-clang-compile-and-run ()
+  "Compile the current buffer's file using `clang', outputting <file-name>.out, then run it."
+  (interactive)
+  (if buffer-file-name
+      (shell-command (concat "clang "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))
+                             " && " (concat (file-name-sans-extension buffer-file-name) ".out")))
+    (user-error "Buffer is not visiting a file")))
+
+(defun laooree-gcc-compile-and-run ()
+  "Compile the current buffer's file using `gcc', outputting <file-name>.out, then run it."
+  (interactive)
+  (if buffer-file-name
+      (shell-command (concat "gcc "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))
+                             " && " (concat (file-name-sans-extension buffer-file-name) ".out")))
+    (user-error "Buffer is not visiting a file")))
+
+(general-define-key
+ :states '(normal)
+ :keymaps 'c-mode-map
+ :prefix "SPC"
+
+ "m" '(:ignore t :which-key "make")
+ "m m" '(laooree-clang-compile-and-run :which-key "Compile and run (clang)")
+ "m c" '(laooree-clang-compile         :which-key "Compile with clang")
+ "m C" '(laooree-clang-compile-and-run :which-key "Compile with clang and run")
+ "m g" '(laooree-gcc-compile           :which-key "Compile with gcc")
+ "m G" '(laooree-gcc-compile-and-run   :which-key "Compile with gcc and run")
+ )
 #+end_src
 ** Eglot
 
@@ -1268,6 +1327,41 @@ Install and configure Matlab mode:
 (use-package haskell-mode
   :ensure t
   :defer t
+
+  :init
+  ;; Define functions for compilation
+  (defun laooree-ghc-compile-and-run ()
+    "Compile the current buffer's file using `ghc', outputting <file-name>, then run it."
+    (interactive)
+    (if buffer-file-name
+        (shell-command (concat "ghc "
+                               (shell-quote-argument buffer-file-name)
+                               " && " (file-name-sans-extension buffer-file-name)))
+      (user-error "Buffer is not visiting a file")))
+
+  (defun laooree-ghc-compile ()
+    "Compile the current buffer's file using `ghc', outputting <file-name>"
+    (interactive)
+    (if buffer-file-name
+        (shell-command (concat "ghc " (shell-quote-argument buffer-file-name)))
+      (user-error "Buffer is not visiting a file")))
+
+  (defun laooree-ghc-produce-assembly ()
+    "Produce assembly file from current buffer's file using `ghc'."
+    (interactive)
+    (if buffer-file-name
+        (shell-command (concat "ghc -S " (shell-quote-argument buffer-file-name)))
+      (user-error "Buffer is not visiting a file")))
+
+  :general
+  (:states '(normal)
+           :keymaps 'haskell-mode-map
+           :prefix "SPC"
+           "m"   '(:ignore t :which-key "make")
+           "m m" '(laooree-ghc-compile-and-run  :which-key "Compile and run (ghc)")
+           "m g" '(laooree-ghc-compile          :which-key "Compile with ghc")
+           "m s" '(laooree-ghc-produce-assembly :which-key "Produce assembly with ghc")
+           )
 
   :config
   (with-eval-after-load 'eglot
