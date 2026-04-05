@@ -1062,17 +1062,11 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 
 #+begin_src emacs-lisp :tangle "init.el"
 (setq-default indent-tabs-mode nil        ;; Stop using tabs to indent
-              tab-always-indent 'complete ;; Indent first then try completions
+              tab-always-indent 'nil
               tab-width 4)                ;; Set 4 as tab width
-(setq indent-line-function 'insert-tab)
+;; (setq indent-line-function 'insert-tab)
 
 (setq org-src-preserve-indentation t)
-
-;; Turn off automatic indentation in text-mode.
-(add-hook 'text-mode-hook
-          (lambda ()
-            (setq evil-auto-indent nil)
-            (setq indent-line-function 'ignore)))
 #+end_src
 
 ** Load languages in org-babel
