@@ -389,8 +389,9 @@ If non-nil, `text-color' specifies instring color."
          (percent (cond ((string= value "100") "Bot")
                         ((string= value "0")   "Top")
                         (t (concat value "%%")))))
-    (laooree-modeline--with-indicator (concat " " percent " ") laooree-modeline-accent-color "#000000")))
+    (laooree-modeline--with-indicator (concat " " percent " " (when (< (window-body-width) (window-total-width)) " ")) laooree-modeline-accent-color "#000000")))
 #+end_src
+
 *** Expressions
 
 #+begin_src emacs-lisp :tangle "init.el"
