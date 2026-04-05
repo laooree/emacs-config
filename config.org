@@ -223,6 +223,52 @@ Evaluate the following block to generate a list of available fonts:
         evil-visual-block-tag        " V-BLOCK "
         evil-visual-screen-line-tag  " V-LINE ")
 
+  ;; Functions to modify cursor appearence on terminal
+  (defun laooree/set-cursor-block ()
+    "Set terminal cursor shape to bar."
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e[0 q")))
+  (defun laooree/set-cursor-bar ()
+    "Set terminal cursor shape to bar."
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e[5 q")))
+  (defun laooree/set-cursor-underline ()
+    "Set terminal cursor shape to underline."
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e[3 q")))
+
+  ;; Set mode-line accent color based on evil state
+  (defun laooree-modeline--set-accent-normal ()
+    (setq laooree-modeline-accent-color "#82b0ec"))
+  (defun laooree-modeline--set-accent-emacs ()
+    (setq laooree-modeline-accent-color "#88ca9f"))
+  (defun laooree-modeline--set-accent-insert ()
+    (setq laooree-modeline-accent-color "#caa6df"))
+  (defun laooree-modeline--set-accent-operator ()
+    (setq laooree-modeline-accent-color "#ff9580"))
+  (defun laooree-modeline--set-accent-replace ()
+    (setq laooree-modeline-accent-color "#caa6df"))
+  (defun laooree-modeline--set-accent-visual ()
+    (setq laooree-modeline-accent-color "#d2b580"))
+
+  :hook
+  ;; Set cursor shape
+  ;; (evil-emacs-state-entry    . laooree/set-cursor-block)
+  ;; (evil-insert-state-entry   . laooree/set-cursor-bar)
+  ;; (evil-motion-state-entry   . laooree/set-cursor-block)
+  ;; (evil-normal-state-entry   . laooree/set-cursor-block)
+  ;; (evil-operator-state-entry . laooree/set-cursor-underline)
+  ;; (evil-replace-state-entry  . laooree/set-cursor-underline)
+  ;; (evil-visual-state-entry   . laooree/set-cursor-block)
+
+  ;; Set mode-line accent color
+  (evil-normal-state-entry   . laooree-modeline--set-accent-normal)
+  (evil-emacs-state-entry    . laooree-modeline--set-accent-emacs)
+  (evil-insert-state-entry   . laooree-modeline--set-accent-insert)
+  (evil-operator-state-entry . laooree-modeline--set-accent-operator)
+  (evil-replace-state-entry  . laooree-modeline--set-accent-replace)
+  (evil-visual-state-entry   . laooree-modeline--set-accent-visual)
+
   :general
   (:states '(normal)
            :prefix "SPC"
@@ -269,26 +315,11 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 *Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
 
 ** laooree-modeline
-*** Setup
+*** Variables
 
 #+begin_src  emacs-lisp :tangle "init.el"
 (defvar-local laooree-modeline-accent-color "#82b0ec"
   "Accent color to be used in the mode line.")
-
-(defun laooree-modeline--set-accent-normal   () (setq laooree-modeline-accent-color "#82b0ec"))
-(defun laooree-modeline--set-accent-emacs    () (setq laooree-modeline-accent-color "#88ca9f"))
-(defun laooree-modeline--set-accent-insert   () (setq laooree-modeline-accent-color "#caa6df"))
-(defun laooree-modeline--set-accent-operator () (setq laooree-modeline-accent-color "#ff9580"))
-(defun laooree-modeline--set-accent-replace  () (setq laooree-modeline-accent-color "#caa6df"))
-(defun laooree-modeline--set-accent-visual   () (setq laooree-modeline-accent-color "#d2b580"))
-
-(with-eval-after-load 'evil
-  (add-hook 'evil-normal-state-entry-hook   #'laooree-modeline--set-accent-normal)
-  (add-hook 'evil-emacs-state-entry-hook    #'laooree-modeline--set-accent-emacs)
-  (add-hook 'evil-insert-state-entry-hook   #'laooree-modeline--set-accent-insert)
-  (add-hook 'evil-operator-state-entry-hook #'laooree-modeline--set-accent-operator)
-  (add-hook 'evil-replace-state-entry-hook  #'laooree-modeline--set-accent-replace)
-  (add-hook 'evil-visual-state-entry-hook   #'laooree-modeline--set-accent-visual))
 #+end_src
 
 *** Functions
@@ -574,26 +605,6 @@ This package is not X11 exclusive, and automatically detects when on Wayland.
   :config
   (xclip-mode 1)
   )
-#+end_src
-
-*** Cursor shape
-
-#+begin_src emacs-lisp :tangle "init.el"
-(defun laooree/set-cursor-shape ()
-  "Set terminal cursor shape based on evil state."
-  (let ((shape
-         (cond
-          ((evil-insert-state-p) "\e[5 q")  ;; Blinking bar
-          ((evil-motion-state-p) "\e[0 q")  ;; Block
-          ((evil-operator-state-p) "\e[3 q");; Underline
-          ((evil-replace-state-p) "\e[3 q") ;; Underline
-          ((evil-visual-state-p) "\e[0 q")  ;; Block
-          (t "\e[0 q"))))                   ;; Block
-    (send-string-to-terminal shape)))
-
-;; Hook into Evil state changes
-(unless (display-graphic-p)
-  (add-hook 'post-command-hook #'laooree/set-cursor-shape))
 #+end_src
 
 ** Nerd icons
