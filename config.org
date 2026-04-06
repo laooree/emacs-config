@@ -1019,6 +1019,14 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   :defer t)
 #+end_src
 
+** Treesitter
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package treesit-auto
+  :ensure t
+  :demand t
+  :config
+  (global-treesit-auto-mode))
+#+end_src
 ** C
 #+begin_src emacs-lisp :tangle "init.el"
 (setq-default c-basic-offset 4)
@@ -1235,15 +1243,6 @@ Install and configure Matlab mode:
 (setq sh-basic-offset 4)
 #+end_src
 
-** Nix
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package nix-mode
-  :ensure t
-  :defer t
-  :mode "\\.nix\\'")
-#+end_src
-
 ** Haskell
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -1320,10 +1319,6 @@ Install and configure Matlab mode:
    "m m" #'eval-buffer
    "m r" #'eval-region)
   )
-#+end_src
-** lua
-#+begin_src emacs-lisp :tangle "init.el"
-(add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode))
 #+end_src
 ** Typst
 #+begin_src emacs-lisp :tangle "init.el"
