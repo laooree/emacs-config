@@ -364,16 +364,36 @@ If non-nil, `text-color' specifies instring color."
   (let ((error-count (laooree-modeline--flymake-count :error))
         (warning-count (laooree-modeline--flymake-count :warning))
         (note-count (laooree-modeline--flymake-count :note)))
-     (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
-                   (t (propertize (format " %s " error-count) 'face 'error)))
-             (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
-                   (t (propertize (format " %s " warning-count) 'face 'warning)))
-             (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
-                   (t (propertize (format "󱂻 %s" note-count) 'face 'success))))))
+    (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
+                  (t (propertize (format " %s " error-count) 'face 'error)))
+            (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
+                  (t (propertize (format " %s " warning-count) 'face 'warning)))
+            (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
+                  (t (propertize (format "󱂻 %s" note-count) 'face 'success))))))
 
 (defun laooree-modeline--major-mode-name ()
-  "Get buffer major mode name, without `-mode' and `-'."
-  (propertize (format " %s" (replace-regexp-in-string "-" " " (replace-regexp-in-string "-ts" "" (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
+  "Get a string with buffer major mode name, without `-mode' and `-'."
+  (replace-regexp-in-string "-" " " (replace-regexp-in-string "-ts" "" (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))
+  )
+
+(defun laooree-modeline--major-mode-with-icons ()
+  "Add icon to major-mode name, if relevant."
+  (cond ((string= (laooree-modeline--major-mode-name) "org")     " Org Mode")
+        ((string= (laooree-modeline--major-mode-name) "c")       " C")
+        ((string= (laooree-modeline--major-mode-name) "nix")     "󱄅 Nix")
+        ((string= (laooree-modeline--major-mode-name) "haskell") " Haskell")
+        ((string= (laooree-modeline--major-mode-name) "latex")   " LaTeX")
+        ((string= (laooree-modeline--major-mode-name) "matlab")  " Matlab")
+        ((string= (laooree-modeline--major-mode-name) "python")  " Python")
+        ((string= (laooree-modeline--major-mode-name) "lua")     " Lua")
+        ((string= (laooree-modeline--major-mode-name) "sh")      "#! sh")
+        (t (capitalize (laooree-modeline--major-mode-name)))
+        )
+  )
+
+(defun laooree-modeline--major-mode-indicator ()
+  "Returns an indicator for the major mode name in the mode-line."
+  (propertize (format " %s" (laooree-modeline--major-mode-with-icons)) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
   )
 
 (defun laooree-modeline--defining-kbd-macro ()
@@ -424,7 +444,7 @@ If non-nil, `text-color' specifies instring color."
   "Expression to show flymake diagnostics count on the focused mode-line.")
 
 (defvar-local laooree-modeline-major-mode
-    '(:eval (laooree-modeline--major-mode-name))
+    '(:eval (laooree-modeline--major-mode-indicator))
   "Expression to show buffer major mode on the mode-line.")
 
 (defvar-local laooree-modeline-keyboard-macro-indicator
