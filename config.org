@@ -890,64 +890,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
-** GPTel
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package gptel
-  :ensure t
-  :defer t
-  :init
-  (setq gptel-model 'gpt-5-mini
-        gptel-backend (gptel-make-gh-copilot "Copilot"))
-  :general
-  (:states '(normal visual)
-           :prefix "SPC"
-           "g" '(:ignore t :which-key "GPTel")
-           "g g" #'gptel-menu
-           "g r" #'gptel-rewrite
-           ))
-#+end_src
-** copilot.el
-#+begin_src emacs-lisp :tangle "init.el"
-;; copilot.el requires very recent track-changes
-(use-package track-changes
-  :ensure t
-  :defer t
-  )
-
-(use-package copilot
-  :ensure (:host github :repo "copilot-emacs/copilot.el")
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word))
-  :config
-  (add-to-list 'copilot-indentation-alist '(prog-mode 4))
-  (add-to-list 'copilot-indentation-alist '(org-mode 4))
-  (add-to-list 'copilot-indentation-alist '(python-mode 4))
-  )
-#+end_src
-** yasnippet
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package yasnippet
-  :ensure t
-  :defer t
-
-  :general
-  (:states '(normal)
-           :keymaps 'yas-minor-mode-map
-           :prefix "SPC"
-           "y" '(:ignore t :which-key "yasnippet")
-           "y y" #'yas-insert-snippet
-           "y r" #'yas-reload-all
-           "y n" #'yas-new-snippet)
-)
-
-(use-package yasnippet-snippets
-  :ensure t
-  :after yasnippet
-)
-#+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
 (elpaca-wait)
@@ -1067,19 +1009,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 ;; (setq indent-line-function 'insert-tab)
 
 (setq org-src-preserve-indentation t)
-#+end_src
-
-** Load languages in org-babel
-
-#+begin_src emacs-lisp :tangle "init.el"
-(add-hook 'org-mode-hook (lambda ()
-                           (org-babel-do-load-languages
-                            'org-babel-load-languages
-                            '(
-                              (emacs-lisp . t)
-                              (python . t)
-                              (matlab . t)
-                              ))))
 #+end_src
 
 ** Formatter
