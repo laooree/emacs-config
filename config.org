@@ -373,7 +373,7 @@ If non-nil, `text-color' specifies instring color."
 
 (defun laooree-modeline--major-mode-name ()
   "Get buffer major mode name, without `-mode' and `-'."
-  (propertize (format " %s" (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
+  (propertize (format " %s" (replace-regexp-in-string "-" " " (replace-regexp-in-string "-ts" "" (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))))) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
   )
 
 (defun laooree-modeline--defining-kbd-macro ()
@@ -1243,6 +1243,13 @@ Install and configure Matlab mode:
 (setq sh-basic-offset 4)
 #+end_src
 
+** Nix
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package nix-ts-mode
+  :ensure t
+  :defer t
+  :mode "\\.nix\\'")
+#+end_src
 ** Haskell
 
 #+begin_src emacs-lisp :tangle "init.el"
