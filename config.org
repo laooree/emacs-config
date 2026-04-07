@@ -561,6 +561,16 @@ Add =risky-local-variable t= property to the expressions:
 (global-display-line-numbers-mode)
  #+end_src
 
+** Initial scratch buffer message
+#+begin_src emacs-lisp :tangle "init.el"
+(setq initial-scratch-message "
+;;  ╱|、
+;; (˚ˎ。7
+;;  |、˜〵
+;; じしˍ,)ノ
+")
+#+end_src
+
 ** org-auto-tangle
 
 This package allows to automatically tangle =org= files when they are
