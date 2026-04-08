@@ -867,6 +867,8 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
            "c l" #'consult-line
            "c m" #'consult-man
            "c r" #'consult-ripgrep
+           "c i" #'consult-imenu
+           "c I" #'consult-imenu-multi
 
            "b" '(:ignore t :which-key "buffer")
            "b b" #'consult-buffer)
