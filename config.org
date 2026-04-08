@@ -1059,11 +1059,15 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   :defer t)
 #+end_src
 
-** Treesitter
+** Tree-sitter
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package treesit-auto
   :ensure t
   :demand t
+
+  :init
+  (setq treesit-font-lock-level 2)
+
   :config
   (global-treesit-auto-mode))
 #+end_src
