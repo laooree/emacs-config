@@ -941,9 +941,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 #+begin_src emacs-lisp :tangle "init.el"
 (elpaca-wait)
 #+end_src
-* Org
-
-** org-mode
+* Org-mode
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package org
@@ -1005,23 +1003,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   (set-face-attribute 'org-block nil
                       :background (face-attribute 'line-number :background))
 )
-#+end_src
-
-** org-modern
-
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package org-modern
-  :ensure t
-  :defer t
-
-  :init
-  (setq org-modern-fold-stars
-        '(("" . "")))
-  (setq org-modern-table nil)
-
-  :hook
-  (org-mode . org-modern-mode)
-  (org-agenda-finalize . org-modern-agenda))
 #+end_src
 
 * Denote
