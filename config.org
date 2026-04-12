@@ -1029,6 +1029,27 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   )
 #+end_src
 
+* GPTel
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package gptel
+  :ensure t
+  :defer t
+
+  :config
+
+  (let ((claude-backend
+         (gptel-make-anthropic "Claude"
+           :stream t
+           :key (lambda ()
+                  (auth-source-pick-first-password
+                   :host "api.anthropic.com"
+                   :user "apikey"))
+           :models '(claude-haiku-4-5-20251001 claude-sonnet-4-6 claude-opus-4-6))))
+
+    (setq gptel-model 'claude-opus-4-6
+          gptel-backend claude-backend))
+  )
+#+end_src
 * Programming
 
 ** Indentation
