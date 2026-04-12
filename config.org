@@ -1079,6 +1079,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 
   :init
   (setq treesit-font-lock-level 2)
+  (setq treesit-auto-install 'prompt)
 
   :config
   (global-treesit-auto-mode))
@@ -1086,6 +1087,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 ** C
 #+begin_src emacs-lisp :tangle "init.el"
 (setq-default c-basic-offset 4)
+(setq-default c-ts-mode-indent-offset 4)
 
 (defun laooree-clang-compile ()
   "Compile the current buffer's file using `clang', outputting <file-name>.out."
@@ -1135,7 +1137,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 
 (general-define-key
  :states '(normal)
- :keymaps 'c-mode-map
+ :keymaps '(c-mode-map c-ts-mode-map)
  :prefix "SPC"
 
  "m" '(:ignore t :which-key "make")
