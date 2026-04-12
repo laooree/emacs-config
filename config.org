@@ -1280,9 +1280,24 @@ Install and configure Matlab mode:
   (setq python-indent-guess-indent-offset t
         python-indent-guess-indent-offset-verbose nil
         python-indent-offset 4)
+  (defun laooree-python-run ()
+    "Run file associated to current buffer in python."
+    (interactive)
+    (if buffer-file-name
+        (shell-command (concat "python "
+                               (shell-quote-argument buffer-file-name)))
+      (user-error "Buffer is not visiting a file")))
 
   :hook
   (python-mode . highlight-indentation-mode)
+
+  :general
+  (:states '(normal)
+           :keymaps '(python-mode-map python-ts-mode-map)
+           :prefix "SPC"
+           "m"   '(:ignore t :which-key "make")
+           "m m" '(laooree-python-run  :which-key "Run with python")
+           )
 
   :config
   (evil-set-initial-state 'inferior-python-mode 'emacs)
