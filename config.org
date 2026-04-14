@@ -547,7 +547,7 @@ Add =risky-local-variable t= property to the expressions:
 (recentf-mode 1)
 
 ;; Wrap lines and set fill-column width
-(setq-default fill-column 80)
+(setq-default fill-column 100)
 (global-visual-line-mode 1)
 
 ;; Warn user if trying to open a file bigger than 100MB
