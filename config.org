@@ -1098,6 +1098,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   (setq treesit-auto-install 'prompt)
 
   :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 #+end_src
 ** C
@@ -1197,6 +1198,7 @@ Install and configure Matlab mode:
   (setq matlab-indent-level 4  ;; Set indentation level to 4
         matlab-indent-function-body t  ;; Indent function bodies
         matlab-sections-highlight-section nil)
+  (add-to-list 'major-mode-remap-defaults '(matlab-mode . matlab-ts-mode))
   :hook
   (matlab-mode . (lambda ()
                    (set-face-attribute 'matlab-sections-highlight-face nil
