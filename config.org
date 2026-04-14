@@ -414,13 +414,30 @@ If non-nil, `text-color' specifies instring color."
                                     (propertize " " 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))))
         (t "")))
 
+;; (defun laooree-modeline--scroll-indicator ()
+;;   "Indicate the scrolling percentage."
+;;   (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
+;;          (percent (cond ((string= value "100") "Bot")
+;;                         ((string= value "0")   "Top")
+;;                         (t (concat value "%%")))))
+;;     (laooree-modeline--with-indicator (concat " " percent " " (when (< (window-body-width) (window-total-width)) " ")) laooree-modeline-accent-color "#000000")))
+
 (defun laooree-modeline--scroll-indicator ()
-  "Indicate the scrolling percentage."
-  (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
-         (percent (cond ((string= value "100") "Bot")
-                        ((string= value "0")   "Top")
-                        (t (concat value "%%")))))
-    (laooree-modeline--with-indicator (concat " " percent " " (when (< (window-body-width) (window-total-width)) " ")) laooree-modeline-accent-color "#000000")))
+  "Indicate scroll position.
+Shows current/total lines, or percentage when `display-line-numbers-mode' is active."
+  (let* ((indicator
+          (if display-line-numbers-mode
+              (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
+                     (percent (cond ((string= value "100") "Bot")
+                                    ((string= value "0")   "Top")
+                                    (t (concat value "%%")))))
+                (concat " " percent " "))
+            (let ((total-lines (line-number-at-pos (point-max)))
+                  (current-line (line-number-at-pos (point))))
+              (format " %d/%d " current-line total-lines)))))
+    (laooree-modeline--with-indicator
+     (concat indicator (when (< (window-body-width) (window-total-width)) " "))
+     laooree-modeline-accent-color "#000000")))
 #+end_src
 
 *** Expressions
@@ -573,8 +590,7 @@ Add =risky-local-variable t= property to the expressions:
 (global-whitespace-mode 1)
 (set-face-attribute 'whitespace-trailing nil :background "#BF616A")
 
-(setq display-line-numbers t)
-(global-display-line-numbers-mode)
+(setq display-line-numbers-mode nil)
  #+end_src
 
 ** Initial scratch buffer message
