@@ -266,7 +266,7 @@ Evaluate the following block to generate a list of available fonts:
     (setq laooree-modeline-accent-color "#d2b580"))
 
   :hook
-  ;; Set cursor shape
+  ;; ;; Set cursor shape
   ;; (evil-emacs-state-entry    . laooree/set-cursor-block)
   ;; (evil-insert-state-entry   . laooree/set-cursor-bar)
   ;; (evil-motion-state-entry   . laooree/set-cursor-block)
@@ -535,8 +535,7 @@ Add =risky-local-variable t= property to the expressions:
 ;; Force mode-line update after every command
 (add-hook 'post-command-hook #'force-mode-line-update)
 #+end_src
-** Customize mode line
-
+*** Enable
 #+begin_src  emacs-lisp :tangle "init.el"
 (setq-default mode-line-format laooree-modeline-format)
 #+end_src
