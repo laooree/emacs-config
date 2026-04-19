@@ -134,6 +134,20 @@ startup and enables it afterwards.
 
   :config
   (modus-themes-load-theme 'modus-vivendi)
+  ;; Color whitespace
+  (with-eval-after-load 'whitespace-mode
+    (set-face-attribute 'whitespace-trailing nil :background (face-attribute 'font-lock-warning-face :foreground)))
+
+  ;; Color org-source blocks
+  (with-eval-after-load 'org
+    (set-face-attribute 'org-block-begin-line nil
+			:foreground (face-attribute 'mode-line :foreground)
+			:background (face-attribute 'mode-line :background))
+    (set-face-attribute 'org-block-end-line nil
+			:foreground (face-attribute 'mode-line :foreground)
+			:background (face-attribute 'mode-line :background))
+    (set-face-attribute 'org-block nil
+			:background (face-attribute 'line-number :background)))
   )
 #+end_src
 
@@ -588,17 +602,21 @@ Add =risky-local-variable t= property to the expressions:
 ;; whitespace-mode
 (setq whitespace-style '(face trailing))
 (global-whitespace-mode 1)
-(set-face-attribute 'whitespace-trailing nil :background "#BF616A")
 
 (setq display-line-numbers-mode nil)
+
+;; Automatically pair brackets and delimiters
+(electric-pair-mode 1)
  #+end_src
 
 ** Initial scratch buffer message
 #+begin_src emacs-lisp :tangle "init.el"
-(setq initial-scratch-message ";;  ╱|、
-;; (˚ˎ。7
-;;  |、˜〵
-;; じしˍ,)ノ
+(setq initial-scratch-message
+"
+;;  ╱|、      +--------------+
+;; (˚ˎ。7     | do you need  |
+;;  |、˜〵    | a dashboard? |
+;; じしˍ,)ノ  +--------------+
 ")
 #+end_src
 
@@ -1012,15 +1030,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
              "* %?\nEntered on %U\n")
             ("i" "Idea" entry (file+headline ,(expand-file-name "org/inbox.org" pcloud-base-folder) "Ideas")
              "* %?\n %U\n"))))
-
-  (set-face-attribute 'org-block-begin-line nil
-                      :foreground (face-attribute 'mode-line :foreground)
-                      :background (face-attribute 'mode-line :background))
-  (set-face-attribute 'org-block-end-line nil
-                      :foreground (face-attribute 'mode-line :foreground)
-                      :background (face-attribute 'mode-line :background))
-  (set-face-attribute 'org-block nil
-                      :background (face-attribute 'line-number :background))
 )
 #+end_src
 
