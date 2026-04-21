@@ -236,6 +236,12 @@ Evaluate the following block to generate a list of available fonts:
         evil-visual-line-tag         " V-LINE "
         evil-visual-block-tag        " V-BLOCK "
         evil-visual-screen-line-tag  " V-LINE ")
+  (setq laooree-modeline--accent-color-normal   "#82b0ec"
+        laooree-modeline--accent-color-emacs    "#88ca9f"
+        laooree-modeline--accent-color-insert   "#caa9df"
+        laooree-modeline--accent-color-operator "#ff9580"
+        laooree-modeline--accent-color-replace  "#caa9df"
+        laooree-modeline--accent-color-visual   "#d2b580")
 
   ;; Functions to modify cursor appearence on terminal
   (defun laooree/set-cursor-block ()
@@ -251,21 +257,7 @@ Evaluate the following block to generate a list of available fonts:
     (unless (display-graphic-p)
       (send-string-to-terminal "\e[3 q")))
 
-  ;; Set mode-line accent color based on evil state
-  (defun laooree-modeline--set-accent-normal ()
-    (setq laooree-modeline-accent-color "#82b0ec"))
-  (defun laooree-modeline--set-accent-emacs ()
-    (setq laooree-modeline-accent-color "#88ca9f"))
-  (defun laooree-modeline--set-accent-insert ()
-    (setq laooree-modeline-accent-color "#caa6df"))
-  (defun laooree-modeline--set-accent-operator ()
-    (setq laooree-modeline-accent-color "#ff9580"))
-  (defun laooree-modeline--set-accent-replace ()
-    (setq laooree-modeline-accent-color "#caa6df"))
-  (defun laooree-modeline--set-accent-visual ()
-    (setq laooree-modeline-accent-color "#d2b580"))
-
-  :hook
+  ;; :hook
   ;; ;; Set cursor shape
   ;; (evil-emacs-state-entry    . laooree/set-cursor-block)
   ;; (evil-insert-state-entry   . laooree/set-cursor-bar)
@@ -274,14 +266,6 @@ Evaluate the following block to generate a list of available fonts:
   ;; (evil-operator-state-entry . laooree/set-cursor-underline)
   ;; (evil-replace-state-entry  . laooree/set-cursor-underline)
   ;; (evil-visual-state-entry   . laooree/set-cursor-block)
-
-  ;; Set mode-line accent color
-  (evil-normal-state-entry   . laooree-modeline--set-accent-normal)
-  (evil-emacs-state-entry    . laooree-modeline--set-accent-emacs)
-  (evil-insert-state-entry   . laooree-modeline--set-accent-insert)
-  (evil-operator-state-entry . laooree-modeline--set-accent-operator)
-  (evil-replace-state-entry  . laooree-modeline--set-accent-replace)
-  (evil-visual-state-entry   . laooree-modeline--set-accent-visual)
 
   :general
   (:states '(normal)
@@ -452,6 +436,10 @@ Shows current/total lines, or percentage when `display-line-numbers-mode' is act
     (laooree-modeline--with-indicator
      (concat indicator (when (< (window-body-width) (window-total-width)) " "))
      laooree-modeline-accent-color "#000000")))
+
+(defun laooree-modeline--set-accent-color (accent-color)
+  "Set the accent color of the laooree-modeline."
+  (setq laooree-modeline-accent-color accent-color))
 #+end_src
 
 *** Expressions
@@ -530,6 +518,32 @@ Add =risky-local-variable t= property to the expressions:
   (put expression 'risky-local-variable t))
 #+end_src
 
+*** Evil-mode
+#+begin_src emacs-lisp :tangle "init.el"
+(with-eval-after-load 'evil
+    ;; Define accent colors related to evil states.
+    (defvar laooree-modeline--accent-color-normal   (face-attribute 'mode-line-inactive :foreground)
+      "Accent color to use when evil-state is normal.")
+    (defvar laooree-modeline--accent-color-emacs    (face-attribute 'mode-line-active :foreground)
+      "Accent color to use when evil-state is emacs.")
+    (defvar laooree-modeline--accent-color-insert   (face-attribute 'mode-line-active :foreground)
+      "Accent color to use when evil-state is insert.")
+    (defvar laooree-modeline--accent-color-operator (face-attribute 'mode-line-active :foreground)
+      "Accent color to use when evil-state is operator.")
+    (defvar laooree-modeline--accent-color-replace  (face-attribute 'mode-line-active :foreground)
+      "Accent color to use when evil-state is replace.")
+    (defvar laooree-modeline--accent-color-visual   (face-attribute 'mode-line-active :foreground)
+      "Accent color to use when evil-state is visual.")
+
+    ;; Set relevant accent color when entering evil state.
+    (add-hook 'evil-normal-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-normal)))
+    (add-hook 'evil-emacs-state-entry-hook    (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-emacs)))
+    (add-hook 'evil-insert-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-insert)))
+    (add-hook 'evil-operator-state-entry-hook (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-operator)))
+    (add-hook 'evil-replace-state-entry-hook  (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-replace)))
+    (add-hook 'evil-visual-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-visual)))
+    )
+#+end_src
 *** Hooks
 #+begin_src emacs-lisp :tangle "init.el"
 ;; Force mode-line update after every command
