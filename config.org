@@ -316,7 +316,7 @@ My =mode-line-format= is made by expressions stored in local variables. The foll
 *** Variables
 
 #+begin_src  emacs-lisp :tangle "init.el"
-(defvar-local laooree-modeline-accent-color "#82b0ec"
+(defvar-local laooree-modeline-accent-color (face-attribute 'mode-line-active :foreground)
   "Accent color to be used in the mode line.")
 #+end_src
 
@@ -524,15 +524,15 @@ Add =risky-local-variable t= property to the expressions:
     ;; Define accent colors related to evil states.
     (defvar laooree-modeline--accent-color-normal   (face-attribute 'mode-line-inactive :foreground)
       "Accent color to use when evil-state is normal.")
-    (defvar laooree-modeline--accent-color-emacs    (face-attribute 'mode-line-active :foreground)
+    (defvar laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground)
       "Accent color to use when evil-state is emacs.")
-    (defvar laooree-modeline--accent-color-insert   (face-attribute 'mode-line-active :foreground)
+    (defvar laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground)
       "Accent color to use when evil-state is insert.")
-    (defvar laooree-modeline--accent-color-operator (face-attribute 'mode-line-active :foreground)
+    (defvar laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground)
       "Accent color to use when evil-state is operator.")
-    (defvar laooree-modeline--accent-color-replace  (face-attribute 'mode-line-active :foreground)
+    (defvar laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground)
       "Accent color to use when evil-state is replace.")
-    (defvar laooree-modeline--accent-color-visual   (face-attribute 'mode-line-active :foreground)
+    (defvar laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground)
       "Accent color to use when evil-state is visual.")
 
     ;; Set relevant accent color when entering evil state.
