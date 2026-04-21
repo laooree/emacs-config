@@ -611,8 +611,7 @@ Add =risky-local-variable t= property to the expressions:
 ** Initial scratch buffer message
 #+begin_src emacs-lisp :tangle "init.el"
 (setq initial-scratch-message
-"
-;;  ╱|、      +--------------+
+";;  ╱|、      +--------------+
 ;; (˚ˎ。7     | do you need  |
 ;;  |、˜〵    | a dashboard? |
 ;; じしˍ,)ノ  +--------------+
