@@ -129,14 +129,24 @@ startup and enables it afterwards.
 
   :init
   (defun laooree-setup-theme (&rest _)
+    ;; Set modeline accent colors
     (setq laooree-modeline--accent-color-normal   (face-attribute 'font-lock-comment-face :foreground nil t)
           laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground nil t)
           laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground nil t)
           laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground nil t)
           laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground nil t)
           laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground nil t))
+
+    ;; Disable modeline underlines
     (set-face-attribute 'mode-line nil          :underline nil)
     (set-face-attribute 'mode-line-inactive nil :underline nil)
+
+    ;; Improve comment and string faces
+    (let ((string-color  (face-attribute 'font-lock-comment-face :foreground nil t))
+          (comment-color (face-attribute 'font-lock-string-face  :foreground nil t)))
+      (set-face-attribute 'font-lock-comment-face nil :foreground comment-color :slant 'normal)
+      (set-face-attribute 'font-lock-comment-delimiter-face nil :foreground comment-color :slant 'normal)
+      (set-face-attribute 'font-lock-string-face nil :foreground string-color))
     )
 
   :hook
