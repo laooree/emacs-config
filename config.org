@@ -409,7 +409,7 @@ Shows current/total lines, or percentage when `display-line-numbers-mode' is act
   (let* ((indicator
           (cond
            ((eq evil-state 'visual) (let ((selected-lines (count-lines (region-beginning) (region-end)))
-                                          (selected-chars (- (region-end) (region-beginning))))
+                                          (selected-chars (+ 1 (- (region-end) (region-beginning)))))
                                       (format " %dL %dC " selected-lines selected-chars)))
            (display-line-numbers-mode (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
                                              (percent (cond ((string= value "100") "Bot")
