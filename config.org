@@ -123,45 +123,27 @@ startup and enables it afterwards.
 * Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package modus-themes
+(use-package doric-themes
   :ensure t
   :demand t
 
   :init
-  (setq modus-themes-common-palette-overrides
-        '((border-mode-line-active unspecified)
-          (border-mode-line-inactive unspecified)))
-
-  ;; Function to run every time a theme is loaded
   (defun laooree-setup-theme (&rest _)
-    ;; Set mode-line accent colors
-    (setq laooree-modeline--accent-color-normal   "#82b0ec"
-          laooree-modeline--accent-color-emacs    "#88ca9f"
-          laooree-modeline--accent-color-insert   "#caa9df"
-          laooree-modeline--accent-color-operator "#ff9580"
-          laooree-modeline--accent-color-replace  "#caa9df"
-          laooree-modeline--accent-color-visual   "#d2b580")
-
-    ;; Color whitespace
-    (with-eval-after-load 'whitespace
-      (set-face-attribute 'whitespace-trailing nil :background (face-attribute 'font-lock-warning-face :foreground)))
-
-    ;; Color org-source blocks
-    (with-eval-after-load 'org
-      (set-face-attribute 'org-block-begin-line nil
-			              :foreground (face-attribute 'mode-line :foreground)
-			              :background (face-attribute 'mode-line :background))
-      (set-face-attribute 'org-block-end-line nil
-			              :foreground (face-attribute 'mode-line :foreground)
-			              :background (face-attribute 'mode-line :background))
-      (set-face-attribute 'org-block nil
-			              :background (face-attribute 'line-number :background))))
+    (setq laooree-modeline--accent-color-normal   (face-attribute 'font-lock-comment-face :foreground nil t)
+          laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground nil t))
+    (set-face-attribute 'mode-line nil          :underline nil)
+    (set-face-attribute 'mode-line-inactive nil :underline nil)
+    )
 
   :hook
-  (modus-themes-after-load-theme . laooree-setup-theme)
+  (doric-themes-after-load-theme . laooree-setup-theme)
 
   :config
-  (modus-themes-load-theme 'modus-vivendi)
+  (load-theme 'doric-dark :no-confirm)
   (laooree-setup-theme)
   )
 #+end_src
