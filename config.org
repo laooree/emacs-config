@@ -1132,7 +1132,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   "Compile the current buffer's file using `clang', outputting <file-name>.out."
   (interactive)
   (if buffer-file-name
-      (shell-command (concat "clang "
+      (async-shell-command (concat "clang "
                              (shell-quote-argument buffer-file-name)
                              " -o "
                              (shell-quote-argument
@@ -1143,7 +1143,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   "Compile the current buffer's file using `gcc', outputting <file-name>.out."
   (interactive)
   (if buffer-file-name
-      (shell-command (concat "clang "
+      (async-shell-command (concat "clang "
                              (shell-quote-argument buffer-file-name)
                              " -o "
                              (shell-quote-argument
@@ -1154,7 +1154,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   "Compile the current buffer's file using `clang', outputting <file-name>.out, then run it."
   (interactive)
   (if buffer-file-name
-      (shell-command (concat "clang "
+      (async-shell-command (concat "clang "
                              (shell-quote-argument buffer-file-name)
                              " -o "
                              (shell-quote-argument
@@ -1166,7 +1166,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   "Compile the current buffer's file using `gcc', outputting <file-name>.out, then run it."
   (interactive)
   (if buffer-file-name
-      (shell-command (concat "gcc "
+      (async-shell-command (concat "gcc "
                              (shell-quote-argument buffer-file-name)
                              " -o "
                              (shell-quote-argument
@@ -1187,6 +1187,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
  "m G" '(laooree-gcc-compile-and-run   :which-key "Compile with gcc and run")
  )
 #+end_src
+
 ** Eglot
 
 This block ensures that =eglot= is updated to the latest release.
@@ -1326,7 +1327,7 @@ Install and configure Matlab mode:
     "Run file associated to current buffer in python."
     (interactive)
     (if buffer-file-name
-        (shell-command (concat "python "
+        (async-shell-command (concat "python "
                                (shell-quote-argument buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
 
@@ -1376,7 +1377,7 @@ Install and configure Matlab mode:
     "Compile the current buffer's file using `ghc', outputting <file-name>, then run it."
     (interactive)
     (if buffer-file-name
-        (shell-command (concat "ghc "
+        (async-shell-command (concat "ghc "
                                (shell-quote-argument buffer-file-name)
                                " && " (file-name-sans-extension buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
@@ -1385,14 +1386,14 @@ Install and configure Matlab mode:
     "Compile the current buffer's file using `ghc', outputting <file-name>"
     (interactive)
     (if buffer-file-name
-        (shell-command (concat "ghc " (shell-quote-argument buffer-file-name)))
+        (async-shell-command (concat "ghc " (shell-quote-argument buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
 
   (defun laooree-ghc-produce-assembly ()
     "Produce assembly file from current buffer's file using `ghc'."
     (interactive)
     (if buffer-file-name
-        (shell-command (concat "ghc -S " (shell-quote-argument buffer-file-name)))
+        (async-shell-command (concat "ghc -S " (shell-quote-argument buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
 
   :general
