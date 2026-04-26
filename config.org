@@ -132,23 +132,38 @@ startup and enables it afterwards.
         '((border-mode-line-active unspecified)
           (border-mode-line-inactive unspecified)))
 
+  ;; Function to run every time a theme is loaded
+  (defun laooree-setup-theme (&rest _)
+    ;; Set mode-line accent colors
+    (setq laooree-modeline--accent-color-normal   "#82b0ec"
+          laooree-modeline--accent-color-emacs    "#88ca9f"
+          laooree-modeline--accent-color-insert   "#caa9df"
+          laooree-modeline--accent-color-operator "#ff9580"
+          laooree-modeline--accent-color-replace  "#caa9df"
+          laooree-modeline--accent-color-visual   "#d2b580")
+
+    ;; Color whitespace
+    (with-eval-after-load 'whitespace
+      (set-face-attribute 'whitespace-trailing nil :background (face-attribute 'font-lock-warning-face :foreground)))
+
+    ;; Color org-source blocks
+    (with-eval-after-load 'org
+      (set-face-attribute 'org-block-begin-line nil
+			              :foreground (face-attribute 'mode-line :foreground)
+			              :background (face-attribute 'mode-line :background))
+      (set-face-attribute 'org-block-end-line nil
+			              :foreground (face-attribute 'mode-line :foreground)
+			              :background (face-attribute 'mode-line :background))
+      (set-face-attribute 'org-block nil
+			              :background (face-attribute 'line-number :background))))
+
+  :hook
+  (modus-themes-after-load-theme . laooree-setup-theme)
+
   :config
   (modus-themes-load-theme 'modus-vivendi)
-  ;; Color whitespace
-  (with-eval-after-load 'whitespace-mode
-    (set-face-attribute 'whitespace-trailing nil :background (face-attribute 'font-lock-warning-face :foreground)))
-
-  ;; Color org-source blocks
-  (with-eval-after-load 'org
-    (set-face-attribute 'org-block-begin-line nil
-			:foreground (face-attribute 'mode-line :foreground)
-			:background (face-attribute 'mode-line :background))
-    (set-face-attribute 'org-block-end-line nil
-			:foreground (face-attribute 'mode-line :foreground)
-			:background (face-attribute 'mode-line :background))
-    (set-face-attribute 'org-block nil
-			:background (face-attribute 'line-number :background)))
- )
+  (laooree-setup-theme)
+  )
 #+end_src
 
 * Fonts
@@ -236,12 +251,6 @@ Evaluate the following block to generate a list of available fonts:
         evil-visual-line-tag         " V-LINE "
         evil-visual-block-tag        " V-BLOCK "
         evil-visual-screen-line-tag  " V-LINE ")
-  (setq laooree-modeline--accent-color-normal   "#82b0ec"
-        laooree-modeline--accent-color-emacs    "#88ca9f"
-        laooree-modeline--accent-color-insert   "#caa9df"
-        laooree-modeline--accent-color-operator "#ff9580"
-        laooree-modeline--accent-color-replace  "#caa9df"
-        laooree-modeline--accent-color-visual   "#d2b580")
 
   ;; Functions to modify cursor appearence on terminal
   (defun laooree/set-cursor-block ()
@@ -342,7 +351,7 @@ If non-nil, `text-color' specifies instring color."
 
 (defun laooree-modeline--evil-state-indicator ()
   "Get evil-mode state tag with propertized faces."
-  (laooree-modeline--with-indicator evil-mode-line-tag laooree-modeline-accent-color "#000000"))
+  (laooree-modeline--with-indicator evil-mode-line-tag laooree-modeline-accent-color (face-attribute 'default :background)))
 
 ;; Require flymake (built-in)
 (use-package flymake
@@ -430,7 +439,7 @@ Shows current/total lines, or percentage when `display-line-numbers-mode' is act
                 (format " %d/%d " current-line total-lines))))))
     (laooree-modeline--with-indicator
      (concat indicator (when (< (window-body-width) (window-total-width)) " "))
-     laooree-modeline-accent-color "#000000")))
+     laooree-modeline-accent-color (face-attribute 'default :background))))
 
 (defun laooree-modeline--set-accent-color (accent-color)
   "Set the accent color of the laooree-modeline."
