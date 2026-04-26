@@ -148,7 +148,7 @@ startup and enables it afterwards.
 			:background (face-attribute 'mode-line :background))
     (set-face-attribute 'org-block nil
 			:background (face-attribute 'line-number :background)))
-  )
+ )
 #+end_src
 
 * Fonts
@@ -920,6 +920,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
            "c r" #'consult-ripgrep
            "c i" #'consult-imenu
            "c I" #'consult-imenu-multi
+           "c o" #'consult-outline
 
            "b" '(:ignore t :which-key "buffer")
            "b b" #'consult-buffer)
