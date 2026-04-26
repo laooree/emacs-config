@@ -1220,7 +1220,8 @@ Install and configure Matlab mode:
   :init
   (setq matlab-indent-level 4  ;; Set indentation level to 4
         matlab-indent-function-body t  ;; Indent function bodies
-        matlab-sections-highlight-section nil)
+        matlab-sections-highlight-section nil
+        matlab-ts-mode-font-lock-level 2)
   (add-to-list 'major-mode-remap-defaults '(matlab-mode . matlab-ts-mode))
   :hook
   (matlab-mode . (lambda ()
