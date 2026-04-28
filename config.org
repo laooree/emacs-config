@@ -135,11 +135,15 @@ startup and enables it afterwards.
           laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground nil t)
           laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground nil t)
           laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground nil t)
-          laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground nil t))
+          laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline-accent-color laooree-modeline--accent-color-normal)
 
     ;; Disable modeline underlines
-    (set-face-attribute 'mode-line nil          :underline nil)
-    (set-face-attribute 'mode-line-inactive nil :underline nil)
+    (set-face-attribute 'mode-line nil          :underline nil :box nil)
+    (set-face-attribute 'mode-line-inactive nil :underline nil :box nil)
+
+    ;; Set beacon color
+    (setq beacon-color (face-attribute 'cursor :background))
 
     ;; Improve comment and string faces
     (let ((string-color  (face-attribute 'font-lock-comment-face :foreground nil t))
@@ -151,6 +155,11 @@ startup and enables it afterwards.
 
   :hook
   (doric-themes-after-load-theme . laooree-setup-theme)
+
+  :bind
+  (("<f5>" . doric-themes-toggle)
+   ("C-<f5>" . doric-themes-select)
+   ("M-<f5>" . doric-themes-rotate))
 
   :config
   (load-theme 'doric-dark :no-confirm)
@@ -837,7 +846,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :demand t
   :init
   (setq beacon-size 20
-        beacon-color (face-attribute 'cursor :background)
         beacon-blink-delay 0.0
         beacon-blink-duration 0.3)
   (setq beacon-blink-when-focused t
