@@ -421,10 +421,14 @@ If non-nil, `text-color' specifies instring color."
         ((string= (laooree-modeline--major-mode-name) "python")           " Python")
         ((string= (laooree-modeline--major-mode-name) "bash ts")          "#! Bash (tree-sitter)")
         ((string= (laooree-modeline--major-mode-name) "bash")             "#! Bash")
+        ((string= (laooree-modeline--major-mode-name) "typst ts")         " Typst (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "typst")            " Typst")
+        
         ((string= (laooree-modeline--major-mode-name) "lisp interaction") " Lisp Interaction")
         (t (capitalize (laooree-modeline--major-mode-name)))
         )
   )
+
 
 (defun laooree-modeline--major-mode-indicator ()
   "Returns an indicator for the major mode name in the mode-line."
