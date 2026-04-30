@@ -128,6 +128,16 @@ startup and enables it afterwards.
   :demand t
 
   :init
+  (defun laooree-reset-terminal-cursor-color (&optional _)
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e]112\a")))
+
+  (defun laooree-set-terminal-cursor-color (&optional frame)
+    (unless (display-graphic-p frame)
+      (send-string-to-terminal
+       (format "\e]12;%s\a" (face-attribute 'cursor :background))
+       (frame-terminal frame))))
+
   (defun laooree-setup-theme (&rest _)
     ;; Set modeline accent colors
     (setq laooree-modeline--accent-color-normal   (face-attribute 'font-lock-comment-face :foreground nil t)
@@ -151,10 +161,16 @@ startup and enables it afterwards.
       (set-face-attribute 'font-lock-comment-face nil :foreground comment-color :slant 'normal)
       (set-face-attribute 'font-lock-comment-delimiter-face nil :foreground comment-color :slant 'normal)
       (set-face-attribute 'font-lock-string-face nil :foreground string-color))
+
+    ;; Set cursor color when in terminal mode
+    (laooree-set-terminal-cursor-color)
     )
 
   :hook
   (doric-themes-after-load-theme . laooree-setup-theme)
+  (delete-terminal-functions     . laooree-reset-terminal-cursor-color)
+  (kill-emacs                    . laooree-reset-terminal-cursor-color)
+  (after-make-frame-functions    . laooree-set-terminal-cursor-color)
 
   :bind
   (("<f5>" . doric-themes-toggle)
