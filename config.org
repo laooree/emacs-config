@@ -164,6 +164,12 @@ startup and enables it afterwards.
 
     ;; Set cursor color when in terminal mode
     (laooree-set-terminal-cursor-color)
+
+    ;; Set evil faces
+    (with-eval-after-load 'evil
+      (set-face-attribute 'evil-ex-substitute-matches     nil :underline nil :strike-through t)
+      (set-face-attribute 'evil-ex-substitute-replacement nil :foreground 'unspecified)
+      )
     )
 
   :hook
