@@ -124,7 +124,7 @@ startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package doric-themes
-  :ensure t
+  :ensure (:type git :host github :repo "laooree/doric-themes")
   :demand t
 
   :init
@@ -155,12 +155,8 @@ startup and enables it afterwards.
     ;; Set beacon color
     (setq beacon-color (face-attribute 'cursor :background))
 
-    ;; Improve comment and string faces
-    (let ((string-color  (face-attribute 'font-lock-comment-face :foreground nil t))
-          (comment-color (face-attribute 'font-lock-string-face  :foreground nil t)))
-      (set-face-attribute 'font-lock-comment-face nil :foreground comment-color :slant 'normal)
-      (set-face-attribute 'font-lock-comment-delimiter-face nil :foreground comment-color :slant 'normal)
-      (set-face-attribute 'font-lock-string-face nil :foreground string-color))
+    (set-face-attribute 'font-lock-comment-face nil :slant 'normal)
+    (set-face-attribute 'font-lock-comment-delimiter-face nil :slant 'normal)
 
     ;; Set cursor color when in terminal mode
     (laooree-set-terminal-cursor-color)
@@ -179,12 +175,12 @@ startup and enables it afterwards.
   (after-make-frame-functions    . laooree-set-terminal-cursor-color)
 
   :bind
-  (("<f5>" . doric-themes-toggle)
+  (("<f5>"   . doric-themes-toggle)
    ("C-<f5>" . doric-themes-select)
    ("M-<f5>" . doric-themes-rotate))
 
   :config
-  (load-theme 'doric-dark :no-confirm)
+  (load-theme 'doric-nord :no-confirm)
   (laooree-setup-theme)
   )
 #+end_src
