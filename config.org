@@ -180,6 +180,8 @@ startup and enables it afterwards.
    ("M-<f5>" . doric-themes-rotate))
 
   :config
+  (advice-add 'server-edit :before #'laooree-reset-terminal-cursor-color)
+  (advice-add 'save-buffers-kill-terminal :before #'laooree-reset-terminal-cursor-color)
   (load-theme 'doric-nord :no-confirm)
   (laooree-setup-theme)
   )
