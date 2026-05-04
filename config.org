@@ -119,6 +119,14 @@ startup and enables it afterwards.
                (display-buffer-no-window)
                (allow-no-window . t)))
 #+end_src
+* Built-in packages to be updated
+Working with bleeding edge packages sometimes requires to update the built-in ones (to avoid building emacs from master branch).
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package compat
+  :ensure t
+  :demand t)
+#+end_src
 
 * Theme
 
