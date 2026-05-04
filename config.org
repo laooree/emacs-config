@@ -542,13 +542,11 @@ Add =risky-local-variable t= property to the expressions:
 #+begin_src emacs-lisp :tangle "init.el"
 (dolist (expression '(laooree-modeline-buffer-name
                       laooree-modeline-buffer-status
-                      laooree-modeline-eglot
                       laooree-modeline-evil-state-tag
                       laooree-modeline-evil-state-indicator
                       laooree-modeline-flymake-diagnostics
                       laooree-modeline-major-mode
                       laooree-modeline-keyboard-macro-indicator
-                      laooree-modeline-active-tools
                       laooree-modeline-format
                       laooree-modeline-scroll-indicator
                       ))
@@ -774,7 +772,10 @@ Paint each column in =.csv= files with different colors.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package rainbow-csv
   :ensure (:host github :repo "emacs-vs/rainbow-csv")
-  :defer t)
+  :hook
+  (csv-mode . rainbow-csv-mode)
+  (tsv-mode . rainbow-csv-mode)
+  )
 #+end_src
 
 ** Rainbow delimiters
@@ -830,7 +831,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package keycast
   :ensure t
-  :demand t
+  :defer t
   :init
   (setq keycast-mode-line-insert-after 'laooree-modeline-major-mode)
   :config
@@ -916,8 +917,8 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package marginalia
   :ensure t
-  :defer t
-  :init (marginalia-mode))
+  :demand t
+  :config (marginalia-mode))
 #+end_src
 
 ** Orderless
@@ -925,7 +926,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package orderless
   :ensure t
-  :defer t
+  :demand t
   :init
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
@@ -975,7 +976,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
   (corfu-auto-delay 1) ;; Time to wait before pop-up
   (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
-  (corfu-preview-current 'insert) ;; Do not preview candidates in buffer
+  (corfu-preview-current nil) ;; Do not preview candidates in buffer
 
   :config
   (global-corfu-mode) ;; Enable corfu everywhere
@@ -1179,7 +1180,7 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
   "Compile the current buffer's file using `gcc', outputting <file-name>.out."
   (interactive)
   (if buffer-file-name
-      (async-shell-command (concat "clang "
+      (async-shell-command (concat "gcc "
                              (shell-quote-argument buffer-file-name)
                              " -o "
                              (shell-quote-argument
@@ -1225,8 +1226,6 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
 #+end_src
 
 ** Eglot
-
-This block ensures that =eglot= is updated to the latest release.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package eglot
