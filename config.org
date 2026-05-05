@@ -900,7 +900,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package vertico
   :ensure t
-  :config (vertico-mode))
+  :hook (after-init . vertico-mode))
 
 ;; Faster navigation in vertico minibuffer
 (use-package vertico-directory
@@ -917,8 +917,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package marginalia
   :ensure t
-  :demand t
-  :config (marginalia-mode))
+  :hook (after-init . marginalia-mode))
 #+end_src
 
 ** Orderless
@@ -926,8 +925,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package orderless
   :ensure t
-  :demand t
-  :init
+  :config
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides nil
@@ -943,7 +941,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package consult
   :ensure t
-  :defer t
 
   :general
   (:states '(normal)
