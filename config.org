@@ -274,6 +274,9 @@ Evaluate the following block to generate a list of available fonts:
 
 ;; Automatically pair brackets and delimiters
 (electric-pair-mode 1)
+
+;; Enable repeat-mode
+(repeat-mode 1)
  #+end_src
 
 * Initial scratch buffer message
@@ -860,6 +863,28 @@ The DWIM behaviour of this command is as follows:
 
 ;; Comfortably switch windows
 (global-set-key (kbd "M-o") 'other-window)
+
+;; By default, other-window is in repeatable: make it not repeatable
+(put 'other-window 'repeat-map nil)
+#+end_src
+
+** region
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package expand-region
+  :ensure t)
+
+(defvar-keymap laooree-region-map
+  :doc "My map to easily select things."
+  "e" #'er/expand-region
+  "c" #'er/contract-region)
+
+(keymap-set laooree-prefix-map "r" laooree-region-map)
+
+(which-key-add-keymap-based-replacements laooree-prefix-map
+  "r" "region")
+
+(put 'er/expand-region 'repeat-map 'laooree-region-map)
 #+end_src
 
 * Emacs server
