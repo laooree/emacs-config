@@ -596,7 +596,6 @@ Install and configure Matlab mode:
   (add-to-list 'major-mode-remap-defaults '(matlab-mode . matlab-ts-mode))
 
   :config
-  (evil-set-initial-state 'matlab-shell-mode 'emacs)
   (when (eq system-type 'windows-nt)
     (with-eval-after-load 'eglot
       (add-to-list 'eglot-server-programs
