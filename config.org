@@ -551,6 +551,9 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   (:map laooree-prefix-map
         ("e e" . eglot))
 
+  :hook
+  (eglot-managed-mode . (lambda () (eglot-inlay-hints-mode -1)))
+
   :config
   (dolist (binding '(("e a" . eglot-code-actions)
                      ("e r" . eglot-rename)
@@ -627,10 +630,6 @@ Install and configure Matlab mode:
 
   :hook
   (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
-  (LaTeX-mode . (lambda ()
-                  (add-hook 'eglot-managed-mode-hook
-                            (lambda () (eglot-inlay-hints-mode -1))
-                            nil t)))
   (LaTeX-mode . (lambda ()
                   (local-set-key (kbd "C-c m")
                                  (lambda ()
