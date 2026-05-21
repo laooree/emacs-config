@@ -127,7 +127,7 @@ When window is not selected, omit the indicator."
                     (t (propertize (format " %s " error-count) 'face 'error)))
               (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
                     (t (propertize (format " %s " warning-count) 'face 'warning)))
-              (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
+              (cond ((= note-count 0) (propertize (format "󱂻 %s " note-count) 'face 'font-lock-comment-face))
                     (t (propertize (format "󱂻 %s " note-count) 'face 'success)))))))
 
 
@@ -159,6 +159,7 @@ Shows current/total lines, or percentage when `display-line-numbers-mode' is act
     (:eval (laooree-modeline--segment-major-mode))
     (:eval (laooree-modeline--segment-keyboard-macro))
     mode-line-format-right-align
+    (:eval (laooree-modeline--segment-flymake))
     (:eval (laooree-modeline--segment-scroll-indicator))
     )
   "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
