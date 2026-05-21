@@ -293,14 +293,21 @@ Evaluate the following block to generate a list of available fonts:
 (use-package icomplete
   :ensure nil
   :demand t
+
   :init
   (setq ido-everywhere t
         ido-enable-flex-matching t)
+
   :config
   (fido-vertical-mode 1)
+
   :bind (:map icomplete-minibuffer-map
               ("TAB" . icomplete-force-complete)
-              ("RET" . exit-minibuffer)))
+              ("RET" . exit-minibuffer))
+
+  :custom
+  (tab-always-indent 'complete)
+  )
 
 ;; Add completion icons
 (use-package nerd-icons
