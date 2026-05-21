@@ -54,6 +54,11 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'load-path (expand-file-name "modules/" user-emacs-directory))
 #+end_src
+* Require custom modules
+
+#+begin_src emacs-lisp :tangle "init.el"
+(require 'laooree-time)
+#+end_src
 
 * UI
 ** Theme
@@ -90,6 +95,34 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
     (laooree-set-terminal-cursor-color)
     )
 
+  (defvar laooree-current-theme nil
+    "Last theme set by `laooree-set-light-or-dark-theme' function.")
+  (defvar laooree-dark-theme-theme 'doric-nord
+    "Dark theme to be set by `laooree-set-light-or-dark-theme' function.")
+  (defvar laooree-light-theme 'doric-coral
+    "Light theme to be set by `laooree-set-light-or-dark-theme' function.")
+  (defvar laooree-set-theme-based-on-time nil
+    "Whether `laooree-set-light-or-dark-theme' should set the theme when called.")
+
+  (defun laooree-set-light-or-dark-theme ()
+    "Automatically sets light or dark theme based on current time,
+if variable `laooree-set-theme-based-on-time' is non-nil."
+    (when laooree-set-theme-based-on-time
+      (cond ((< (laooree-time-today-seconds) (* 7 60 60))
+	     (unless (eq laooree-current-theme laooree-dark-theme)
+	       (load-theme laooree-dark-theme :no-confirm)
+	       (laooree-setup-theme)
+	       (setq laooree-current-theme laooree-dark-theme)))
+	    ((< (laooree-time-today-seconds) (* 18 60 60))
+	     (unless (eq laooree-current-theme laooree-light-theme)
+	       (load-theme laooree-light-theme :no-confirm)
+	       (laooree-setup-theme)
+	       (setq laooree-current-theme laooree-light-theme)))
+	    (t (unless (eq laooree-current-theme laooree-dark-theme)
+		 (load-theme laooree-dark-theme :no-confirm)
+		 (laooree-setup-theme)
+		 (setq laooree-current-theme laooree-dark-theme))))))
+
   :hook
   (doric-themes-after-load-theme . laooree-setup-theme)
   (delete-terminal-functions     . laooree-reset-terminal-cursor-color)
@@ -104,8 +137,11 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
   :config
   (advice-add 'server-edit :before #'laooree-reset-terminal-cursor-color)
   (advice-add 'save-buffers-kill-terminal :before #'laooree-reset-terminal-cursor-color)
-  (load-theme 'doric-nord :no-confirm)
-  (laooree-setup-theme)
+  (when laooree-set-theme-based-on-time
+      (run-with-timer 0 300 #'laooree-set-light-or-dark-theme))
+  (unless laooree-set-theme-based-on-time
+    (load-theme 'doric-nord :no-confirm)
+     (laooree-setup-theme))
   )
 #+end_src
 
