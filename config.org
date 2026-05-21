@@ -791,6 +791,16 @@ Install and configure Matlab mode:
                                           "typst-lsp")))))
   )
 #+end_src
+** Emacs-lisp
+
+#+begin_src emacs-lisp :tangle "init.el"
+;; Set keymaps for evaluating elisp code
+(keymap-set emacs-lisp-mode-map       (concat laooree-leader-key " m m") #'eval-buffer)
+(keymap-set emacs-lisp-mode-map       (concat laooree-leader-key " m r") #'eval-region)
+(keymap-set lisp-interaction-mode-map (concat laooree-leader-key " m m") #'eval-buffer)
+(keymap-set lisp-interaction-mode-map (concat laooree-leader-key " m r") #'eval-region)
+#+end_src
+
 * Keybindings
 
 ** laooree/keyboard-quit-dwim
