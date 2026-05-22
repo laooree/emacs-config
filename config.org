@@ -82,7 +82,7 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
 
   (defun laooree-setup-theme (&rest _)
     ;; Set modeline accent color
-    (setq laooree-modeline-accent-color (face-attribute 'mode-line :foreground))
+    (setq-default laooree-modeline-accent-color (face-attribute 'mode-line :foreground))
 
     ;; Disable modeline underlines
     (set-face-attribute 'mode-line nil          :underline nil :box nil)
