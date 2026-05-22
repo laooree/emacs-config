@@ -809,6 +809,13 @@ Install and configure Matlab mode:
 (keymap-set lisp-interaction-mode-map (concat laooree-leader-key " m r") #'eval-region)
 #+end_src
 
+** C
+
+#+begin_src emacs-lisp :tangle "init.el"
+(setq-default c-basic-offset 4)
+(setq-default c-ts-mode-indent-offset 4)
+#+end_src
+
 * Keybindings
 
 ** laooree/keyboard-quit-dwim
