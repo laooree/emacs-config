@@ -58,6 +58,7 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (require 'laooree-time)
+(require 'wordel)
 #+end_src
 
 * UI
