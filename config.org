@@ -475,6 +475,11 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   (setq org-todo-keywords
         '((sequence "TODO" "|" "DONE" "CANC")))
 
+  :bind
+  (:map laooree-prefix-map
+    ("o a" . org-agenda)
+    ("o c" . org-capture))
+
   :config
   (let ((pcloud-base-folder (cond
                              ((eq system-type 'windows-nt) "p:/")
