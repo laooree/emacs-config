@@ -307,7 +307,8 @@ Evaluate the following block to generate a list of available fonts:
 
   :bind (:map icomplete-minibuffer-map
               ("TAB" . icomplete-force-complete)
-              ("RET" . exit-minibuffer))
+              ("RET" . exit-minibuffer)
+			  ("SPC" . self-insert-command))
 
   :custom
   (tab-always-indent 'complete)
