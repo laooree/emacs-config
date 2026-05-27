@@ -772,7 +772,8 @@ Install and configure Matlab mode:
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
-                 '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))))
+                 '(haskell-mode . ("haskell-language-server-wrapper" "--lsp"))))
+  (set-face-attribute 'haskell-operator-face nil :slant 'normal))
 #+end_src
 
 ** Markdown
