@@ -142,6 +142,7 @@ if variable `laooree-set-theme-based-on-time' is non-nil."
   (unless laooree-set-theme-based-on-time
     (load-theme 'doric-nord :no-confirm)
      (laooree-setup-theme))
+  (setq doric-themes-to-toggle '(doric-oak doric-nord))
   )
 #+end_src
 
