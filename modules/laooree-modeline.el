@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; ----- Variables ----- ;;
 
 (defvar-local laooree-modeline-accent-color (face-attribute 'mode-line-active :foreground)

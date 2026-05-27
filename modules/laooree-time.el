@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; Author: laooree
 ;; Define some useful stuff to work with time/timers.
 
