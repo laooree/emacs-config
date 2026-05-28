@@ -52,7 +52,9 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'load-path (expand-file-name "modules/" user-emacs-directory))
+
+(when (<= emacs-major-version 30)
+  (add-to-list 'load-path (expand-file-name "user-lisp/" user-emacs-directory)))
 #+end_src
 * Require custom modules
 

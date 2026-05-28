@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;; Native compilation settings
 ;; Display the architecture using:
 ;;   gcc -march=native -Q --help=target | grep march

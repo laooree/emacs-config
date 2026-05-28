@@ -7,5 +7,7 @@
 !custom.el
 !themes/
 !themes/**
-!modules/
-!modules/**
+!user-lisp/
+!user-lisp/**
+user-lisp/.*
+user-lisp/*.elc

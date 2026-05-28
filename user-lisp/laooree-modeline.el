@@ -88,8 +88,8 @@ If non-nil, `text-color' specifies instring color."
 ;; ----- Mode-line segments ----- ;;
 
 (defun laooree-modeline--segment-buffer ()
-  "Returns buffer name inside an indicator, maybe with an icon representing its status.
-When window is not selected, omit the indicator."
+  "Returns buffer name inside an indicator, maybe with an icon representing
+ its status. When window is not selected, omit the indicator."
   (if (mode-line-window-selected-p)
       (laooree-modeline--with-indicator (concat " "
 						(laooree-modeline--buffer-status)
@@ -133,8 +133,8 @@ When window is not selected, omit the indicator."
 
 
 (defun laooree-modeline--segment-scroll-indicator ()
-  "Indicate scroll position.
-Shows current/total lines, or percentage when `display-line-numbers-mode' is active."
+  "Indicate scroll position. Shows current/total lines,
+ or percentage when `display-line-numbers-mode' is active."
   (when (mode-line-window-selected-p)
     (let* ((indicator
             (cond

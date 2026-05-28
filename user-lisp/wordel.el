@@ -36,7 +36,7 @@
   (let ((point-position (point)))
     (beginning-of-visual-line)
     (insert (wordel--shuffle-string (wordel--read-from-point 5)))
-    (delete-forward-char 5)
+    (delete-char 5)
     (goto-char point-position)))
 
 
@@ -53,7 +53,8 @@
 
 
 (defun wordel--apply-hint-to-candidates (hint candidates)
-  "Returns new candidates by applying `hint' to each of the `candidates' in the list."
+  "Returns new candidates by applying `hint' to
+ each of the `candidates' in the list."
   (when candidates
     (let* ((letter (car hint))
 		   (allowed-positions (cdr hint))
@@ -70,8 +71,8 @@
 
 
 (defun wordel--build-hints ()
-  "Interactively build a hints list by prompting for letters and their allowed positions.
-Enter an empty letter to finish."
+  "Interactively build a hints list by prompting for letters and their
+ allowed positions. Enter an empty letter to finish."
   (let ((hints '()))
     (catch 'done
       (while t
@@ -94,8 +95,8 @@ Enter an empty letter to finish."
 
 
 (defun wordel-insert-possible-candidates-at-point ()
-  "Prompts the user for letters and their allowed positions, then inserts the resulting vaild
-candidates at point."
+  "Prompts the user for letters and their allowed positions,
+ then inserts the resulting vaild candidates at point."
   (interactive)
   (let* ((hints      (wordel--build-hints))
 		 (candidates (wordel--get-printable-candidates-from-list (wordel--infer-from-hints hints))))
@@ -103,4 +104,3 @@ candidates at point."
 
 
 (provide 'wordel)
-
