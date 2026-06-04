@@ -562,8 +562,12 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
 ** Indentation
 
 #+begin_src emacs-lisp :tangle "init.el"
-(indent-tabs-mode -1)
+(setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
+(setq indent-line-function 'insert-tab)
+
+(setq mode-require-final-newline nil)
+(setq-default require-final-newline nil)
 #+end_src
 
 ** Eglot
