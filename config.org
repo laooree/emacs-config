@@ -334,7 +334,17 @@ Evaluate the following block to generate a list of available fonts:
 
 ;; Consult
 (use-package consult
-  :ensure t)
+  :ensure t
+
+  :bind
+  (("C-z c i" . consult-imenu)
+   ("C-z c I" . consult-imenu-multi)
+   ("C-z c f" . consult-flymake)
+   ("C-z c r" . consult-ripgrep))
+
+  :config
+  (which-key-add-keymap-based-replacements laooree-prefix-map
+  "c" "consult"))
 #+end_src
 
 * Dired
