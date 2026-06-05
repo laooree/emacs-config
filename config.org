@@ -208,6 +208,8 @@ Evaluate the following block to generate a list of available fonts:
 ;; Default frame title
 (setq-default frame-title-format '("GNU Emacs"))
 
+(delete-selection-mode 1)
+
 ;; Remove bars
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
