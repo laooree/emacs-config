@@ -2,19 +2,25 @@
 #+author: laooree
 #+description: My emacs configuration, in org-mode
 #+startup: content
+#+auto_tangle: t
 
 This is my Emacs configuration, written in org-mode.
 
 * Description
 
-The =config.org= file uses the =org-babel-tangle= feature to generate the following two files:
+The =config.org= file uses the =org-babel-tangle= feature to generate the
+following two files:
 - =early-init.el=
 - =init.el=
-This feature concatenates the content of all the emacs-lisp source blocks that contain a =:tangle
-"filename.el"= specification in =filename.el=.
+This feature concatenates the content of all the emacs-lisp source blocks that
+contain a =:tangle "filename.el"= specification in =filename.el=.
 
-It's necessary to visit =config.org= file and execute =org-babel-tangle= command (=C-c C-v t=) in
-order to generate the =early-init-el= and =init.el= files after this is modified.
+** Instructions
+
+For the first installation, it's necessary to visit the =config.org= file and
+execute =org-babel-tangle= command (=C-c C-v t=). The next times, the tangling
+happens automatically every time the the =config.org= file is saved, thanks to
+the [[https://github.com/yilkalargaw/org-auto-tangle][org-auto-tangle]] package.
 
 * Lexical binding
 
@@ -29,6 +35,10 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
 #+end_src
 
 * Early initialization
+** Speed up the startup
+
+Based on Nicolas Rougier's [[https://github.com/rougier/dotemacs/blob/master/dotemacs.org][early-init file]]. It disables garbage collection at
+startup and enables it afterwards.
 
 #+begin_src emacs-lisp :tangle "early-init.el"
 ;; Defer garbage collection during startup
@@ -38,38 +48,108 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
 ;; Reset garbage collector limit after init process has ended (8Mo)
 (add-hook 'after-init-hook
           #'(lambda () (setq gc-cons-threshold (* 8 1024 1024))))
+#+end_src
 
+** Native compiler options
 
+#+begin_src emacs-lisp :tangle "early-init.el"
 ;; Set native compilation options
 (load (expand-file-name "native-compiler-options.el" user-emacs-directory) t t)
 
 (setq native-comp-speed 2)
 (setq native-comp-async-report-warnings-errors nil)
 (setq native-comp-deferred-compilation t)
-
-
-;; Setup the package manager
-(require 'package)
-(package-initialize)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-
-(when (<= emacs-major-version 30)
-  (add-to-list 'load-path (expand-file-name "user-lisp/" user-emacs-directory)))
 #+end_src
+
+** Package manager
+
+#+begin_src emacs-lisp :tangle "early-init.el"
+;; Disable package.el
+(setq package-enable-at-startup nil)
+
+;; When using unreleased emacs versions, use today's date as elpaca-core-date.
+(when (= emacs-minor-version 0)
+  (setq elpaca-core-date `(,(string-to-number (format-time-string "%Y%m%d"))
+                           )))
+
+(defvar elpaca-installer-version 0.12)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca-activate)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-sources-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+
+;; Enable no symlinks mode when on windows
+(when (eq system-type 'windows-nt)
+  (elpaca-no-symlink-mode))
+
+;; Enable integration with use-package
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode))
+
+;; Hide compilation warnings
+(add-to-list 'display-buffer-alist
+             '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+               (display-buffer-no-window)
+               (allow-no-window . t)))
+#+end_src
+
 * Require custom modules
 
 #+begin_src emacs-lisp :tangle "init.el"
+(when (<= emacs-major-version 30)
+  (add-to-list 'load-path (expand-file-name "user-lisp/" user-emacs-directory)))
+
 (require 'laooree-time)
 (require 'wordel)
 #+end_src
 
-* UI
-** Theme
+* Built-in packages to be updated
+Working with bleeding edge packages sometimes requires to update the built-in ones.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package compat
+  :ensure t
+  :demand t)
+#+end_src
+
+* Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package doric-themes
-  :ensure t
-  :vc (:url "https://github.com/laooree/doric-themes" :rev :newest)
+  :ensure (:type git :host github :repo "laooree/doric-themes")
   :demand t
 
   :init
@@ -84,47 +164,34 @@ The following adds lexical binding cookie to =early-init.el= and =init.el=.
        (frame-terminal frame))))
 
   (defun laooree-setup-theme (&rest _)
-    ;; Set modeline accent color
-    (setq-default laooree-modeline-accent-color (face-attribute 'mode-line :foreground))
+    ;; Set modeline accent colors
+    (setq laooree-modeline--accent-color-normal   (face-attribute 'font-lock-comment-face :foreground nil t)
+          laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground nil t)
+          laooree-modeline-accent-color laooree-modeline--accent-color-normal)
 
     ;; Disable modeline underlines
     (set-face-attribute 'mode-line nil          :underline nil :box nil)
     (set-face-attribute 'mode-line-inactive nil :underline nil :box nil)
+
+    ;; Set beacon color
+    (setq beacon-color (face-attribute 'cursor :background))
 
     (set-face-attribute 'font-lock-comment-face nil :slant 'normal)
     (set-face-attribute 'font-lock-comment-delimiter-face nil :slant 'normal)
 
     ;; Set cursor color when in terminal mode
     (laooree-set-terminal-cursor-color)
+
+    ;; Set evil faces
+    (with-eval-after-load 'evil
+      (set-face-attribute 'evil-ex-substitute-matches     nil :underline nil :strike-through t)
+      (set-face-attribute 'evil-ex-substitute-replacement nil :foreground 'unspecified)
+      )
     )
-
-  (defvar laooree-current-theme nil
-    "Last theme set by `laooree-set-light-or-dark-theme' function.")
-  (defvar laooree-dark-theme-theme 'doric-nord
-    "Dark theme to be set by `laooree-set-light-or-dark-theme' function.")
-  (defvar laooree-light-theme 'doric-coral
-    "Light theme to be set by `laooree-set-light-or-dark-theme' function.")
-  (defvar laooree-set-theme-based-on-time nil
-    "Whether `laooree-set-light-or-dark-theme' should set the theme when called.")
-
-  (defun laooree-set-light-or-dark-theme ()
-    "Automatically sets light or dark theme based on current time,
-if variable `laooree-set-theme-based-on-time' is non-nil."
-    (when laooree-set-theme-based-on-time
-      (cond ((< (laooree-time-today-seconds) (* 7 60 60))
-	     (unless (eq laooree-current-theme laooree-dark-theme)
-	       (load-theme laooree-dark-theme :no-confirm)
-	       (laooree-setup-theme)
-	       (setq laooree-current-theme laooree-dark-theme)))
-	    ((< (laooree-time-today-seconds) (* 18 60 60))
-	     (unless (eq laooree-current-theme laooree-light-theme)
-	       (load-theme laooree-light-theme :no-confirm)
-	       (laooree-setup-theme)
-	       (setq laooree-current-theme laooree-light-theme)))
-	    (t (unless (eq laooree-current-theme laooree-dark-theme)
-		 (load-theme laooree-dark-theme :no-confirm)
-		 (laooree-setup-theme)
-		 (setq laooree-current-theme laooree-dark-theme))))))
 
   :hook
   (doric-themes-after-load-theme . laooree-setup-theme)
@@ -140,18 +207,15 @@ if variable `laooree-set-theme-based-on-time' is non-nil."
   :config
   (advice-add 'server-edit :before #'laooree-reset-terminal-cursor-color)
   (advice-add 'save-buffers-kill-terminal :before #'laooree-reset-terminal-cursor-color)
-  (when laooree-set-theme-based-on-time
-      (run-with-timer 0 300 #'laooree-set-light-or-dark-theme))
-  (unless laooree-set-theme-based-on-time
-    (load-theme 'doric-nord :no-confirm)
-     (laooree-setup-theme))
-  (setq doric-themes-to-toggle '(doric-oak doric-nord))
+  (load-theme 'doric-nord :no-confirm)
+  (laooree-setup-theme)
   )
 #+end_src
 
-** Fonts
+* Fonts
 
 #+begin_src emacs-lisp :tangle "init.el"
+;; Default fonts
 (let ((font-name (cond
                   ((eq system-type 'windows-nt) "Iosevka NF")
                   ((eq system-type 'gnu/linux)  "Iosevka Nerd Font")))
@@ -166,18 +230,15 @@ if variable `laooree-set-theme-based-on-time' is non-nil."
 #+end_src
 
 Evaluate the following block to generate a list of available fonts:
-
 #+begin_src emacs-lisp
 (font-family-list)
 #+end_src
 
-** Mode-line
+* general.el + which-key
 
-#+begin_src emacs-lisp :tangle "init.el"
-(require 'laooree-modeline)
-#+end_src
+=general.el= must be loaded before every usage of =:general= key in =use-package=. =which-key= is loaded here to integrate with =general.el= and assign keymaps names.
 
-* which-key
+** which-key
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package which-key
@@ -187,28 +248,369 @@ Evaluate the following block to generate a list of available fonts:
   (which-key-mode))
 #+end_src
 
-* Create custom prefix keymap on =C-z=
+** general.el
 
 #+begin_src emacs-lisp :tangle "init.el"
-(defvar laooree-leader-key "C-z")
-(defvar-keymap laooree-prefix-map
-  :doc "My `C-z' prefix map.")
+(use-package general
+  :ensure t
+  :demand t
 
-(global-unset-key (kbd laooree-leader-key))
-(keymap-set global-map laooree-leader-key laooree-prefix-map)
+  :config
+  (general-define-key
+   :states '(normal)
+   :prefix "SPC"
 
-;; Set "C-z m" to the +make map
-(which-key-add-keymap-based-replacements laooree-prefix-map
-  "m" "make")
+   "f f" #'find-file
+   "f r" #'recentf-open
+   "b k" #'kill-this-buffer
+
+   "F F" #'make-frame
+   "F f" #'find-file-other-frame
+   "F k" #'delete-frame
+  ))
+
+(elpaca-wait)
 #+end_src
 
-* Some built-in options:
+* Evil
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package evil
+  :ensure t
+  :demand t
+  :after general
+
+  :init
+  (setq evil-want-fine-undo t)
+  (setq evil-respect-visual-line-mode nil)
+  ;; Required by evil collection
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-undo-system 'undo-redo)
+  (setq evil-emacs-state-tag         " EMACS "
+        evil-normal-state-tag        " NORMAL "
+        evil-insert-state-tag        " INSERT "
+        evil-replace-state-tag       " REPLACE "
+        evil-operator-state-tag      " OPERATOR "
+        evil-motion-state-tag        " MOTION "
+        evil-visual-char-tag         " VISUAL "
+        evil-visual-line-tag         " V-LINE "
+        evil-visual-block-tag        " V-BLOCK "
+        evil-visual-screen-line-tag  " V-LINE ")
+
+  ;; Functions to modify cursor appearence on terminal
+  (defun laooree/set-cursor-block ()
+    "Set terminal cursor shape to bar."
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e[0 q")))
+  (defun laooree/set-cursor-bar ()
+    "Set terminal cursor shape to bar."
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e[5 q")))
+  (defun laooree/set-cursor-underline ()
+    "Set terminal cursor shape to underline."
+    (unless (display-graphic-p)
+      (send-string-to-terminal "\e[3 q")))
+
+  ;; :hook
+  ;; ;; Set cursor shape
+  ;; (evil-emacs-state-entry    . laooree/set-cursor-block)
+  ;; (evil-insert-state-entry   . laooree/set-cursor-bar)
+  ;; (evil-motion-state-entry   . laooree/set-cursor-block)
+  ;; (evil-normal-state-entry   . laooree/set-cursor-block)
+  ;; (evil-operator-state-entry . laooree/set-cursor-underline)
+  ;; (evil-replace-state-entry  . laooree/set-cursor-underline)
+  ;; (evil-visual-state-entry   . laooree/set-cursor-block)
+
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+
+           ;; window
+           "w" '(:ignore t :which-key "window")
+           "w <left>" #'evil-window-left
+           "w <down>" #'evil-window-down
+           "w <up>" #'evil-window-up
+           "w <right>" #'evil-window-right
+           "w h" #'evil-window-split
+           "w v" #'evil-window-vsplit
+           "w k" #'kill-buffer-and-window)
+
+  :config
+  (evil-mode 1)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (evil-local-set-key 'normal (kbd "TAB") 'org-cycle)
+              (evil-local-set-key 'normal (kbd "<tab>") 'org-cycle)))
+  )
+
+;; Evil collection
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
+
+;; Evil snipe
+(use-package evil-snipe
+  :ensure t
+  :after evil
+  :config
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode +1))
+
+(elpaca-wait)
+#+end_src
+
+* Mode-line
+
+My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
+*Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
+
+** laooree-modeline
+
+*** Variables
+
+#+begin_src  emacs-lisp :tangle "init.el"
+(defvar-local laooree-modeline-accent-color (face-attribute 'mode-line-active :foreground)
+  "Accent color to be used in the mode line.")
+#+end_src
+
+*** Functions
+
+#+begin_src  emacs-lisp :tangle "init.el"
+(defun laooree-modeline--with-indicator (instring bg-color text-color)
+  "Returns `instring' inside an indicator with specified `bg-color'.
+If non-nil, `text-color' specifies instring color."
+  (let ((str (copy-sequence instring)))
+    (if text-color
+        (add-face-text-property 0 (length str) `(:background ,bg-color :foreground ,text-color) t str)
+      (add-face-text-property 0 (length str) `(:background ,bg-color) t str))
+    str)
+  )
+
+(defun laooree-modeline--buffer-status ()
+  "Returns a glyph representing the buffer status."
+  (unless (eq buffer-file-name nil)
+    (cond ((eq buffer-read-only t) " ")
+          ((buffer-modified-p) "󰙏 ")
+          (t ""))))
+
+(defun laooree-modeline--evil-state-indicator ()
+  "Get evil-mode state tag with propertized faces."
+  (laooree-modeline--with-indicator evil-mode-line-tag laooree-modeline-accent-color (face-attribute 'default :background)))
+
+;; Require flymake (built-in)
+(use-package flymake
+  :ensure nil
+  :demand t)
+
+;; Taken from mood-line package
+(defun laooree-modeline--flymake-count (type)
+  "Return count of current flymake reports of TYPE."
+  (cl-loop for diag in (flymake-diagnostics)
+           as diag-type = (flymake-diagnostic-type diag)
+           count (eq (flymake--lookup-type-property diag-type 'severity)
+                     (flymake--lookup-type-property type 'severity))))
+
+(defun laooree-modeline--flymake-diagnostics ()
+  "Get `:error', `:warning', and `:note' flymake diagnostic count."
+  (let ((error-count (laooree-modeline--flymake-count :error))
+        (warning-count (laooree-modeline--flymake-count :warning))
+        (note-count (laooree-modeline--flymake-count :note)))
+    (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
+                  (t (propertize (format " %s " error-count) 'face 'error)))
+            (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
+                  (t (propertize (format " %s " warning-count) 'face 'warning)))
+            (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
+                  (t (propertize (format "󱂻 %s" note-count) 'face 'success))))))
+
+(defun laooree-modeline--major-mode-name ()
+  "Get a string with buffer major mode name, without `-mode' and `-'."
+  (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))
+  )
+
+(defun laooree-modeline--major-mode-with-icons ()
+  "Add icon to major-mode name, if relevant."
+  (cond ((string= (laooree-modeline--major-mode-name) "org")              " Org Mode")
+        ((string= (laooree-modeline--major-mode-name) "c ts")             " C (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "c")                " C")
+        ((string= (laooree-modeline--major-mode-name) "dired")            "  Dired")
+        ((string= (laooree-modeline--major-mode-name) "emacs lisp")       " Emacs Lisp")
+        ((string= (laooree-modeline--major-mode-name) "haskell ts")       " Haskell (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "haskell")          " Haskell")
+        ((string= (laooree-modeline--major-mode-name) "latex ts")         " LaTeX (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "LaTeX")            " LaTeX")
+        ((string= (laooree-modeline--major-mode-name) "lua ts")           " Lua (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "lua")              " Lua")
+        ((string= (laooree-modeline--major-mode-name) "matlab ts")        " Matlab (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "matlab")           " Matlab")
+        ((string= (laooree-modeline--major-mode-name) "nix ts")           "󱄅 Nix (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "nix")              "󱄅 Nix")
+        ((string= (laooree-modeline--major-mode-name) "python ts")        " Python (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "python")           " Python")
+        ((string= (laooree-modeline--major-mode-name) "bash ts")          "#! Bash (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "bash")             "#! Bash")
+        ((string= (laooree-modeline--major-mode-name) "typst ts")         " Typst (tree-sitter)")
+        ((string= (laooree-modeline--major-mode-name) "typst")            " Typst")
+        ((string= (laooree-modeline--major-mode-name) "lisp interaction") " Lisp Interaction")
+        (t (capitalize (laooree-modeline--major-mode-name)))
+        )
+  )
+
+
+(defun laooree-modeline--major-mode-indicator ()
+  "Returns an indicator for the major mode name in the mode-line."
+  (propertize (format " %s" (laooree-modeline--major-mode-with-icons)) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
+  )
+
+(defun laooree-modeline--defining-kbd-macro ()
+  "Indicate if a keyboard macro is being defined."
+  (cond (defining-kbd-macro (concat (propertize "" 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))
+                                    (propertize "  Rec" 'face `(:background ,(face-attribute 'mode-line :foreground) :foreground ,(face-attribute 'default :background)))
+                                    (propertize " " 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))))
+        (t "")))
+
+(defun laooree-modeline--scroll-indicator ()
+  "Indicate scroll position.
+Shows current/total lines, or percentage when `display-line-numbers-mode' is active."
+  (let* ((indicator
+          (cond
+           ((eq evil-state 'visual) (let ((selected-lines (count-lines (region-beginning) (region-end)))
+                                          (selected-chars (+ 1 (- (region-end) (region-beginning)))))
+                                      (format " %dL %dC " selected-lines selected-chars)))
+           (display-line-numbers-mode (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
+                                             (percent (cond ((string= value "100") "Bot")
+                                                            ((string= value "0")   "Top")
+                                                            (t (concat value "%%")))))
+                                        (concat " " percent " ")))
+           (t (let ((total-lines (line-number-at-pos (point-max)))
+                    (current-line (line-number-at-pos (point))))
+                (format " %d/%d " current-line total-lines))))))
+    (laooree-modeline--with-indicator indicator
+     laooree-modeline-accent-color (face-attribute 'default :background))))
+
+(defun laooree-modeline--set-accent-color (accent-color)
+  "Set the accent color of the laooree-modeline."
+  (setq laooree-modeline-accent-color accent-color))
+#+end_src
+
+*** Expressions
+
+#+begin_src emacs-lisp :tangle "init.el"
+(defvar-local laooree-modeline-buffer-name
+    '(:eval
+      (cond ((mode-line-window-selected-p) (propertize (buffer-name) 'face 'bold))
+            ("t" (buffer-name))
+            ))
+  "Expression to show buffer-name on the mode-line.")
+
+(defvar-local laooree-modeline-buffer-status
+    '(:eval (laooree-modeline--buffer-status))
+  "Expression to show current buffer status on the mode-line.")
+
+(defvar-local laooree-modeline-evil-state-tag
+    '(:eval
+      (when (mode-line-window-selected-p)
+        (laooree-modeline--evil-state-tag)))
+  "Expression to show current evil state on the focused mode-line.")
+
+(defvar-local laooree-modeline-evil-state-indicator
+    '(:eval
+      (when (mode-line-window-selected-p)
+        (laooree-modeline--evil-state-indicator)))
+  "Expression to show current evil state on the focused mode-line.")
+
+(defvar-local laooree-modeline-flymake-diagnostics
+    '(:eval (when (and flymake-mode (mode-line-window-selected-p))
+              (concat (laooree-modeline--flymake-diagnostics) " ")))
+  "Expression to show flymake diagnostics count on the focused mode-line.")
+
+(defvar-local laooree-modeline-major-mode
+    '(:eval (laooree-modeline--major-mode-indicator))
+  "Expression to show buffer major mode on the mode-line.")
+
+(defvar-local laooree-modeline-keyboard-macro-indicator
+    '(:eval (concat " " (laooree-modeline--defining-kbd-macro)))
+  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
+
+(defvar-local laooree-modeline-scroll-indicator
+    '(:eval (when (mode-line-window-selected-p)
+        (laooree-modeline--scroll-indicator)))
+  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
+
+(defvar laooree-modeline-format
+  '(""
+    laooree-modeline-evil-state-indicator
+    laooree-modeline-keyboard-macro-indicator
+    laooree-modeline-buffer-status
+    laooree-modeline-buffer-name
+    laooree-modeline-major-mode
+    mode-line-format-right-align
+    laooree-modeline-flymake-diagnostics
+    laooree-modeline-scroll-indicator
+    )
+  "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
+#+end_src
+
+Add =risky-local-variable t= property to the expressions:
+
+#+begin_src emacs-lisp :tangle "init.el"
+(dolist (expression '(laooree-modeline-buffer-name
+                      laooree-modeline-buffer-status
+                      laooree-modeline-evil-state-tag
+                      laooree-modeline-evil-state-indicator
+                      laooree-modeline-flymake-diagnostics
+                      laooree-modeline-major-mode
+                      laooree-modeline-keyboard-macro-indicator
+                      laooree-modeline-format
+                      laooree-modeline-scroll-indicator
+                      ))
+  (put expression 'risky-local-variable t))
+#+end_src
+
+*** Evil-mode
+#+begin_src emacs-lisp :tangle "init.el"
+(with-eval-after-load 'evil
+    ;; Define accent colors related to evil states.
+    (defvar laooree-modeline--accent-color-normal   (face-attribute 'mode-line-inactive :foreground)
+      "Accent color to use when evil-state is normal.")
+    (defvar laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground)
+      "Accent color to use when evil-state is emacs.")
+    (defvar laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground)
+      "Accent color to use when evil-state is insert.")
+    (defvar laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground)
+      "Accent color to use when evil-state is operator.")
+    (defvar laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground)
+      "Accent color to use when evil-state is replace.")
+    (defvar laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground)
+      "Accent color to use when evil-state is visual.")
+
+    ;; Set relevant accent color when entering evil state.
+    (add-hook 'evil-normal-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-normal)))
+    (add-hook 'evil-emacs-state-entry-hook    (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-emacs)))
+    (add-hook 'evil-insert-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-insert)))
+    (add-hook 'evil-operator-state-entry-hook (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-operator)))
+    (add-hook 'evil-replace-state-entry-hook  (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-replace)))
+    (add-hook 'evil-visual-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-visual)))
+    )
+#+end_src
+*** Hooks
+#+begin_src emacs-lisp :tangle "init.el"
+;; Force mode-line update after every command
+(add-hook 'post-command-hook #'force-mode-line-update)
+#+end_src
+*** Enable
+#+begin_src  emacs-lisp :tangle "init.el"
+(setq-default mode-line-format laooree-modeline-format)
+#+end_src
+
+* UI and UX
+** Some built-in options:
 
 #+begin_src emacs-lisp :tangle "init.el"
 ;; Default frame title
-(setq-default frame-title-format '("GNU Emacs"))
-
-(delete-selection-mode 1)
+(setq-default frame-title-format '("Gnu Emacs"))
 
 ;; Remove bars
 (tool-bar-mode -1)
@@ -258,34 +660,20 @@ Evaluate the following block to generate a list of available fonts:
 (setq-default visible-bell nil             ;; No visual bell
               ring-bell-function 'ignore)  ;; No bell
 
-;; Disable startup screen
-(setq inhibit-startup-message t
-      inhibit-splash-screen t)
-
-
-;; Setup backup directory
-(defconst custom-backup-dir (concat user-emacs-directory "backups") "Preferred backup directory.")
-(setq-default
- backup-directory-alist `((".*" . ,custom-backup-dir))          ; Set backup file directory
- auto-save-file-name-transforms `((".*" ,custom-backup-dir t))  ; Set autosave file directory
- )
+(setq inhibit-startup-message t)
+;; (setq initial-scratch-message nil)
 
 ;; whitespace-mode
 (setq whitespace-style '(face trailing))
 (global-whitespace-mode 1)
 
 (setq display-line-numbers-mode nil)
-(setq-default display-line-numbers-width 3)
-(setq-default display-line-numbers-widen t)
 
 ;; Automatically pair brackets and delimiters
 (electric-pair-mode 1)
-
-;; Enable repeat-mode
-(repeat-mode 1)
  #+end_src
 
-* Initial scratch buffer message
+** Initial scratch buffer message
 #+begin_src emacs-lisp :tangle "init.el"
 (setq initial-scratch-message
 ";;  ╱|、      +--------------+
@@ -295,61 +683,20 @@ Evaluate the following block to generate a list of available fonts:
 ")
 #+end_src
 
-* Completions
+** org-auto-tangle
+
+This package allows to automatically tangle =org= files when they are
+saved. When the minor mode is active, it is sufficient to add =#+auto_tangle: t=
+in the org file for which you want auto tangling.
 
 #+begin_src emacs-lisp :tangle "init.el"
-;; Use icomplete as completion framework
-(use-package icomplete
-  :ensure nil
-  :demand t
-
-  :init
-  (setq ido-everywhere t
-        ido-enable-flex-matching t)
-
-  :config
-  (fido-vertical-mode 1)
-
-  :bind (:map icomplete-minibuffer-map
-              ("TAB" . icomplete-force-complete)
-              ("RET" . exit-minibuffer)
-			  ("SPC" . self-insert-command))
-
-  :custom
-  (tab-always-indent 'complete)
-  )
-
-;; Add completion icons
-(use-package nerd-icons
-  :ensure t)
-
-(use-package nerd-icons-completion
+(use-package org-auto-tangle
   :ensure t
-  :config
-  (nerd-icons-completion-mode))
-
-(use-package nerd-icons-dired
-  :ensure t
-  :hook
-  (dired-mode . nerd-icons-dired-mode))
-
-
-;; Consult
-(use-package consult
-  :ensure t
-
-  :bind
-  (("C-z c i" . consult-imenu)
-   ("C-z c I" . consult-imenu-multi)
-   ("C-z c f" . consult-flymake)
-   ("C-z c r" . consult-ripgrep))
-
-  :config
-  (which-key-add-keymap-based-replacements laooree-prefix-map
-  "c" "consult"))
+  :after org
+  :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
-* Dired
+** Dired
 
 Tweak =dired=. Options should be self-explanatory.
 
@@ -371,7 +718,23 @@ Tweak =dired=. Options should be self-explanatory.
   (setq dired-dwim-target t))
 #+end_src
 
-* Terminal
+The =dired-subtree= allows to expand folders using =TAB= key.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package dired-subtree
+  :ensure t
+  :after (dired)
+  :bind
+  ( :map dired-mode-map
+    ("<tab>" . dired-subtree-toggle)
+    ("TAB" . dired-subtree-toggle)
+    ("<backtab>" . dired-subtree-remove)
+    ("S-TAB" . dired-subtree-remove))
+  :config
+  (setq dired-subtree-use-backgrounds nil))
+#+end_src
+
+** Terminal
 
 *** Clipboard
 
@@ -387,21 +750,51 @@ This package is not X11 exclusive, and automatically detects when on Wayland.
   )
 #+end_src
 
-* Rainbow csv
+** Nerd icons
+
+Install and use nerd-icons.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package nerd-icons
+  :defer t
+  :ensure t
+  :config
+  (add-to-list 'nerd-icons-extension-icon-alist '("m" nerd-icons-devicon "nf-dev-matlab" :face nerd-icons-dorange))
+  )
+
+(use-package nerd-icons-completion
+  :ensure t
+  :after (marginalia)
+  :config
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-corfu
+  :ensure t
+  :after (corfu)
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(use-package nerd-icons-dired
+  :ensure t
+  :defer t
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
+#+end_src
+
+** Rainbow csv
 
 Paint each column in =.csv= files with different colors.
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package rainbow-csv
-  :ensure t
-  :vc (:url "https://github.com/emacs-vs/rainbow-csv" :rev :newest)
+  :ensure (:host github :repo "emacs-vs/rainbow-csv")
   :hook
   (csv-mode . rainbow-csv-mode)
   (tsv-mode . rainbow-csv-mode)
   )
 #+end_src
 
-* Rainbow delimiters
+** Rainbow delimiters
 
 Paint delimiters with colors based on the nesting level. Super useful with lisp,
 very useful everywhere else.
@@ -413,7 +806,7 @@ very useful everywhere else.
   )
 #+end_src
 
-* Rainbow mode
+** Rainbow mode
 
 Rainbow mode colorizes color names in buffers. Disabled by default.
 
@@ -423,62 +816,238 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :defer t)
 #+end_src
 
-* Magit
+** Magit
 
 #+begin_src emacs-lisp :tangle "init.el"
+;; Update transient
+(use-package transient
+  :ensure t
+  :defer t)
+
+;; Install magit
 (use-package magit
   :ensure t
   :defer t
-
-  :bind
-  (:map laooree-prefix-map
-	("g" . magit))
   )
 #+end_src
 
-* shift-number
+** Highlight indentation
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package highlight-indentation
+  :ensure (:host github :repo "antonj/Highlight-Indentation-for-Emacs")
+  :defer t
+  :config
+  (set-face-attribute 'highlight-indentation-face nil
+                      :background "#3b4252")
+  )
+#+end_src
+
+** Keycast
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package keycast
+  :ensure t
+  :defer t
+  :init
+  (setq keycast-mode-line-insert-after 'laooree-modeline-major-mode)
+  :config
+  (push '(self-insert-command nil nil)     keycast-substitute-alist)
+  (push '(org-self-insert-command nil nil) keycast-substitute-alist)
+  (push '(isearch-printing-char nil nil)   keycast-substitute-alist)
+  )
+#+end_src
+** shift-number
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package shift-number
   :ensure t
   :init
   (setq shift-number-pad-default t)
 
-  :bind
-  (("C-+" . shift-number-up)
-   ("C--" . shift-number-down))
+  :general
+  (:states '(normal)
+           "+" #'shift-number-up
+           "-" #'shift-number-down)
  )
 #+end_src
-* EAT
+** EAT
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package eat
   :ensure t
   :defer t
 
-  :hook
-  (eat-mode . (lambda () (display-line-numbers-mode -1)))
+  :hook (eat-mode . (lambda () (display-line-numbers-mode -1)))
 
-  :init
-  (which-key-add-keymap-based-replacements laooree-prefix-map
-	  "t" "terminal")
-  :bind
-  (:map eat-semi-char-mode-map
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+           "t" '(:ignore t :which-key "terminal")
+           "t t" #'eat-other-window
+           "t T" #'eat)
+
+  :bind (:map eat-semi-char-mode-map
               ("M-o" . other-window))
-  (:map laooree-prefix-map
-	("t t" . eat-other-window)
-        ("t T" . eat))
   )
+#+end_src
+** beacon
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package beacon
+  :ensure t
+  :demand t
+  :init
+  (setq beacon-size 20
+        beacon-blink-delay 0.0
+        beacon-blink-duration 0.3)
+  (setq beacon-blink-when-focused t
+        beacon-blink-when-buffer-changes t
+        beacon-blink-when-point-moves-horizontally 5
+        beacon-blink-when-point-moves-vertically 5)
+  :config
+  (if (display-graphic-p)
+    (beacon-mode 1)))
+#+end_src
+** elpaca-wait
+#+begin_src emacs-lisp :tangle "init.el"
+(elpaca-wait)
+#+end_src
+* Completions and suggestions
+
+** Vertico
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package vertico
+  :ensure t
+  :hook (after-init . vertico-mode))
+
+;; Faster navigation in vertico minibuffer
+(use-package vertico-directory
+  :after (vertico)
+  :ensure nil
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word)))
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package marginalia
+  :ensure t
+  :hook (after-init . marginalia-mode))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package orderless
+  :ensure t
+  :config
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides nil
+        read-file-name-completion-ignore-case t
+        read-buffer-completion-ignore-case t
+        completion-ignore-case t
+        orderless-matching-styles '(orderless-literal
+                                    orderless-regexp)))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package consult
+  :ensure t
+
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+
+           "c" '(:ignore t :which-key "consult")
+           "c d" #'consult-fd
+           "c f" #'consult-flymake
+           "c l" #'consult-line
+           "c m" #'consult-man
+           "c r" #'consult-ripgrep
+           "c i" #'consult-imenu
+           "c I" #'consult-imenu-multi
+           "c o" #'consult-outline
+
+           "b" '(:ignore t :which-key "buffer")
+           "b b" #'consult-buffer)
+  )
+#+end_src
+
+** Corfu
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package corfu
+  :ensure t
+
+  :custom
+  (corfu-cycle t) ;; Enable cycling through candidates
+  (corfu-auto t)  ;; Automatically pop-up
+  (corfu-auto-prefix 3)  ;; Require 3 characters for auto pop-up
+  (corfu-auto-delay 1) ;; Time to wait before pop-up
+  (corfu-quit-at-boundary 'separator) ;; Keep pop-up open with separator
+  (corfu-preview-current nil) ;; Do not preview candidates in buffer
+
+  :config
+  (global-corfu-mode) ;; Enable corfu everywhere
+  (corfu-history-mode) ;; Save completion history
+  )
+#+end_src
+
+Corfu uses childframes, which are not available in tty for Emacs < 31. This package makes corfu work also in tty:
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package corfu-terminal
+  :ensure (:host codeberg :repo "akib/emacs-corfu-terminal")
+  :if (< emacs-major-version 31)
+  :demand t
+  :config
+  (unless (display-graphic-p)
+    (corfu-terminal-mode +1))
+  )
+#+end_src
+
+** Cape
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package cape
+  :ensure t
+  :defer t
+  :init
+  (add-hook 'completion-at-point-functions #'cape-file) ;; Complete filenames
+  )
+#+end_src
+** Embark
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package embark
+  :ensure t
+  :bind
+  (("C-." . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings))
+  )
+
+(use-package embark-consult
+  :ensure t ;; only need to install it, embark loads it after consult if found
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+** elpaca-wait
+#+begin_src emacs-lisp :tangle "init.el"
+(elpaca-wait)
 #+end_src
 * Org-mode
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package org
-  :ensure nil ;; built-in
+  :ensure t ;; use latest org version
   :defer t
 
   :init
   (setq org-startup-indented t
         org-pretty-entities nil
-	org-src-preserve-indentation t
         org-format-latex-options
         '(:foreground default
                       :background default
@@ -492,10 +1061,16 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   (setq org-todo-keywords
         '((sequence "TODO" "|" "DONE" "CANC")))
 
-  :bind
-  (:map laooree-prefix-map
-    ("o a" . org-agenda)
-    ("o c" . org-capture))
+
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+           "o" '(:ignore t :which-key "org")
+           "o a" #'org-agenda
+           "o c" #'org-capture
+           "i" '(:ignore t :which-key "insert")
+           "i s" #'org-insert-block-template
+           )
 
   :config
   (let ((pcloud-base-folder (cond
@@ -520,6 +1095,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
              "* %?\n %U\n"))))
 )
 #+end_src
+
 * Denote
 
 #+begin_src emacs-lisp :tangle "init.el"
@@ -531,12 +1107,13 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
                              ((eq system-type 'gnu/linux) "~/pCloudSync")
                              (t "~/pCloudSync")))) ;; fallback
     (setq denote-directory (expand-file-name "org/notes" pcloud-base-folder)))
-  (which-key-add-keymap-based-replacements laooree-prefix-map
-    "n" "denote")
 
-  :bind
-  (:map laooree-prefix-map
-        ("n n" . denote-open-or-create))
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+           "n" '(:ignore t :which-key "notes")
+           "n n" #'denote-open-or-create
+           "n g" #'denote-grep)
   )
 #+end_src
 
@@ -547,6 +1124,7 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :defer t
 
   :config
+
   (let ((claude-backend
          (gptel-make-anthropic "Claude"
            :stream t
@@ -560,48 +1138,28 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
           gptel-backend claude-backend))
   )
 #+end_src
-* Programming languages
+* Programming
+
 ** Indentation
 
 #+begin_src emacs-lisp :tangle "init.el"
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-(setq indent-line-function 'insert-tab)
+(setq-default indent-tabs-mode nil        ;; Stop using tabs to indent
+              tab-always-indent 'nil
+              tab-width 4)                ;; Set 4 as tab width
+;; (setq indent-line-function 'insert-tab)
 
-(setq mode-require-final-newline nil)
-(setq-default require-final-newline nil)
+(setq org-src-preserve-indentation t)
 #+end_src
 
-** Eglot
+** Formatter
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package eglot
-  :ensure nil
-  :defer t
-
-  :init
-  (which-key-add-keymap-based-replacements laooree-prefix-map
-    "e" "eglot")
-
-  :bind
-  (:map laooree-prefix-map
-        ("e e" . eglot))
-
-  :hook
-  (eglot-managed-mode . (lambda () (eglot-inlay-hints-mode -1)))
-
-  :config
-  (dolist (binding '(("e a" . eglot-code-actions)
-                     ("e r" . eglot-rename)
-                     ("e f" . eglot-format)))
-    (keymap-set eglot-mode-map
-		(concat laooree-leader-key " " (car binding))
-		(cdr binding)))
-  )
+(use-package format-all
+  :ensure t
+  :defer t)
 #+end_src
 
 ** Tree-sitter
-
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package treesit-auto
   :ensure t
@@ -614,6 +1172,89 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
+#+end_src
+** C
+#+begin_src emacs-lisp :tangle "init.el"
+(setq-default c-basic-offset 4)
+(setq-default c-ts-mode-indent-offset 4)
+
+(defun laooree-clang-compile ()
+  "Compile the current buffer's file using `clang', outputting <file-name>.out."
+  (interactive)
+  (if buffer-file-name
+      (async-shell-command (concat "clang "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))))
+    (user-error "Buffer is not visiting a file")))
+
+(defun laooree-gcc-compile ()
+  "Compile the current buffer's file using `gcc', outputting <file-name>.out."
+  (interactive)
+  (if buffer-file-name
+      (async-shell-command (concat "gcc "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))))
+    (user-error "Buffer is not visiting a file")))
+
+(defun laooree-clang-compile-and-run ()
+  "Compile the current buffer's file using `clang', outputting <file-name>.out, then run it."
+  (interactive)
+  (if buffer-file-name
+      (async-shell-command (concat "clang "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))
+                             " && " (concat (file-name-sans-extension buffer-file-name) ".out")))
+    (user-error "Buffer is not visiting a file")))
+
+(defun laooree-gcc-compile-and-run ()
+  "Compile the current buffer's file using `gcc', outputting <file-name>.out, then run it."
+  (interactive)
+  (if buffer-file-name
+      (async-shell-command (concat "gcc "
+                             (shell-quote-argument buffer-file-name)
+                             " -o "
+                             (shell-quote-argument
+                              (concat (file-name-sans-extension buffer-file-name) ".out"))
+                             " && " (concat (file-name-sans-extension buffer-file-name) ".out")))
+    (user-error "Buffer is not visiting a file")))
+
+(general-define-key
+ :states '(normal)
+ :keymaps '(c-mode-map c-ts-mode-map)
+ :prefix "SPC"
+
+ "m" '(:ignore t :which-key "make")
+ "m m" '(laooree-clang-compile-and-run :which-key "Compile and run (clang)")
+ "m c" '(laooree-clang-compile         :which-key "Compile with clang")
+ "m C" '(laooree-clang-compile-and-run :which-key "Compile with clang and run")
+ "m g" '(laooree-gcc-compile           :which-key "Compile with gcc")
+ "m G" '(laooree-gcc-compile-and-run   :which-key "Compile with gcc and run")
+ )
+#+end_src
+
+** Eglot
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package eglot
+  :ensure nil ;; built-in
+  :defer t
+
+  :general
+  (:states '(normal)
+           :keymaps 'eglot-mode-map
+           :prefix "SPC"
+           "e" '(:ignore t :which-key "eglot")
+           "e a" #'eglot-code-actions
+           "e o" #'eglot-code-action-organize-imports
+           "e r" #'eglot-rename
+           "e f" #'eglot-format)
+  )
 #+end_src
 
 ** Matlab
@@ -630,8 +1271,15 @@ Install and configure Matlab mode:
         matlab-sections-highlight-section nil
         matlab-ts-mode-font-lock-level 2)
   (add-to-list 'major-mode-remap-defaults '(matlab-mode . matlab-ts-mode))
-
+  :hook
+  (matlab-mode . (lambda ()
+                   (set-face-attribute 'matlab-sections-highlight-face nil
+                                       :background "#eeeeee"
+                                       :extend t
+                                       :weight 'normal)
+                   ))
   :config
+  (evil-set-initial-state 'matlab-shell-mode 'emacs)
   (when (eq system-type 'windows-nt)
     (with-eval-after-load 'eglot
       (add-to-list 'eglot-server-programs
@@ -643,7 +1291,7 @@ Install and configure Matlab mode:
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package auctex
-  :ensure t
+  :ensure (:host github :branch "master" :repo "emacsmirror/auctex")
   :defer t
 
   :init
@@ -666,6 +1314,10 @@ Install and configure Matlab mode:
   :hook
   (LaTeX-mode . TeX-source-correlate-mode) ;; enable synctex
   (LaTeX-mode . (lambda ()
+                  (add-hook 'eglot-managed-mode-hook
+                            (lambda () (eglot-inlay-hints-mode -1))
+                            nil t)))
+  (LaTeX-mode . (lambda ()
                   (local-set-key (kbd "C-c m")
                                  (lambda ()
                                    (interactive)
@@ -677,13 +1329,15 @@ Install and configure Matlab mode:
                                    (insert "\\[\\]")
                                    (backward-char 2)))))
 
-  :bind
-  (:map LaTeX-mode-map
-	("C-z m m" . TeX-command-master)
-	("C-z m r" . TeX-command-run-all)
-	("C-z m v" . TeX-view)
-	("C-z m l" . TeX-recenter-output-buffer)
-	)
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+           :keymaps 'LaTeX-mode-map
+           "m" '(:ignore t :which-key "make")
+           "m m" #'TeX-command-master
+           "m a" #'TeX-command-run-all
+           "m v" #'TeX-view
+           "m l" #'TeX-recenter-output-buffer)
 
   :config
   (with-eval-after-load 'tex
@@ -711,7 +1365,7 @@ Install and configure Matlab mode:
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package python
-  :ensure nil
+  :ensure nil ;; built-in
   :defer t
 
   :init
@@ -723,17 +1377,26 @@ Install and configure Matlab mode:
     (interactive)
     (if buffer-file-name
         (async-shell-command (concat "python "
-                                     (shell-quote-argument buffer-file-name)))
+                               (shell-quote-argument buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
 
-  :bind
-  (:map python-mode-map
-	("C-z m m" . laooree-python-run))
+  :hook
+  (python-mode . highlight-indentation-mode)
+
+  :general
+  (:states '(normal)
+           :keymaps '(python-mode-map python-ts-mode-map)
+           :prefix "SPC"
+           "m"   '(:ignore t :which-key "make")
+           "m m" '(laooree-python-run  :which-key "Run with python")
+           )
 
   :config
+  (evil-set-initial-state 'inferior-python-mode 'emacs)
   (with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(python-mode . ("pyright-langserver" "--stdio")))))
+    (add-to-list 'eglot-server-programs
+                 '(python-mode . ("pyright-langserver" "--stdio")))
+  ))
 #+end_src
 
 ** Shell
@@ -744,6 +1407,7 @@ Install and configure Matlab mode:
 #+end_src
 
 ** Nix
+
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package nix-ts-mode
   :ensure t
@@ -759,17 +1423,18 @@ Install and configure Matlab mode:
   :defer t
 
   :init
+  ;; Define functions for compilation
   (defun laooree-ghc-compile-and-run ()
     "Compile the current buffer's file using `ghc', outputting <file-name>, then run it."
     (interactive)
     (if buffer-file-name
         (async-shell-command (concat "ghc "
-                                     (shell-quote-argument buffer-file-name)
-                                     " && " (file-name-sans-extension buffer-file-name)))
+                               (shell-quote-argument buffer-file-name)
+                               " && " (file-name-sans-extension buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
 
   (defun laooree-ghc-compile ()
-    "Compile the current buffer's file using `ghc', outputting <file-name>."
+    "Compile the current buffer's file using `ghc', outputting <file-name>"
     (interactive)
     (if buffer-file-name
         (async-shell-command (concat "ghc " (shell-quote-argument buffer-file-name)))
@@ -782,17 +1447,21 @@ Install and configure Matlab mode:
         (async-shell-command (concat "ghc -S " (shell-quote-argument buffer-file-name)))
       (user-error "Buffer is not visiting a file")))
 
-  :bind
-  (:map haskell-mode-map
-	("C-z m m" . laooree-ghc-compile-and-run)
-	("C-z m g" . laooree-ghc-compile)
-	("C-z m s" . laooree-ghc-produce-assembly))
+  :general
+  (:states '(normal)
+           :keymaps 'haskell-mode-map
+           :prefix "SPC"
+           "m"   '(:ignore t :which-key "make")
+           "m m" '(laooree-ghc-compile-and-run  :which-key "Compile and run (ghc)")
+           "m g" '(laooree-ghc-compile          :which-key "Compile with ghc")
+           "m s" '(laooree-ghc-produce-assembly :which-key "Produce assembly with ghc")
+           )
 
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
                  '(haskell-mode . ("haskell-language-server-wrapper" "--lsp"))))
-  (set-face-attribute 'haskell-operator-face nil :slant 'normal))
+  )
 #+end_src
 
 ** Markdown
@@ -802,20 +1471,46 @@ Install and configure Matlab mode:
   :ensure t
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown")
+
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+           :keymaps 'markdown-mode-map
+           "m" '(:ignore t :which-key "make")
+           "m m" #'markdown-do)
+  )
+#+end_src
+
+** Elisp
+
+#+begin_src emacs-lisp :tangle "init.el"
+(with-eval-after-load 'general
+  (general-define-key
+   :states '(normal visual)
+   :keymaps '(emacs-lisp-mode-map lisp-interaction-mode-map)
+   :prefix "SPC"
+   "m" '(:ignore t :which-key "make")
+   "m m" #'eval-buffer
+   "m r" #'eval-region)
   )
 #+end_src
 
 ** Typst
+
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package typst-ts-mode
   :ensure t
   :defer t
 
-  :bind
-  (:map typst-ts-mode-map
-     ("C-z m m" . typst-ts-compile-and-preview)
-     ("C-z m t" . typst-ts-watch-mode)
-     ("C-z m c" . typst-ts-compile))
+  :general
+  (:states '(normal)
+           :prefix "SPC"
+           :keymaps 'typst-ts-mode-map
+           "m" '(:ignore t :which-key "make")
+           "m t" #'typst-ts-watch-mode
+           "m m" #'typst-ts-compile-and-preview
+           "m c" #'typst-ts-compile
+           )
 
   :config
   ;; Install typst tree-sitter grammar
@@ -832,22 +1527,6 @@ Install and configure Matlab mode:
                                           "tinymist"
                                           "typst-lsp")))))
   )
-#+end_src
-** Emacs-lisp
-
-#+begin_src emacs-lisp :tangle "init.el"
-;; Set keymaps for evaluating elisp code
-(keymap-set emacs-lisp-mode-map       (concat laooree-leader-key " m m") #'eval-buffer)
-(keymap-set emacs-lisp-mode-map       (concat laooree-leader-key " m r") #'eval-region)
-(keymap-set lisp-interaction-mode-map (concat laooree-leader-key " m m") #'eval-buffer)
-(keymap-set lisp-interaction-mode-map (concat laooree-leader-key " m r") #'eval-region)
-#+end_src
-
-** C
-
-#+begin_src emacs-lisp :tangle "init.el"
-(setq-default c-basic-offset 4)
-(setq-default c-ts-mode-indent-offset 4)
 #+end_src
 
 * Keybindings
@@ -883,49 +1562,87 @@ The DWIM behaviour of this command is as follows:
 ** org-mode
 
 #+begin_src emacs-lisp :tangle "init.el"
+(defun my/org-dwim-at-point ()
+  "Do-what-I-mean at point.
+   Handles common Org elements intuitively."
+  (interactive)
+  (let* ((context (org-element-context))
+         (type (org-element-type context)))
+    (cond
+     ;; Check for checkbox inside a list item
+     ((and (eq type 'item)
+           (org-element-property :checkbox context))
+      (org-toggle-checkbox))
+
+     ((eq type 'headline)
+      (org-todo))
+
+     ((eq type 'link)
+      (org-open-at-point))
+
+     ((eq type 'footnote-reference)
+      (org-footnote-goto-definition
+       (org-element-property :label context)))
+
+     ((eq type 'footnote-definition)
+      (org-footnote-goto-previous-reference
+       (org-element-property :label context)))
+
+     ((eq type 'table-row)
+      (org-table-recalculate))
+
+     ((memq type '(latex-fragment latex-environment))
+      (org-latex-preview))
+
+     (t
+      (message "No specific action for this element")))))
+
+(with-eval-after-load 'evil
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (evil-define-key 'normal org-mode-map
+                (kbd "RET") #'my/org-dwim-at-point))))
+
 ;; org-agenda-earlier and later
 (with-eval-after-load 'org-agenda
   (define-key org-agenda-mode-map (kbd "[") #'org-agenda-earlier)
   (define-key org-agenda-mode-map (kbd "]") #'org-agenda-later))
 #+end_src
 
-** windows
+** Point movements
 
 #+begin_src emacs-lisp :tangle "init.el"
-(defvar-keymap laooree-prefix-window-map
-  :doc "My prefix map for window-related commands."
-  "v" #'split-window-vertically
-  "h" #'split-window-horizontally
-  "k" #'delete-window)
-
-(keymap-set laooree-prefix-map "w" laooree-prefix-window-map)
-(which-key-add-keymap-based-replacements laooree-prefix-map
-  "w" "window")
-
-;; Comfortably switch windows
-(global-set-key (kbd "M-o") 'other-window)
-
-;; By default, other-window is in repeatable: make it not repeatable
-(put 'other-window 'repeat-map nil)
+;; Point movements
+(global-unset-key (kbd "C-e"))
+(define-key evil-normal-state-map (kbd "C-e") 'end-of-visual-line)
+(define-key evil-visual-state-map (kbd "C-e") 'end-of-visual-line)
+(define-key evil-emacs-state-map  (kbd "C-e") 'end-of-visual-line)
 #+end_src
 
-** region
+** window movements
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package expand-region
-  :ensure t)
+(global-set-key (kbd "M-o") 'other-window)
+#+end_src
 
-(defvar-keymap laooree-region-map
-  :doc "My map to easily select things."
-  "e" #'er/expand-region
-  "c" #'er/contract-region)
+** Commands
 
-(keymap-set laooree-prefix-map "r" laooree-region-map)
+*** :k, :K
 
-(which-key-add-keymap-based-replacements laooree-prefix-map
-  "r" "region")
+#+begin_src emacs-lisp :tangle "init.el"
+(defun my/kill-current-buffer ()
+  "Kill the current buffer without confirmation."
+  (interactive)
+  (kill-buffer (current-buffer)))
 
-(put 'er/expand-region 'repeat-map 'laooree-region-map)
+(defun my/kill-current-buffer-and-close-window ()
+  "Kill the current buffer and close its window."
+  (interactive)
+  (kill-buffer (current-buffer))
+  (delete-window))
+
+(evil-ex-define-cmd "k" 'my/kill-current-buffer)
+(evil-ex-define-cmd "K" 'my/kill-current-buffer-and-close-window)
 #+end_src
 
 * Emacs server
