@@ -61,6 +61,18 @@ startup and enables it afterwards.
 (setq native-comp-deferred-compilation t)
 #+end_src
 
+=compile-angel= is a package ensuring that all emacs-lisp code executed is byte- and native-compiled.
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package compile-angel
+  :ensure t
+  :config
+  (setq compile-angel-verbose t)
+  (push "/init.el" compile-angel-excluded-path-suffixes)
+  (push "/early-init.el" compile-angel-excluded-path-suffixes)
+  (compile-angel-on-load-mode 1))
+#+end_src
+
 ** Package manager
 
 #+begin_src emacs-lisp :tangle "early-init.el"
@@ -887,23 +899,6 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
   :bind (:map eat-semi-char-mode-map
               ("M-o" . other-window))
   )
-#+end_src
-** beacon
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package beacon
-  :ensure t
-  :demand t
-  :init
-  (setq beacon-size 20
-        beacon-blink-delay 0.0
-        beacon-blink-duration 0.3)
-  (setq beacon-blink-when-focused t
-        beacon-blink-when-buffer-changes t
-        beacon-blink-when-point-moves-horizontally 5
-        beacon-blink-when-point-moves-vertically 5)
-  :config
-  (if (display-graphic-p)
-    (beacon-mode 1)))
 #+end_src
 ** elpaca-wait
 #+begin_src emacs-lisp :tangle "init.el"
