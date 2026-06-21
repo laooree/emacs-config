@@ -70,6 +70,7 @@ startup and enables it afterwards.
   (setq compile-angel-verbose t)
   (push "/init.el" compile-angel-excluded-path-suffixes)
   (push "/early-init.el" compile-angel-excluded-path-suffixes)
+  (push "/native-compiler-options.el" compile-angel-excluded-path-suffixes)
   (compile-angel-on-load-mode 1))
 #+end_src
 
