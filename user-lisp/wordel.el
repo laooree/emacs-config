@@ -1,4 +1,7 @@
 ;;; -*- lexical-binding: t -*-
+
+
+;; ===== Useful generic functions ==================================================================
 (defun wordel--string-without-element (str n)
   "Returns `str' without the `n'-th element (1-based)."
   (concat (seq-take str (- n 1)) (seq-drop str n)))
@@ -14,6 +17,12 @@
   (format "%c" (seq-elt str (- n 1))))
 
 
+(defun wordel--read-from-point (n)
+  "Read `n' characters starting from `point'."
+  (buffer-substring (point) (+ (point) n)))
+
+
+;; ===== Shuffle candidate at point ================================================================
 (defun wordel--shuffle-string (str &optional str-shuffled)
   "Returns a string by randomly shuffling `str'.
 `str-shuffled' is used as an accumulator."
@@ -23,11 +32,6 @@
 	(wordel--shuffle-string (wordel--string-without-element str (+ n 1))
 			       (concat (wordel--string-elt str (+ n 1)) str-shuffled)))
     str-shuffled))
-
-
-(defun wordel--read-from-point (n)
-  "Read `n' characters starting from `point'."
-  (buffer-substring (point) (+ (point) n)))
 
 
 (defun wordel-shuffle-candidate-at-point ()
@@ -40,6 +44,7 @@
     (goto-char point-position)))
 
 
+;; ===== Compute possible candidates from letters ==================================================
 (defun wordel--list-candidates (letter allowed-positions candidate)
   "Returns a list of new candidates, obtained substituting `letter' in
 `candidate', in its `allowed-positions'."
