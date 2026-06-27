@@ -84,9 +84,9 @@
         (let ((letter (read-string "Letter (empty to finish): ")))
           (when (string= "" letter)
             (throw 'done nil))
-          (let* ((pos-str (read-string (format "Positions for '%s' (space-separated, 1-based): " letter)))
-                 (positions (mapcar #'string-to-number
-                                    (split-string pos-str nil t))))
+          (let* ((pos-str (read-string (format "Positions for '%s' (consecutive digits, 1-based): " letter)))
+                 (positions (mapcar (lambda (ch) (- ch ?0))
+                   (string-to-list pos-str))))
             (push `(,letter ,@positions) hints)))))
     (setq hints (nreverse hints))
     (message "Built hints: %S" hints)
