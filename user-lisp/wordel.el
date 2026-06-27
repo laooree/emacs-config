@@ -108,4 +108,42 @@
 	(insert candidates)))
 
 
+;; ===== Management of possible letters ============================================================
+(defun wordel-initialize-possible-letters ()
+  "Clean current buffer, and initialize all the possible letters at the top.
+Letters are inserted as in QWERTY layout."
+  (interactive)
+  (goto-char 0)
+  (delete-char (- (point-max) 1))
+  (insert ";; q w e r t y u i o p
+;; a s d f g h j k l
+;; z x c v b n m
+
+
+")
+  (goto-char (point-max)))
+
+
+(defun wordel--remove-letter-from-possible-letters (letter)
+  (goto-char (point-min))
+  (let* ((search-limit (save-excursion (forward-line 3) (point)))
+         (match-point (search-forward letter search-limit t)))
+    (when match-point
+      (goto-char (- match-point (length letter)))
+      (if (eq ?\s (char-after match-point ))
+          (delete-char 2)
+        (progn (delete-char 1)
+               (delete-char -1))))))
+
+
+(defun wordel-update-possible-letters ()
+  "Prompts for a word, and remove its letters from the possible letters at the
+top, if they are present."
+  (interactive)
+  (let ((point-position (point))
+        (letters-to-remove (mapcar #'string (string-to-list (read-string "Word to be removed: ")))))
+    (mapc #'wordel--remove-letter-from-possible-letters letters-to-remove)
+    (goto-char point-position)))
+
+
 (provide 'wordel)
