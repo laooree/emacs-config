@@ -162,7 +162,7 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 
 #+begin_src emacs-lisp :tangle "init.el"
 (use-package doric-themes
-  :ensure (:type git :host github :repo "laooree/doric-themes")
+  :ensure t ;;(:type git :host github :repo "laooree/doric-themes")
   :demand t
 
   :init
@@ -220,7 +220,7 @@ Working with bleeding edge packages sometimes requires to update the built-in on
   :config
   (advice-add 'server-edit :before #'laooree-reset-terminal-cursor-color)
   (advice-add 'save-buffers-kill-terminal :before #'laooree-reset-terminal-cursor-color)
-  (load-theme 'doric-nord :no-confirm)
+  (load-theme 'doric-oak :no-confirm)
   (laooree-setup-theme)
   )
 #+end_src
