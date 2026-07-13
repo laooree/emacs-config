@@ -220,7 +220,7 @@ Working with bleeding edge packages sometimes requires to update the built-in on
   :config
   (advice-add 'server-edit :before #'laooree-reset-terminal-cursor-color)
   (advice-add 'save-buffers-kill-terminal :before #'laooree-reset-terminal-cursor-color)
-  (load-theme 'doric-oak :no-confirm)
+  (load-theme 'doric-obsidian :no-confirm)
   (laooree-setup-theme)
   )
 #+end_src
