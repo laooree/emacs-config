@@ -231,10 +231,10 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 ;; Default fonts
 (let ((font-name (cond
                   ((eq system-type 'windows-nt) "Iosevka NF")
-                  ((eq system-type 'gnu/linux)  "Iosevka Nerd Font")))
+                  ((eq system-type 'gnu/linux)  "AdwaitaMono Nerd Font")))
       (font-size (cond
                   ((eq system-type 'windows-nt) 120)
-                  ((eq system-type 'gnu/linux)  160)
+                  ((eq system-type 'gnu/linux)  140)
                   (t 160))) ;; fallback
       )
   (set-face-attribute 'default nil     :family font-name :height font-size)
