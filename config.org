@@ -1491,6 +1491,23 @@ Install and configure Matlab mode:
   )
 #+end_src
 
+** Julia
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package julia-mode
+  :ensure t
+  :defer t)
+
+(use-package julia-ts-mode
+  :ensure t
+  :after julia-mode
+  :mode "\\.jl$")
+
+(use-package eglot-jl
+  :ensure t
+  :defer t)
+#+end_src
+
 ** Typst
 
 #+begin_src emacs-lisp :tangle "init.el"
