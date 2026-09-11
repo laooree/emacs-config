@@ -943,6 +943,13 @@ Rainbow mode colorizes color names in buffers. Disabled by default.
               ("RET" . vertico-directory-enter)
               ("DEL" . vertico-directory-delete-char)
               ("M-DEL" . vertico-directory-delete-word)))
+
+;; Show vertico at the center of the screen
+(use-package vertico-posframe
+  :ensure t
+  :after (vertico)
+  :config
+  (vertico-posframe-mode -1))
 #+end_src
 
 ** Marginalia
