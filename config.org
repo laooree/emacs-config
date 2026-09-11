@@ -1437,44 +1437,9 @@ Install and configure Matlab mode:
 ** Haskell
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package haskell-mode
+(use-package haskell-ts-mode
   :ensure t
   :defer t
-
-  :init
-  ;; Define functions for compilation
-  (defun laooree-ghc-compile-and-run ()
-    "Compile the current buffer's file using `ghc', outputting <file-name>, then run it."
-    (interactive)
-    (if buffer-file-name
-        (async-shell-command (concat "ghc "
-                               (shell-quote-argument buffer-file-name)
-                               " && " (file-name-sans-extension buffer-file-name)))
-      (user-error "Buffer is not visiting a file")))
-
-  (defun laooree-ghc-compile ()
-    "Compile the current buffer's file using `ghc', outputting <file-name>"
-    (interactive)
-    (if buffer-file-name
-        (async-shell-command (concat "ghc " (shell-quote-argument buffer-file-name)))
-      (user-error "Buffer is not visiting a file")))
-
-  (defun laooree-ghc-produce-assembly ()
-    "Produce assembly file from current buffer's file using `ghc'."
-    (interactive)
-    (if buffer-file-name
-        (async-shell-command (concat "ghc -S " (shell-quote-argument buffer-file-name)))
-      (user-error "Buffer is not visiting a file")))
-
-  :general
-  (:states '(normal)
-           :keymaps 'haskell-mode-map
-           :prefix "SPC"
-           "m"   '(:ignore t :which-key "make")
-           "m m" '(laooree-ghc-compile-and-run  :which-key "Compile and run (ghc)")
-           "m g" '(laooree-ghc-compile          :which-key "Compile with ghc")
-           "m s" '(laooree-ghc-produce-assembly :which-key "Produce assembly with ghc")
-           )
 
   :config
   (with-eval-after-load 'eglot
