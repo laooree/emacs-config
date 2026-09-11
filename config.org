@@ -230,8 +230,8 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 #+begin_src emacs-lisp :tangle "init.el"
 ;; Default fonts
 (let ((font-name (cond
-                  ((eq system-type 'windows-nt) "Iosevka NF")
-                  ((eq system-type 'gnu/linux)  "AdwaitaMono Nerd Font")))
+                  ((eq system-type 'windows-nt) "JetBrainsMono Nerd Font")
+                  ((eq system-type 'gnu/linux)  "JetBrainsMono Nerd Font")))
       (font-size (cond
                   ((eq system-type 'windows-nt) 120)
                   ((eq system-type 'gnu/linux)  140)
@@ -245,6 +245,28 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 Evaluate the following block to generate a list of available fonts:
 #+begin_src emacs-lisp
 (font-family-list)
+#+end_src
+
+Support ligatures:
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package ligature
+  :ensure t
+  :config
+  ;; Enable all ligatures in Haskell
+  (ligature-set-ligatures 'haskell-ts-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                             ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                             "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                             "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                             "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                             "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                             "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                             "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                             ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                             "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                             "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                             "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                             "\\\\" "://"))
+  (global-ligature-mode t))
 #+end_src
 
 * general.el + which-key
@@ -325,15 +347,15 @@ Evaluate the following block to generate a list of available fonts:
     (unless (display-graphic-p)
       (send-string-to-terminal "\e[3 q")))
 
-  ;; :hook
-  ;; ;; Set cursor shape
-  ;; (evil-emacs-state-entry    . laooree/set-cursor-block)
-  ;; (evil-insert-state-entry   . laooree/set-cursor-bar)
-  ;; (evil-motion-state-entry   . laooree/set-cursor-block)
-  ;; (evil-normal-state-entry   . laooree/set-cursor-block)
-  ;; (evil-operator-state-entry . laooree/set-cursor-underline)
-  ;; (evil-replace-state-entry  . laooree/set-cursor-underline)
-  ;; (evil-visual-state-entry   . laooree/set-cursor-block)
+  :hook
+  ;; Set cursor shape
+  (evil-emacs-state-entry    . laooree/set-cursor-block)
+  (evil-insert-state-entry   . laooree/set-cursor-bar)
+  (evil-motion-state-entry   . laooree/set-cursor-block)
+  (evil-normal-state-entry   . laooree/set-cursor-block)
+  (evil-operator-state-entry . laooree/set-cursor-underline)
+  (evil-replace-state-entry  . laooree/set-cursor-underline)
+  (evil-visual-state-entry   . laooree/set-cursor-block)
 
   :general
   (:states '(normal)
@@ -689,10 +711,9 @@ Add =risky-local-variable t= property to the expressions:
 ** Initial scratch buffer message
 #+begin_src emacs-lisp :tangle "init.el"
 (setq initial-scratch-message
-";;  ╱|、      +--------------+
-;; (˚ˎ。7     | do you need  |
-;;  |、˜〵    | a dashboard? |
-;; じしˍ,)ノ  +--------------+
+" /\\_/\\   +-------------+
+( o.o )  | dashboard?? |
+ > ^ <   +-------------+
 ")
 #+end_src
 
