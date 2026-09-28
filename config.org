@@ -233,7 +233,7 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 ;; Default fonts
 (let ((font-name (cond
                   ((eq system-type 'windows-nt) "JetBrainsMono Nerd Font")
-                  ((eq system-type 'gnu/linux)  "JetBrainsMono Nerd Font")))
+                  ((eq system-type 'gnu/linux)  "AdwaitaMono Nerd Font")))
       (font-size (cond
                   ((eq system-type 'windows-nt) 120)
                   ((eq system-type 'gnu/linux)  140)
@@ -247,28 +247,6 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 Evaluate the following block to generate a list of available fonts:
 #+begin_src emacs-lisp
 (font-family-list)
-#+end_src
-
-Support ligatures:
-#+begin_src emacs-lisp :tangle "init.el"
-(use-package ligature
-  :ensure t
-  :config
-  ;; Enable all ligatures in Haskell
-  (ligature-set-ligatures 'haskell-ts-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                             ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                             "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                             "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                             "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                             "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                             "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                             "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                             ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                             "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                             "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                             "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                             "\\\\" "://"))
-  (global-ligature-mode t))
 #+end_src
 
 * general.el + which-key
