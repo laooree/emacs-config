@@ -1074,6 +1074,9 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
            "o c" #'org-capture
            "i" '(:ignore t :which-key "insert")
            "i s" #'org-insert-block-template
+           "o k" '(:ignore t :which-key "org clock")
+           "o k i" #'org-agenda-clock-in
+           "o k o" #'org-agenda-clock-out
            )
 
   :config
@@ -1097,7 +1100,35 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
              "* %?\nEntered on %U\n")
             ("i" "Idea" entry (file+headline ,(expand-file-name "org/inbox.org" pcloud-base-folder) "Ideas")
              "* %?\n %U\n"))))
-)
+
+  ;; Org agenda settings
+  (setq org-agenda-skip-timestamp-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-skip-scheduled-if-done t)
+
+  (setq org-agenda-current-time-string ""
+        org-agenda-time-grid '((daily) () "" "")
+        org-agenda-prefix-format '(
+                                   (agenda . " %t ")
+                                   (todo   . "%i %-12:c")
+                                   (tags   . "%i %-12:c")
+                                   (search . "%i %-12:c")))
+  )
+#+end_src
+
+** Additional packages
+
+#+begin_src emacs-lisp :tangle "init.el"
+(use-package org-modern
+  :ensure t
+  :hook
+  (org-mode . org-modern-mode)
+  (org-agenda-finalize . org-modern-agenda))
+
+(use-package olivetti
+  :ensure t
+  :hook
+  (org-agenda-mode . olivetti-mode))
 #+end_src
 
 * Denote
