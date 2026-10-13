@@ -1075,8 +1075,8 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
            "i" '(:ignore t :which-key "insert")
            "i s" #'org-insert-block-template
            "o k" '(:ignore t :which-key "org clock")
-           "o k i" #'org-agenda-clock-in
-           "o k o" #'org-agenda-clock-out
+           "o k i" #'org-clock-in
+           "o k o" #'org-clock-out
            )
 
   :config
@@ -1113,18 +1113,29 @@ Corfu uses childframes, which are not available in tty for Emacs < 31. This pack
                                    (todo   . "%i %-12:c")
                                    (tags   . "%i %-12:c")
                                    (search . "%i %-12:c")))
+
+  ;; Report org clock time in decimals
+  (setq org-duration-format '(("h" . t) (special . 2)))
+
+  (defun laooree--org-clock-decimal-display ()
+    "Display the h:mm total on a CLOCK line as decimal hours (display only)."
+    (let ((h (string-to-number (match-string 1)))
+          (m (string-to-number (match-string 2))))
+      (put-text-property (match-beginning 1) (match-end 2) 'display
+                         (format "%.2f" (+ h (/ m 60.0))))
+      nil))
+
+  (add-to-list 'font-lock-extra-managed-props 'display)
+  (font-lock-add-keywords
+   'org-mode
+   '(("CLOCK:.*=>[ \t]+\\([0-9]+\\):\\([0-9]\\{2\\}\\)"
+      (0 (laooree--org-clock-decimal-display)))))
   )
 #+end_src
 
 ** Additional packages
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package org-modern
-  :ensure t
-  :hook
-  (org-mode . org-modern-mode)
-  (org-agenda-finalize . org-modern-agenda))
-
 (use-package olivetti
   :ensure t
   :hook
