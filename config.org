@@ -354,9 +354,9 @@ Evaluate the following block to generate a list of available fonts:
 
   :init
   (setq mood-line-segment-modal-evil-state-alist
-        '((normal   . (" NORMAL "   . (:foreground "#000000" :background "#ffffff")))
+        '((normal   . (" NORMAL "   . (:foreground "#000000" :background "#989898")))
           (insert   . (" INSERT "   . (:foreground "#000000" :background "#00d3d0")))
-          (visual   . (" VISUAL "   . (:foreground "#000000" :background "#f78fe7")))
+          (visual   . (" VISUAL "   . (:foreground "#000000" :background "#feacd0")))
           (replace  . (" REPLACE "  . (:foreground "#000000" :background "#ff7f9f")))
           (motion   . (" MOTION "   . (:foreground "#000000" :background "#2fafff")))
           (operator . (" OPERATOR " . (:foreground "#000000" :background "#44bc44")))
