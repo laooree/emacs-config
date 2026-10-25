@@ -163,11 +163,15 @@ Working with bleeding edge packages sometimes requires to update the built-in on
 * Theme
 
 #+begin_src emacs-lisp :tangle "init.el"
-(use-package doric-themes
-  :ensure t ;;(:type git :host github :repo "laooree/doric-themes")
+(use-package modus-themes
+  :ensure t
   :demand t
 
   :init
+  (setq modus-themes-common-palette-overrides
+        '((border-mode-line-active unspecified)
+          (border-mode-line-inactive unspecified)))
+
   (defun laooree-reset-terminal-cursor-color (&optional _)
     (unless (display-graphic-p)
       (send-string-to-terminal "\e]112\a")))
@@ -178,52 +182,16 @@ Working with bleeding edge packages sometimes requires to update the built-in on
        (format "\e]12;%s\a" (face-attribute 'cursor :background))
        (frame-terminal frame))))
 
-  (defun laooree-setup-theme (&rest _)
-    ;; Set modeline accent colors
-    (setq laooree-modeline--accent-color-normal   (face-attribute 'font-lock-comment-face :foreground nil t)
-          laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground nil t)
-          laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground nil t)
-          laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground nil t)
-          laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground nil t)
-          laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground nil t)
-          laooree-modeline-accent-color laooree-modeline--accent-color-normal)
-
-    ;; Disable modeline underlines
-    (set-face-attribute 'mode-line nil          :underline nil :box nil)
-    (set-face-attribute 'mode-line-inactive nil :underline nil :box nil)
-
-    ;; Set beacon color
-    (setq beacon-color (face-attribute 'cursor :background))
-
-    (set-face-attribute 'font-lock-comment-face nil :slant 'normal)
-    (set-face-attribute 'font-lock-comment-delimiter-face nil :slant 'normal)
-
-    ;; Set cursor color when in terminal mode
-    (laooree-set-terminal-cursor-color)
-
-    ;; Set evil faces
-    (with-eval-after-load 'evil
-      (set-face-attribute 'evil-ex-substitute-matches     nil :underline nil :strike-through t)
-      (set-face-attribute 'evil-ex-substitute-replacement nil :foreground 'unspecified)
-      )
-    )
-
   :hook
-  (doric-themes-after-load-theme . laooree-setup-theme)
+  (modus-themes-after-load-theme . laooree-setup-theme)
   (delete-terminal-functions     . laooree-reset-terminal-cursor-color)
   (kill-emacs                    . laooree-reset-terminal-cursor-color)
   (after-make-frame-functions    . laooree-set-terminal-cursor-color)
 
-  :bind
-  (("<f5>"   . doric-themes-toggle)
-   ("C-<f5>" . doric-themes-select)
-   ("M-<f5>" . doric-themes-rotate))
-
   :config
   (advice-add 'server-edit :before #'laooree-reset-terminal-cursor-color)
   (advice-add 'save-buffers-kill-terminal :before #'laooree-reset-terminal-cursor-color)
-  (load-theme 'doric-obsidian :no-confirm)
-  (laooree-setup-theme)
+  (load-theme 'modus-vivendi :no-confirm)
   )
 #+end_src
 
@@ -379,245 +347,23 @@ Evaluate the following block to generate a list of available fonts:
 
 * Mode-line
 
-My =mode-line-format= is made by expressions stored in local variables. The following "Functions" section collects the auxiliary functions that are used in these expression. The section "Expressions" contains the aforementioned expressions.
-*Remark:* it is important that the expression variables have the =risky-local-variable t= property, as they contain emacs-lisp expressions that will be evaluated.
-
-** laooree-modeline
-
-*** Variables
-
-#+begin_src  emacs-lisp :tangle "init.el"
-(defvar-local laooree-modeline-accent-color (face-attribute 'mode-line-active :foreground)
-  "Accent color to be used in the mode line.")
-#+end_src
-
-*** Functions
-
-#+begin_src  emacs-lisp :tangle "init.el"
-(defun laooree-modeline--with-indicator (instring bg-color text-color)
-  "Returns `instring' inside an indicator with specified `bg-color'.
-If non-nil, `text-color' specifies instring color."
-  (let ((str (copy-sequence instring)))
-    (if text-color
-        (add-face-text-property 0 (length str) `(:background ,bg-color :foreground ,text-color) t str)
-      (add-face-text-property 0 (length str) `(:background ,bg-color) t str))
-    str)
-  )
-
-(defun laooree-modeline--buffer-status ()
-  "Returns a glyph representing the buffer status."
-  (unless (eq buffer-file-name nil)
-    (cond ((eq buffer-read-only t) " ")
-          ((buffer-modified-p) "󰙏 ")
-          (t ""))))
-
-(defun laooree-modeline--evil-state-indicator ()
-  "Get evil-mode state tag with propertized faces."
-  (laooree-modeline--with-indicator evil-mode-line-tag laooree-modeline-accent-color (face-attribute 'default :background)))
-
-;; Require flymake (built-in)
-(use-package flymake
-  :ensure nil
-  :demand t)
-
-;; Taken from mood-line package
-(defun laooree-modeline--flymake-count (type)
-  "Return count of current flymake reports of TYPE."
-  (cl-loop for diag in (flymake-diagnostics)
-           as diag-type = (flymake-diagnostic-type diag)
-           count (eq (flymake--lookup-type-property diag-type 'severity)
-                     (flymake--lookup-type-property type 'severity))))
-
-(defun laooree-modeline--flymake-diagnostics ()
-  "Get `:error', `:warning', and `:note' flymake diagnostic count."
-  (let ((error-count (laooree-modeline--flymake-count :error))
-        (warning-count (laooree-modeline--flymake-count :warning))
-        (note-count (laooree-modeline--flymake-count :note)))
-    (concat (cond ((= error-count 0) (propertize (format " %s " error-count) 'face 'font-lock-comment-face))
-                  (t (propertize (format " %s " error-count) 'face 'error)))
-            (cond ((= warning-count 0) (propertize (format " %s " warning-count) 'face 'font-lock-comment-face))
-                  (t (propertize (format " %s " warning-count) 'face 'warning)))
-            (cond ((= note-count 0) (propertize (format "󱂻 %s" note-count) 'face 'font-lock-comment-face))
-                  (t (propertize (format "󱂻 %s" note-count) 'face 'success))))))
-
-(defun laooree-modeline--major-mode-name ()
-  "Get a string with buffer major mode name, without `-mode' and `-'."
-  (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode)))
-  )
-
-(defun laooree-modeline--major-mode-with-icons ()
-  "Add icon to major-mode name, if relevant."
-  (cond ((string= (laooree-modeline--major-mode-name) "org")              " Org Mode")
-        ((string= (laooree-modeline--major-mode-name) "c ts")             " C (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "c")                " C")
-        ((string= (laooree-modeline--major-mode-name) "dired")            "  Dired")
-        ((string= (laooree-modeline--major-mode-name) "emacs lisp")       " Emacs Lisp")
-        ((string= (laooree-modeline--major-mode-name) "haskell ts")       " Haskell (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "haskell")          " Haskell")
-        ((string= (laooree-modeline--major-mode-name) "latex ts")         " LaTeX (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "LaTeX")            " LaTeX")
-        ((string= (laooree-modeline--major-mode-name) "lua ts")           " Lua (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "lua")              " Lua")
-        ((string= (laooree-modeline--major-mode-name) "matlab ts")        " Matlab (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "matlab")           " Matlab")
-        ((string= (laooree-modeline--major-mode-name) "nix ts")           "󱄅 Nix (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "nix")              "󱄅 Nix")
-        ((string= (laooree-modeline--major-mode-name) "python ts")        " Python (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "python")           " Python")
-        ((string= (laooree-modeline--major-mode-name) "bash ts")          "#! Bash (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "bash")             "#! Bash")
-        ((string= (laooree-modeline--major-mode-name) "typst ts")         " Typst (tree-sitter)")
-        ((string= (laooree-modeline--major-mode-name) "typst")            " Typst")
-        ((string= (laooree-modeline--major-mode-name) "lisp interaction") " Lisp Interaction")
-        (t (capitalize (laooree-modeline--major-mode-name)))
-        )
-  )
-
-
-(defun laooree-modeline--major-mode-indicator ()
-  "Returns an indicator for the major mode name in the mode-line."
-  (propertize (format " %s" (laooree-modeline--major-mode-with-icons)) 'face `(:foreground ,(face-attribute 'font-lock-comment-face :foreground)))
-  )
-
-(defun laooree-modeline--defining-kbd-macro ()
-  "Indicate if a keyboard macro is being defined."
-  (cond (defining-kbd-macro (concat (propertize "" 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))
-                                    (propertize "  Rec" 'face `(:background ,(face-attribute 'mode-line :foreground) :foreground ,(face-attribute 'default :background)))
-                                    (propertize " " 'face `(:background ,(face-attribute 'mode-line :background) :foreground ,(face-attribute 'mode-line :foreground)))))
-        (t "")))
-
-(defun laooree-modeline--scroll-indicator ()
-  "Indicate scroll position.
-Shows current/total lines, or percentage when `display-line-numbers-mode' is active."
-  (let* ((indicator
-          (cond
-           ((eq evil-state 'visual) (let ((selected-lines (count-lines (region-beginning) (region-end)))
-                                          (selected-chars (+ 1 (- (region-end) (region-beginning)))))
-                                      (format " %dL %dC " selected-lines selected-chars)))
-           (display-line-numbers-mode (let* ((value (format "%.0f" (/ (* 100.0 (point)) (point-max))))
-                                             (percent (cond ((string= value "100") "Bot")
-                                                            ((string= value "0")   "Top")
-                                                            (t (concat value "%%")))))
-                                        (concat " " percent " ")))
-           (t (let ((total-lines (line-number-at-pos (point-max)))
-                    (current-line (line-number-at-pos (point))))
-                (format " %d/%d " current-line total-lines))))))
-    (laooree-modeline--with-indicator indicator
-     laooree-modeline-accent-color (face-attribute 'default :background))))
-
-(defun laooree-modeline--set-accent-color (accent-color)
-  "Set the accent color of the laooree-modeline."
-  (setq laooree-modeline-accent-color accent-color))
-#+end_src
-
-*** Expressions
-
 #+begin_src emacs-lisp :tangle "init.el"
-(defvar-local laooree-modeline-buffer-name
-    '(:eval
-      (cond ((mode-line-window-selected-p) (propertize (buffer-name) 'face 'bold))
-            ("t" (buffer-name))
-            ))
-  "Expression to show buffer-name on the mode-line.")
+(use-package mood-line
+  :ensure t
+  :after evil
 
-(defvar-local laooree-modeline-buffer-status
-    '(:eval (laooree-modeline--buffer-status))
-  "Expression to show current buffer status on the mode-line.")
+  :init
+  (setq mood-line-segment-modal-evil-state-alist
+        '((normal   . (" NORMAL "   . (:foreground "#000000" :background "#ffffff")))
+          (insert   . (" INSERT "   . (:foreground "#000000" :background "#00d3d0")))
+          (visual   . (" VISUAL "   . (:foreground "#000000" :background "#f78fe7")))
+          (replace  . (" REPLACE "  . (:foreground "#000000" :background "#ff7f9f")))
+          (motion   . (" MOTION "   . (:foreground "#000000" :background "#2fafff")))
+          (operator . (" OPERATOR " . (:foreground "#000000" :background "#44bc44")))
+          (emacs    . (" EMACS "    . (:foreground "#000000" :background "#d0bc00")))))
 
-(defvar-local laooree-modeline-evil-state-tag
-    '(:eval
-      (when (mode-line-window-selected-p)
-        (laooree-modeline--evil-state-tag)))
-  "Expression to show current evil state on the focused mode-line.")
-
-(defvar-local laooree-modeline-evil-state-indicator
-    '(:eval
-      (when (mode-line-window-selected-p)
-        (laooree-modeline--evil-state-indicator)))
-  "Expression to show current evil state on the focused mode-line.")
-
-(defvar-local laooree-modeline-flymake-diagnostics
-    '(:eval (when (and flymake-mode (mode-line-window-selected-p))
-              (concat (laooree-modeline--flymake-diagnostics) " ")))
-  "Expression to show flymake diagnostics count on the focused mode-line.")
-
-(defvar-local laooree-modeline-major-mode
-    '(:eval (laooree-modeline--major-mode-indicator))
-  "Expression to show buffer major mode on the mode-line.")
-
-(defvar-local laooree-modeline-keyboard-macro-indicator
-    '(:eval (concat " " (laooree-modeline--defining-kbd-macro)))
-  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
-
-(defvar-local laooree-modeline-scroll-indicator
-    '(:eval (when (mode-line-window-selected-p)
-        (laooree-modeline--scroll-indicator)))
-  "Expression to indicate on the mode-line when a keyboard macro is being defined.")
-
-(defvar laooree-modeline-format
-  '(""
-    laooree-modeline-evil-state-indicator
-    laooree-modeline-keyboard-macro-indicator
-    laooree-modeline-buffer-status
-    laooree-modeline-buffer-name
-    laooree-modeline-major-mode
-    mode-line-format-right-align
-    laooree-modeline-flymake-diagnostics
-    laooree-modeline-scroll-indicator
-    )
-  "Variable containing the `mode-line-format' specification for `laooree-modeline'.")
-#+end_src
-
-Add =risky-local-variable t= property to the expressions:
-
-#+begin_src emacs-lisp :tangle "init.el"
-(dolist (expression '(laooree-modeline-buffer-name
-                      laooree-modeline-buffer-status
-                      laooree-modeline-evil-state-tag
-                      laooree-modeline-evil-state-indicator
-                      laooree-modeline-flymake-diagnostics
-                      laooree-modeline-major-mode
-                      laooree-modeline-keyboard-macro-indicator
-                      laooree-modeline-format
-                      laooree-modeline-scroll-indicator
-                      ))
-  (put expression 'risky-local-variable t))
-#+end_src
-
-*** Evil-mode
-#+begin_src emacs-lisp :tangle "init.el"
-(with-eval-after-load 'evil
-    ;; Define accent colors related to evil states.
-    (defvar laooree-modeline--accent-color-normal   (face-attribute 'mode-line-inactive :foreground)
-      "Accent color to use when evil-state is normal.")
-    (defvar laooree-modeline--accent-color-emacs    (face-attribute 'mode-line :foreground)
-      "Accent color to use when evil-state is emacs.")
-    (defvar laooree-modeline--accent-color-insert   (face-attribute 'mode-line :foreground)
-      "Accent color to use when evil-state is insert.")
-    (defvar laooree-modeline--accent-color-operator (face-attribute 'mode-line :foreground)
-      "Accent color to use when evil-state is operator.")
-    (defvar laooree-modeline--accent-color-replace  (face-attribute 'mode-line :foreground)
-      "Accent color to use when evil-state is replace.")
-    (defvar laooree-modeline--accent-color-visual   (face-attribute 'mode-line :foreground)
-      "Accent color to use when evil-state is visual.")
-
-    ;; Set relevant accent color when entering evil state.
-    (add-hook 'evil-normal-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-normal)))
-    (add-hook 'evil-emacs-state-entry-hook    (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-emacs)))
-    (add-hook 'evil-insert-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-insert)))
-    (add-hook 'evil-operator-state-entry-hook (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-operator)))
-    (add-hook 'evil-replace-state-entry-hook  (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-replace)))
-    (add-hook 'evil-visual-state-entry-hook   (lambda () (laooree-modeline--set-accent-color laooree-modeline--accent-color-visual)))
-    )
-#+end_src
-*** Hooks
-#+begin_src emacs-lisp :tangle "init.el"
-;; Force mode-line update after every command
-(add-hook 'post-command-hook #'force-mode-line-update)
-#+end_src
-*** Enable
-#+begin_src  emacs-lisp :tangle "init.el"
-(setq-default mode-line-format laooree-modeline-format)
+  :config
+  (mood-line-mode))
 #+end_src
 
 * UI and UX
